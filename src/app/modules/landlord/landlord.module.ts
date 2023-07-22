@@ -9,6 +9,8 @@ import { SystemComponent } from './component/system/system.component';
 import { AccomodationsComponent } from './component/accomodations/accomodations.component';
 import { HeaderComponent } from './layout/header/header.component';
 import { SharedModuleModule } from '../shared-module/shared-module.module';
+import { SidebarComponent } from './layout/sidebar/sidebar.component';
+import { MenuitemComponent } from './layout/menuitem/menuitem.component';
 
 @NgModule({
   declarations: [
@@ -18,6 +20,8 @@ import { SharedModuleModule } from '../shared-module/shared-module.module';
     SystemComponent,
     AccomodationsComponent,
     HeaderComponent,
+    SidebarComponent,
+    MenuitemComponent,
   ],
   imports: [
     CommonModule,

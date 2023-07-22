@@ -1,3 +1,27 @@
 .landlord-container {
-    
+    height: 100vh;
+    width: 100vw;
+}
+
+.container {
+    display: flex;
+    width: 100%;
+}
+
+.sidebar-container {
+    width: 250px;
+    background-color: burlywood;
+    height: 100%;
+}
+
+.content-container {
+    width: 100%;
+}
+
+.header {
+    flex: 1;
+}
+
+.content {
+    flex: 1;
 }
