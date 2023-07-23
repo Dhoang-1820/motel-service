@@ -2,15 +2,25 @@ interface InventoryStatus {
     label: string;
     value: string;
 }
-export interface Product {
+export interface Accomodation {
     id?: string;
-    code?: string;
     name?: string;
-    description?: string;
-    price?: number;
-    quantity?: number;
-    inventoryStatus?: InventoryStatus;
-    category?: string;
-    image?: string;
-    rating?: number;
+    waterPrice?: number;
+    electricPrice?: number;
+    address?: string;
+}
+export interface OtherFee {
+    id?: string;
+    name?: string;
+    price?: string;
+}
+export interface Room {
+    id?: number,
+    name?: string,
+    acreage?: number,
+    airConditionor?: boolean,
+    internet?: boolean,
+    isRent?: boolean,
+    maxCapacity?: number,
+    price?: number
 }

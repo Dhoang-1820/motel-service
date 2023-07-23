@@ -1,48 +1,40 @@
 import { Component, OnInit } from '@angular/core'
-import { OtherFee, Accomodation } from '../../model/accomodation.model'
-import { MessageService } from 'primeng/api'
+import { Room } from '../../model/accomodation.model'
 import { AccomodationService } from '../../service/accomodation.service'
+import { MessageService } from 'primeng/api'
 import { Table } from 'primeng/table'
 
+interface Accomodation {
+  id?: number,
+  name?: string
+}
+
 @Component({
-    selector: 'app-accomodations',
-    templateUrl: './accomodations.component.html',
-    styleUrls: ['./accomodations.component.scss'],
+    selector: 'app-room',
+    templateUrl: './room.component.html',
+    styleUrls: ['./room.component.scss'],
     providers: [MessageService],
 })
-export class AccomodationsComponent implements OnInit {
+export class RoomComponent implements OnInit {
     productDialog: boolean = false
-
     otherFeesDialog: boolean = false
-
     deleteProductDialog: boolean = false
-
     deleteProductsDialog: boolean = false
-
     accomodations: Accomodation[] = []
-
-    accomodation: Accomodation = {}
-
-    selectedProducts: Accomodation[] = []
-
+    selectedAccomodation!: Accomodation
+    rooms: Room[] = []
+    room: Room = {}
+    selectedProducts: Room[] = []
     submitted: boolean = false
-
     cols: any[] = []
-
     statuses: any[] = []
-
     rowsPerPageOptions = [5, 10, 20]
-
-    otherFees: OtherFee[] = []
-
-    otherFee: OtherFee = {}
-
     selectedService: string[] = []
 
-    constructor(private accomodationService: AccomodationService, private messageService: MessageService) {}
+    constructor(private productService: AccomodationService, private messageService: MessageService) {}
 
     ngOnInit() {
-        this.accomodationService.getProducts().then((data) => (this.accomodations = data))
+        // this.productService.getProducts().then((data) => (this.accomodations = data))
 
         this.cols = [
             { field: 'product', header: 'Accomodation' },
@@ -58,31 +50,13 @@ export class AccomodationsComponent implements OnInit {
             { label: 'OUTOFSTOCK', value: 'outofstock' },
         ]
 
-        this.selectedService = [
-            'waterPrice', 'electricPrice'
-        ]
+        this.selectedService = []
 
-        this.accomodationService.getAllAccomodation().subscribe(data => console.log('data', data))
-    }
-
-    openOtherFee() {
-        this.otherFee = {}
-        this.otherFeesDialog = true;
-    }
-
-    hideOtherFeeDialog() {
-        this.otherFeesDialog = false;
-        this.submitted = false
-    }
-
-    saveOtherFee() {
-        this.otherFees.push(this.otherFee);
-        this.otherFee = {}
-        this.otherFeesDialog = false;
+        this.accomodations.push({id: 1, name: 'asdgsdg'})
     }
 
     openNew() {
-        this.accomodation = {}
+        this.room = {}
         this.submitted = false
         this.productDialog = true
     }
@@ -91,68 +65,57 @@ export class AccomodationsComponent implements OnInit {
         this.deleteProductsDialog = true
     }
 
-    editProduct(accomodation: Accomodation) {
-        this.accomodation = { ...accomodation }
+    editProduct(room: Room) {
+        this.room = { ...room }
         this.productDialog = true
     }
 
-    deleteProduct(accomodation: Accomodation) {
+    deleteProduct(room: Room) {
         this.deleteProductDialog = true
-        this.accomodation = { ...accomodation }
+        this.room = { ...room }
     }
 
     confirmDeleteSelected() {
         this.deleteProductsDialog = false
-        this.accomodations = this.accomodations.filter((val) => !this.selectedProducts.includes(val))
+        this.rooms = this.rooms.filter((val) => !this.selectedProducts.includes(val))
         this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 })
         this.selectedProducts = []
     }
 
     confirmDelete() {
         this.deleteProductDialog = false
-        this.accomodations = this.accomodations.filter((val) => val.id !== this.accomodation.id)
+        this.rooms = this.rooms.filter((val) => val.id !== this.room.id)
         this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Accomodation Deleted', life: 3000 })
-        this.accomodation = {}
+        this.room = {}
     }
 
     hideDialog() {
         this.productDialog = false
         this.submitted = false
+        console.log(this.room)
     }
 
     saveProduct() {
         this.submitted = true
 
-        if (this.accomodation.name?.trim()) {
-            if (this.accomodation.id) {
+        if (this.room.name?.trim()) {
+            if (this.room.id) {
                 // @ts-ignore
-                this.accomodation.inventoryStatus = this.accomodation.inventoryStatus.value ? this.accomodation.inventoryStatus.value : this.accomodation.inventoryStatus
-                this.accomodations[this.findIndexById(this.accomodation.id)] = this.accomodation
+                this.room.inventoryStatus = this.room.inventoryStatus.value ? this.room.inventoryStatus.value : this.room.inventoryStatus
+                // this.rooms[this.findIndexById(this.room.id)] = this.room
                 this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Accomodation Updated', life: 3000 })
             } else {
-                this.accomodation.id = this.createId()
+                // this.room.id = this.createId()
                 // @ts-ignore
-                this.accomodation.inventoryStatus = this.accomodation.inventoryStatus ? this.accomodation.inventoryStatus.value : 'INSTOCK'
-                this.accomodations.push(this.accomodation)
+                this.room.inventoryStatus = this.room.inventoryStatus ? this.room.inventoryStatus.value : 'INSTOCK'
+                this.rooms.push(this.room)
                 this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Accomodation Created', life: 3000 })
             }
 
-            this.accomodations = [...this.accomodations]
+            this.rooms = [...this.rooms]
             this.productDialog = false
-            this.accomodation = {}
+            this.room = {}
         }
-    }
-
-    findIndexById(id: string): number {
-        let index = -1
-        for (let i = 0; i < this.accomodations.length; i++) {
-            if (this.accomodations[i].id === id) {
-                index = i
-                break
-            }
-        }
-
-        return index
     }
 
     createId(): string {

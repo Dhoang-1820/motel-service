@@ -11,6 +11,10 @@ import { HeaderComponent } from './layout/header/header.component';
 import { SharedModuleModule } from '../shared-module/shared-module.module';
 import { SidebarComponent } from './layout/sidebar/sidebar.component';
 import { MenuitemComponent } from './layout/menuitem/menuitem.component';
+import { RoomComponent } from './component/room/room.component';
+import { ServiceComponent } from './component/serviceManagement/service.component';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { JwtInterceptor } from './helper/jwt.interceptor';
 
 @NgModule({
   declarations: [
@@ -22,6 +26,8 @@ import { MenuitemComponent } from './layout/menuitem/menuitem.component';
     HeaderComponent,
     SidebarComponent,
     MenuitemComponent,
+    RoomComponent,
+    ServiceComponent,
   ],
   imports: [
     CommonModule,

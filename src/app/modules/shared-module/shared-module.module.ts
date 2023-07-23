@@ -16,6 +16,9 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { CheckboxModule } from 'primeng/checkbox';
+import { PasswordModule } from 'primeng/password';
+import {RouterModule} from '@angular/router';
+
 
 @NgModule({
   declarations: [],
@@ -38,7 +41,9 @@ import { CheckboxModule } from 'primeng/checkbox';
     InputTextareaModule,
     RadioButtonModule,
     InputNumberModule,
-    CheckboxModule
+    CheckboxModule,
+    PasswordModule,
+    RouterModule
   ],
 })
 export class SharedModuleModule { }

@@ -25,7 +25,7 @@ export class SidebarComponent implements OnInit {
           items: [
               { label: 'Nhà trọ', icon: 'pi pi-fw pi-id-card', routerLink: ['/motel-management/accomodation'] },
               { label: 'Phòng', icon: 'pi pi-fw pi-check-square', routerLink: ['/motel-management/room'] },
-              { label: 'Dịch vụ', icon: 'pi pi-fw pi-bookmark', routerLink: ['/uikit/floatlabel'] },
+              { label: 'Dịch vụ', icon: 'pi pi-fw pi-bookmark', routerLink: ['/motel-management/service'] },
               { label: 'Thiết bị', icon: 'pi pi-fw pi-exclamation-circle', routerLink: ['/uikit/invalidstate'] }
           ]
       },
