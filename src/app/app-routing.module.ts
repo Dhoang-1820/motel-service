@@ -3,6 +3,11 @@ import { RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
   {
+    path: '',
+    redirectTo: '/motel-service',
+    pathMatch: 'full'
+  },
+  {
     path: 'motel-management',
     loadChildren: () =>
       import('./modules/landlord/landlord.module').then(

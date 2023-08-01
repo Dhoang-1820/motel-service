@@ -4,6 +4,7 @@ import { User } from '../../model/user.model'
 import { Router } from '@angular/router'
 import { HttpClient } from '@angular/common/http'
 import { environment } from 'src/environments/environment'
+import { JsonPipe } from '@angular/common'
 
 @Injectable({
     providedIn: 'root',
@@ -36,4 +37,24 @@ export class AuthenticationService {
         this.userSubject.next(null)
         this.router.navigate(['/login'])
     }
+
+    refreshToken() {
+        console.log(this.userValue?.refreshToken)
+        return this.http.post<any>(`${environment.apiUrl}/user/auth/refreshtoken`, {refreshToken: this.userValue?.refreshToken}).pipe(
+            map((data) => {
+                if (this.userValue) {
+                    this.userValue.token = data.accessToken
+                    this.userValue.refreshToken = data.refreshToken
+                    this.userSubject.next(this.userValue)
+                    localStorage['user'] = JSON.stringify(this.userValue)
+                    return this.userValue
+                } else {
+                    this.router.navigate(['/login'])
+                    return null
+                }
+            }),
+        )
+    }
+
+
 }

@@ -24,4 +24,29 @@ export class AccomodationService {
             delay(1000),
         )
     }
+
+    getDropdownAccomodation(id: any): Observable<any> {
+        return this.http.get<any>(`${environment.apiUrl}/accomodation/utility/${id}`).pipe(retry(1), delay(1000))
+    }
+
+    saveAccomodation(request: Accomodation): Observable<any> {
+        return this.http.post<any>(`${environment.apiUrl}/accomodation`, request).pipe(
+            retry(1),
+            delay(1000)
+        )
+    }
+
+    removeAccomodation(id: any): Observable<any> {
+        return this.http.delete<any>(`${environment.apiUrl}/accomodation/${id}`).pipe(
+            retry(1),
+            delay(1000)
+        )
+    }
+
+    getAccomodationByUserId(id: any): Observable<any> {
+        return this.http.get<any>(`${environment.apiUrl}/accomodation/${id}`).pipe(
+            retry(1),
+            delay(1000)
+        )
+    }
 }

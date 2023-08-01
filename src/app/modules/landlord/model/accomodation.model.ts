@@ -1,16 +1,8 @@
-interface InventoryStatus {
-    label: string;
-    value: string;
-}
-export interface Accomodation {
-    id?: string;
-    name?: string;
-    waterPrice?: number;
-    electricPrice?: number;
-    address?: string;
-}
+
+
 export interface OtherFee {
-    id?: string;
+    accomodationId?: number;
+    id?: number;
     name?: string;
     price?: string;
 }
@@ -23,4 +15,15 @@ export interface Room {
     isRent?: boolean,
     maxCapacity?: number,
     price?: number
+}
+
+export interface Accomodation {
+    id?: number;
+    name?: string;
+    waterPrice?: number;
+    electricPrice?: number;
+    address?: string;
+    userId?: number;
+    isActive?: boolean;
+    otherFees?: OtherFee[];
 }

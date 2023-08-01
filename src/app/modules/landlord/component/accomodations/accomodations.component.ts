@@ -3,6 +3,10 @@ import { OtherFee, Accomodation } from '../../model/accomodation.model'
 import { MessageService } from 'primeng/api'
 import { AccomodationService } from '../../service/accomodation.service'
 import { Table } from 'primeng/table'
+import { finalize } from 'rxjs'
+import { User } from 'src/app/modules/model/user.model'
+import { AuthenticationService } from 'src/app/modules/auth/service/authentication.service'
+import { OtherFeeService } from '../../service/other-fee.service'
 
 @Component({
     selector: 'app-accomodations',
@@ -12,73 +16,122 @@ import { Table } from 'primeng/table'
 })
 export class AccomodationsComponent implements OnInit {
     productDialog: boolean = false
-
     otherFeesDialog: boolean = false
-
     deleteProductDialog: boolean = false
-
     deleteProductsDialog: boolean = false
-
     accomodations: Accomodation[] = []
-
     accomodation: Accomodation = {}
-
     selectedProducts: Accomodation[] = []
-
     submitted: boolean = false
-
-    cols: any[] = []
-
-    statuses: any[] = []
-
     rowsPerPageOptions = [5, 10, 20]
-
     otherFees: OtherFee[] = []
-
     otherFee: OtherFee = {}
+    selectedService: any[] = []
+    selectedOtherFees: any[] = []
+    dataLoading: boolean = false
+    loading: boolean = false
+    user!: User | null
 
-    selectedService: string[] = []
-
-    constructor(private accomodationService: AccomodationService, private messageService: MessageService) {}
+    constructor(
+        private accomodationService: AccomodationService,
+        private messageService: MessageService,
+        private auth: AuthenticationService,
+        private otherFeeService: OtherFeeService,
+    ) {}
 
     ngOnInit() {
-        this.accomodationService.getProducts().then((data) => (this.accomodations = data))
+        this.selectedService = ['waterPrice', 'electricPrice']
+        this.user = this.auth.userValue
+        this.getAccomodationsByUser()
+    }
 
-        this.cols = [
-            { field: 'product', header: 'Accomodation' },
-            { field: 'price', header: 'Price' },
-            { field: 'category', header: 'Category' },
-            { field: 'rating', header: 'Reviews' },
-            { field: 'inventoryStatus', header: 'Status' },
-        ]
-
-        this.statuses = [
-            { label: 'INSTOCK', value: 'instock' },
-            { label: 'LOWSTOCK', value: 'lowstock' },
-            { label: 'OUTOFSTOCK', value: 'outofstock' },
-        ]
-
-        this.selectedService = [
-            'waterPrice', 'electricPrice'
-        ]
-
-        this.accomodationService.getAllAccomodation().subscribe(data => console.log('data', data))
+    getAccomodationsByUser() {
+        this.dataLoading = true
+        this.accomodationService
+            .getAccomodationByUserId(this.user?.id)
+            .pipe(
+                finalize(() => {
+                    this.dataLoading = false
+                    this.fillOtherFee()
+                }),
+            )
+            .subscribe((result) => (this.accomodations = result.data))
     }
 
     openOtherFee() {
         this.otherFee = {}
-        this.otherFeesDialog = true;
+        this.otherFeesDialog = true
     }
 
     hideOtherFeeDialog() {
-        this.otherFeesDialog = false;
+        this.otherFeesDialog = false
         this.submitted = false
     }
 
+    test() {
+        console.log('test', this.selectedOtherFees)
+    }
+
+    fillOtherFee() {
+        this.selectedOtherFees = []
+        this.accomodations.forEach((item) => {
+            item.otherFees?.forEach((fee) => {
+                this.selectedOtherFees.push(fee)
+            })
+        })
+    }
+
     saveOtherFee() {
-        this.otherFees.push(this.otherFee);
+        if (this.accomodation.id) {
+            this.loading = true
+            if (this.accomodation.otherFees) {
+                let id = this.accomodation.otherFees.findIndex((item) => item.id === this.otherFee.id)
+                console.log(this.accomodation.otherFees[id])
+                this.accomodation.otherFees[id] = this.otherFee
+                this.otherFee.accomodationId = this.accomodation.id
+                this.otherFeeService
+                    .saveOtherFee(this.otherFee)
+                    .pipe(
+                        finalize(() => {
+                            this.loading = false
+                            this.otherFeesDialog = false
+                        }),
+                    )
+                    .subscribe((data) => console.log(data))
+            }
+        } else {
+            this.otherFees.push(this.otherFee)
+            if (this.accomodation.otherFees) {
+                this.accomodation.otherFees?.push(this.otherFee)
+            } else {
+                this.accomodation.otherFees = []
+                this.accomodation.otherFees?.push(this.otherFee)
+            }
+            this.selectedOtherFees.push(this.otherFee)
+        }
         this.otherFee = {}
-        this.otherFeesDialog = false;
+        this.otherFeesDialog = false
+    }
+
+    editOtherFee(otherFee: OtherFee) {
+        this.otherFee = { ...otherFee }
+        this.otherFeesDialog = true
+    }
+
+    deleteOtherFee(otherFee: OtherFee) {
+        this.otherFee = { ...otherFee }
+        if (this.otherFee.id) {
+            this.loading = true
+            this.otherFeeService
+                .deleteOtherFee(this.otherFee.id)
+                .pipe(
+                    finalize(() => {
+                        this.accomodation.otherFees = this.accomodation.otherFees?.filter((val) => val.id !== this.otherFee.id)
+                        this.loading = false
+                    }),
+                )
+                .subscribe((data) => console.log(data))
+        }
     }
 
     openNew() {
@@ -111,57 +164,38 @@ export class AccomodationsComponent implements OnInit {
     confirmDelete() {
         this.deleteProductDialog = false
         this.accomodations = this.accomodations.filter((val) => val.id !== this.accomodation.id)
+        this.accomodationService.removeAccomodation(this.accomodation.id).pipe().subscribe()
         this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Accomodation Deleted', life: 3000 })
         this.accomodation = {}
     }
 
     hideDialog() {
+        let index = this.accomodation.otherFees?.findIndex((item) => item.name == this.otherFee.name)
+        console.log(this.otherFee)
+        console.log(index)
+        if (index && index > 0) {
+            this.accomodation.otherFees?.splice(index, 1)
+        }
         this.productDialog = false
         this.submitted = false
+        this.otherFee = {}
     }
 
-    saveProduct() {
-        this.submitted = true
-
-        if (this.accomodation.name?.trim()) {
-            if (this.accomodation.id) {
-                // @ts-ignore
-                this.accomodation.inventoryStatus = this.accomodation.inventoryStatus.value ? this.accomodation.inventoryStatus.value : this.accomodation.inventoryStatus
-                this.accomodations[this.findIndexById(this.accomodation.id)] = this.accomodation
-                this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Accomodation Updated', life: 3000 })
-            } else {
-                this.accomodation.id = this.createId()
-                // @ts-ignore
-                this.accomodation.inventoryStatus = this.accomodation.inventoryStatus ? this.accomodation.inventoryStatus.value : 'INSTOCK'
-                this.accomodations.push(this.accomodation)
-                this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Accomodation Created', life: 3000 })
-            }
-
-            this.accomodations = [...this.accomodations]
-            this.productDialog = false
-            this.accomodation = {}
-        }
-    }
-
-    findIndexById(id: string): number {
-        let index = -1
-        for (let i = 0; i < this.accomodations.length; i++) {
-            if (this.accomodations[i].id === id) {
-                index = i
-                break
-            }
-        }
-
-        return index
-    }
-
-    createId(): string {
-        let id = ''
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-        for (let i = 0; i < 5; i++) {
-            id += chars.charAt(Math.floor(Math.random() * chars.length))
-        }
-        return id
+    saveAccomodation() {
+        this.accomodation.isActive = true
+        this.accomodation.otherFees = this.otherFees
+        this.accomodation.userId = this.user?.id
+        this.dataLoading = true
+        this.accomodationService
+            .saveAccomodation(this.accomodation)
+            .pipe(
+                finalize(() => {
+                    this.submitted = false
+                    this.getAccomodationsByUser()
+                }),
+            )
+            .subscribe((data) => console.log(data))
+        this.productDialog = false
     }
 
     onGlobalFilter(table: Table, event: Event) {

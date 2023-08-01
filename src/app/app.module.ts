@@ -4,7 +4,7 @@ import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { JwtInterceptor } from './modules/landlord/helper/jwt.interceptor';
+import { JwtInterceptor } from './modules/auth/helper/jwt.interceptor';
 
 
 @NgModule({

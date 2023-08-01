@@ -4,5 +4,6 @@ export class User {
     firstName?: string;
     lastName?: string;
     token?: string;
-    role?: string[]
+    refreshToken?: string;
+    roles: string[] = [];
 }

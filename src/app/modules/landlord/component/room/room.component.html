@@ -11,7 +11,9 @@
                 </ng-template>
 
                 <ng-template pTemplate="right">
-                    <p-dropdown [options]="accomodations" [(ngModel)]="selectedAccomodation" optionLabel="name"></p-dropdown>
+                   <div class="flex justify-content-center">
+                        <p-dropdown  [options]="accomodations" (onChange)="onSelectAccomodation()" [(ngModel)]="selectedAccomodation" optionLabel="name" autoWidth="false"  [style]="{'width':'100%'}"></p-dropdown>
+                   </div>
                 </ng-template>
             </p-toolbar>
 
@@ -27,9 +29,6 @@
                 </ng-template>
                 <ng-template pTemplate="header">
                     <tr>
-                        <th style="width: 3rem">
-                            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-                        </th>
                         <th pSortableColumn="code">Tên phòng/Số phòng<p-sortIcon field="code"></p-sortIcon></th>
                         <th pSortableColumn="name">Số người ở tối đa<p-sortIcon field="name"></p-sortIcon></th>
                         <th pSortableColumn="name">Đơn giá<p-sortIcon field="name"></p-sortIcon></th>
@@ -40,9 +39,6 @@
                 </ng-template>
                 <ng-template pTemplate="body" let-product>
                     <tr>
-                        <td>
-                            <p-tableCheckbox [value]="product"></p-tableCheckbox>
-                        </td>
                         <td style="width:50%; min-width:10rem;"><span class="p-column-title">Code</span>
                             {{product.code || product.id}}
                         </td>
@@ -78,18 +74,6 @@
                     <label for="price">Giá phòng</label>
                     <p-inputNumber id="price" [(ngModel)]="room.acreage" mode="decimal" ></p-inputNumber>
                 </div>
-                <!-- <div class="field">
-                    <label for="status">Inventory Status</label>
-                    <p-dropdown [(ngModel)]="product.inventoryStatus" inputId="inventoryStatus" optionValue="label" [options]="statuses" placeholder="Select">
-                        <ng-template pTemplate="selectedItem">
-                            <span *ngIf="product && product.inventoryStatus" [class]="'product-badge status-' + product.inventoryStatus.toString().toLowerCase()">{{product.inventoryStatus}}</span>
-                        </ng-template>
-                        <ng-template let-option pTemplate="item">
-                            <span [class]="'product-badge status-' + option.value">{{option.label}}</span>
-                        </ng-template>
-                    </p-dropdown>
-                </div> -->
-
                 <div class="field">
                     <label class="mb-3">Dịch vụ</label>
                     <div class="formgrid grid">
@@ -145,4 +129,7 @@
             </ng-template>
         </p-dialog>
     </div>
+</div>
+<div class="progress-spinner" *ngIf="loading">
+    <p-progressSpinner></p-progressSpinner>
 </div>

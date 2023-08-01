@@ -18,7 +18,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { CheckboxModule } from 'primeng/checkbox';
 import { PasswordModule } from 'primeng/password';
 import {RouterModule} from '@angular/router';
-
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @NgModule({
   declarations: [],
@@ -43,7 +43,8 @@ import {RouterModule} from '@angular/router';
     InputNumberModule,
     CheckboxModule,
     PasswordModule,
-    RouterModule
+    RouterModule,
+    ProgressSpinnerModule
   ],
 })
 export class SharedModuleModule { }

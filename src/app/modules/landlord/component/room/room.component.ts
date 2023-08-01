@@ -3,6 +3,10 @@ import { Room } from '../../model/accomodation.model'
 import { AccomodationService } from '../../service/accomodation.service'
 import { MessageService } from 'primeng/api'
 import { Table } from 'primeng/table'
+import { RoomService } from '../../service/room.service'
+import { User } from 'src/app/modules/model/user.model'
+import { AuthenticationService } from 'src/app/modules/auth/service/authentication.service'
+import { finalize } from 'rxjs'
 
 interface Accomodation {
   id?: number,
@@ -20,8 +24,8 @@ export class RoomComponent implements OnInit {
     otherFeesDialog: boolean = false
     deleteProductDialog: boolean = false
     deleteProductsDialog: boolean = false
-    accomodations: Accomodation[] = []
-    selectedAccomodation!: Accomodation
+    accomodations: any[] = []
+    selectedAccomodation!: any;
     rooms: Room[] = []
     room: Room = {}
     selectedProducts: Room[] = []
@@ -30,35 +34,46 @@ export class RoomComponent implements OnInit {
     statuses: any[] = []
     rowsPerPageOptions = [5, 10, 20]
     selectedService: string[] = []
+    user!: User | null
+    dataLoading: boolean = false;
+    loading: boolean = false
 
-    constructor(private productService: AccomodationService, private messageService: MessageService) {}
+    constructor(private accomodationService: AccomodationService, private auth: AuthenticationService, private roomService: RoomService, private messageService: MessageService) {}
 
     ngOnInit() {
-        // this.productService.getProducts().then((data) => (this.accomodations = data))
-
-        this.cols = [
-            { field: 'product', header: 'Accomodation' },
-            { field: 'price', header: 'Price' },
-            { field: 'category', header: 'Category' },
-            { field: 'rating', header: 'Reviews' },
-            { field: 'inventoryStatus', header: 'Status' },
-        ]
-
-        this.statuses = [
-            { label: 'INSTOCK', value: 'instock' },
-            { label: 'LOWSTOCK', value: 'lowstock' },
-            { label: 'OUTOFSTOCK', value: 'outofstock' },
-        ]
-
-        this.selectedService = []
-
-        this.accomodations.push({id: 1, name: 'asdgsdg'})
+        this.user = this.auth.userValue
+        this.getDropdownAccomodation()
     }
 
     openNew() {
         this.room = {}
         this.submitted = false
         this.productDialog = true
+    }
+
+    getDropdownAccomodation() {
+        this.loading = true
+        this.accomodationService.getDropdownAccomodation(this.user?.id).pipe(
+            finalize(() => {
+                this.getRoomByAccomodation()
+                this.selectedAccomodation = this.accomodations[0];
+                console.log('selectedAccomodation', this.selectedAccomodation)
+                this.loading = false;
+            })
+        ).subscribe(response => this.accomodations = response.data)
+        
+    }
+
+    getRoomByAccomodation() {
+        this.roomService.getRoomByAccomodation(1).pipe(
+            finalize(() => {
+                console.log('asldkjgh')
+            })
+        ).subscribe(data => console.log(data))
+    }
+
+    onSelectAccomodation() {
+        console.log(this.selectedAccomodation)
     }
 
     deleteSelectedProducts() {
@@ -116,15 +131,6 @@ export class RoomComponent implements OnInit {
             this.productDialog = false
             this.room = {}
         }
-    }
-
-    createId(): string {
-        let id = ''
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-        for (let i = 0; i < 5; i++) {
-            id += chars.charAt(Math.floor(Math.random() * chars.length))
-        }
-        return id
     }
 
     onGlobalFilter(table: Table, event: Event) {

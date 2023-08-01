@@ -6,7 +6,6 @@
                 <ng-template pTemplate="left">
                     <div class="my-2">
                         <button pButton pRipple label="Thêm" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
-                        <button pButton pRipple label="Xoá" icon="pi pi-trash" class="p-button-danger" (click)="deleteSelectedProducts()" [disabled]="!selectedProducts || !selectedProducts.length"></button>
                     </div>
                 </ng-template>
 
@@ -16,23 +15,20 @@
                 </ng-template> -->
             </p-toolbar>
 
-            <p-table #dt [value]="accomodations" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['name','country.name','representative.name','status']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [(selection)]="selectedProducts" selectionMode="multiple" [rowHover]="true" dataKey="id">
+            <p-table #dt [value]="accomodations" [loading]="dataLoading" loadingIcon="pi pi-spin pi-spinner" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['name','country.name','representative.name','status']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [(selection)]="selectedProducts" selectionMode="multiple" [rowHover]="true" dataKey="id">
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                         <h5 class="m-0">Quản lý khu trọ</h5>
                         <span class="block mt-2 md:mt-0 p-input-icon-left">
                             <i class="pi pi-search"></i>
-                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..."  class="w-full sm:w-auto"/>
+                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Tìm kiếm..."  class="w-full sm:w-auto"/>
                         </span>
                     </div>
                 </ng-template>
                 <ng-template pTemplate="header">
                     <tr>
-                        <th style="width: 3rem">
-                            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-                        </th>
-                        <th pSortableColumn="code">Tên khu/Toà nhà <p-sortIcon field="code"></p-sortIcon></th>
-                        <th pSortableColumn="name">Địa chỉ<p-sortIcon field="name"></p-sortIcon></th>
+                        <th pSortableColumn="name">Tên khu/Toà nhà <p-sortIcon field="name"></p-sortIcon></th>
+                        <th pSortableColumn="address">Địa chỉ<p-sortIcon field="address"></p-sortIcon></th>
                         <th></th>
                         <th></th>
                         <th></th>
@@ -41,17 +37,13 @@
                         <th></th>
                     </tr>
                 </ng-template>
-                <ng-template pTemplate="body" let-product>
+                <ng-template pTemplate="body" let-item>
                     <tr>
-                        <td>
-                            <p-tableCheckbox [value]="product"></p-tableCheckbox>
-                        </td>
-                        <td style="width:50%; min-width:10rem;"><span class="p-column-title">Code</span>
-                            {{product.code || product.id}}
+                        <td style="width:50%; min-width:10rem;">
+                            {{item.name}}
                         </td>
                         <td style="width:50%; min-width:10rem;">
-                            <span class="p-column-title">Name</span>
-                            {{product.name}}
+                            {{item.address}}
                         </td>
                         <td></td>
                         <td></td>
@@ -60,18 +52,18 @@
                         <td></td>
                         <td>
                             <div class="flex">
-                                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editProduct(product)"></button>
-                                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteProduct(product)"></button>
+                                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editProduct(item)"></button>
+                                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteProduct(item)"></button>
                             </div>
                         </td>
                     </tr>
                 </ng-template>
             </p-table>
+            
         </div>
 
-        <p-dialog [(visible)]="productDialog" [style]="{width: '450px'}" header="Chi tiết khu trọ" [modal]="true" class="p-fluid">
+        <p-dialog [(visible)]="productDialog"  [style]="{width: '650px'}" header="Chi tiết khu trọ" [modal]="true" class="p-fluid">
             <ng-template pTemplate="content">
-                <!-- <img [src]="'assets/demo/images/product/' + product.image" [alt]="product.image" width="150" class="mt-0 mx-auto mb-5 block shadow-2" *ngIf="product.image"> -->
                 <div class="field">
                     <label for="name">Tên khu/Toà nhà</label>
                     <input type="text" pInputText id="name" [(ngModel)]="accomodation.name" required autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !accomodation.name}"/>
@@ -81,37 +73,32 @@
                     <label for="description">Địa chỉ</label>
                     <textarea id="description" pInputTextarea [(ngModel)]="accomodation.address" required rows="3" cols="20"></textarea>
                 </div>
-                <!-- <div class="field">
-                    <label for="status">Inventory Status</label>
-                    <p-dropdown [(ngModel)]="product.inventoryStatus" inputId="inventoryStatus" optionValue="label" [options]="statuses" placeholder="Select">
-                        <ng-template pTemplate="selectedItem">
-                            <span *ngIf="product && product.inventoryStatus" [class]="'product-badge status-' + product.inventoryStatus.toString().toLowerCase()">{{product.inventoryStatus}}</span>
-                        </ng-template>
-                        <ng-template let-option pTemplate="item">
-                            <span [class]="'product-badge status-' + option.value">{{option.label}}</span>
-                        </ng-template>
-                    </p-dropdown>
-                </div> -->
-
-                <div class="field">
+                <div class="field" >
                     <label class="mb-3">Dịch vụ chung</label>
-                    <div class="formgrid grid">
-                        <div class="field-radiobutton col-6">
-                            <p-checkbox [(ngModel)]="selectedService" id="category2" [disabled]="true" name="services" value="waterPrice" ></p-checkbox>
-                            <label for="category2">Tiền nước</label>
-                        </div>
-                        <div class="field-radiobutton col-6">
-                            <p-checkbox [(ngModel)]="selectedService" id="category3" [disabled]="true" name="services" value="electricPrice" ></p-checkbox>
-                            <label for="category3">Tiền điện</label>
-                        </div>
-                        <div class="field-radiobutton col-6" *ngFor="let item of otherFees">
-                            <p-checkbox [binary]="true" [value]="item.price" ></p-checkbox>
-                            <label for="category1">{{item.name}}</label>
-                        </div>
-                        <div class="field-radiobutton col-6">
-                            <p-button label="Khác" icon="pi pi-plus" (onClick)="openOtherFee()"></p-button>
-                        </div>
-                    </div>
+                    <button style="width: 100px; height: 35px; margin-left: 20px; margin-bottom: 5px;" pButton pRipple label="Thêm" icon="pi pi-plus" class="p-button-success mr-2" (click)="openOtherFee()"></button>
+                    <ng-container *ngIf="accomodation.otherFees && accomodation.otherFees.length > 0">
+                        <p-table [loading]="loading" [value]="accomodation.otherFees" [rows]="10">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th pSortableColumn="name">Loại phí<p-sortIcon field="name"></p-sortIcon></th>
+                                    <th pSortableColumn="address">Giá<p-sortIcon field="address"></p-sortIcon></th>
+                                    <th></th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-fee>
+                                <tr>
+                                   <td style="width:50%; min-width:10rem;">{{fee.name}}</td>
+                                   <td style="width:50%; min-width:10rem;">{{fee.price}}</td>
+                                   <td>
+                                        <div class="flex">
+                                            <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editOtherFee(fee)"></button>
+                                            <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteOtherFee(fee)"></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </ng-container>
                 </div>
 
                 <div class="formgrid grid">
@@ -128,7 +115,7 @@
 
             <ng-template pTemplate="footer">
                 <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-                <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveProduct()"></button>
+                <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveAccomodation()"></button>
             </ng-template>
         </p-dialog>
         <p-dialog [(visible)]="otherFeesDialog" [style]="{width: '450px'}" header="Thêm phí khác" [modal]="true" class="p-fluid">
@@ -171,3 +158,4 @@
         </p-dialog>
     </div>
 </div>
+
