@@ -1,17 +1,13 @@
 import { Component, OnInit } from '@angular/core'
-import { Room } from '../../model/accomodation.model'
-import { AccomodationService } from '../../service/accomodation.service'
 import { MessageService } from 'primeng/api'
 import { Table } from 'primeng/table'
-import { RoomService } from '../../service/room.service'
-import { User } from 'src/app/modules/model/user.model'
-import { AuthenticationService } from 'src/app/modules/auth/service/authentication.service'
 import { finalize } from 'rxjs'
+import { AuthenticationService } from 'src/app/modules/auth/service/authentication.service'
+import { User } from 'src/app/modules/model/user.model'
+import { Room } from '../../model/accomodation.model'
+import { AccomodationService } from '../../service/accomodation.service'
+import { RoomService } from '../../service/room.service'
 
-interface Accomodation {
-  id?: number,
-  name?: string
-}
 
 @Component({
     selector: 'app-room',
@@ -37,6 +33,8 @@ export class RoomComponent implements OnInit {
     user!: User | null
     dataLoading: boolean = false;
     loading: boolean = false
+    uploadedFiles: any[] = [];
+    thumb!: any;
 
     constructor(private accomodationService: AccomodationService, private auth: AuthenticationService, private roomService: RoomService, private messageService: MessageService) {}
 
@@ -55,25 +53,25 @@ export class RoomComponent implements OnInit {
         this.loading = true
         this.accomodationService.getDropdownAccomodation(this.user?.id).pipe(
             finalize(() => {
-                this.getRoomByAccomodation()
                 this.selectedAccomodation = this.accomodations[0];
-                console.log('selectedAccomodation', this.selectedAccomodation)
                 this.loading = false;
+                this.getRoomByAccomodation()
             })
         ).subscribe(response => this.accomodations = response.data)
         
     }
 
     getRoomByAccomodation() {
-        this.roomService.getRoomByAccomodation(1).pipe(
+        this.loading = true
+        this.roomService.getRoomByAccomodation(this.selectedAccomodation.id).pipe(
             finalize(() => {
-                console.log('asldkjgh')
+                this.loading = false;
             })
-        ).subscribe(data => console.log(data))
+        ).subscribe(response => this.rooms = response.data)
     }
 
     onSelectAccomodation() {
-        console.log(this.selectedAccomodation)
+        this.getRoomByAccomodation()
     }
 
     deleteSelectedProducts() {
@@ -99,9 +97,13 @@ export class RoomComponent implements OnInit {
 
     confirmDelete() {
         this.deleteProductDialog = false
-        this.rooms = this.rooms.filter((val) => val.id !== this.room.id)
-        this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Accomodation Deleted', life: 3000 })
-        this.room = {}
+        this.roomService.removeRoom(this.room.id).pipe(
+            finalize(() => {
+                this.rooms = this.rooms.filter((val) => val.id !== this.room.id)
+                this.room = {}
+                this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Accomodation Deleted', life: 3000 })
+            })
+        ).subscribe(data => console.log(data))
     }
 
     hideDialog() {
@@ -110,27 +112,29 @@ export class RoomComponent implements OnInit {
         console.log(this.room)
     }
 
-    saveProduct() {
-        this.submitted = true
-
-        if (this.room.name?.trim()) {
-            if (this.room.id) {
-                // @ts-ignore
-                this.room.inventoryStatus = this.room.inventoryStatus.value ? this.room.inventoryStatus.value : this.room.inventoryStatus
-                // this.rooms[this.findIndexById(this.room.id)] = this.room
-                this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Accomodation Updated', life: 3000 })
-            } else {
-                // this.room.id = this.createId()
-                // @ts-ignore
-                this.room.inventoryStatus = this.room.inventoryStatus ? this.room.inventoryStatus.value : 'INSTOCK'
-                this.rooms.push(this.room)
-                this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Accomodation Created', life: 3000 })
-            }
-
-            this.rooms = [...this.rooms]
-            this.productDialog = false
-            this.room = {}
+    onUpload(event: any) {
+        for(let file of event.files) {
+            this.uploadedFiles.push(file);
         }
+        console.log(this.uploadedFiles)
+        // this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Tải ảnh thành công', life: 3000 })
+    }
+
+
+    saveRoom() {
+        this.loading = true
+        console.log(this.room)
+        this.room.accomodationId = this.selectedAccomodation.id;
+        this.roomService
+            .saveRoom(this.room)
+            .pipe(
+                finalize(() => {
+                    this.submitted = false
+                    this.getDropdownAccomodation()
+                }),
+            )
+            .subscribe((data) => console.log(data))
+        this.productDialog = false
     }
 
     onGlobalFilter(table: Table, event: Event) {

@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {InputTextModule} from 'primeng/inputtext';
 import {KnobModule} from 'primeng/knob';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {InputSwitchModule} from 'primeng/inputswitch';
 import {ButtonModule} from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
@@ -19,6 +19,16 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { PasswordModule } from 'primeng/password';
 import {RouterModule} from '@angular/router';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { TabViewModule } from 'primeng/tabview';
+import { CardModule } from 'primeng/card';
+import { TooltipModule } from 'primeng/tooltip';
+import { SkeletonModule } from 'primeng/skeleton';
+import { CalendarModule } from 'primeng/calendar';
+import { DividerModule } from 'primeng/divider';
+import { NgxPermissionsModule } from 'ngx-permissions';
+import { DataViewModule } from 'primeng/dataview';
+import { ConfirmPopupModule } from 'primeng/confirmpopup';
+import { GalleriaModule } from 'primeng/galleria';
 
 @NgModule({
   declarations: [],
@@ -26,6 +36,8 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
     CommonModule
   ],
   exports: [
+    ConfirmPopupModule,
+    DataViewModule,
     InputTextModule,
     KnobModule,
     FormsModule,
@@ -44,7 +56,16 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
     CheckboxModule,
     PasswordModule,
     RouterModule,
-    ProgressSpinnerModule
+    ProgressSpinnerModule,
+    TabViewModule,
+    CardModule,
+    TooltipModule,
+    SkeletonModule,
+    ReactiveFormsModule,
+    CalendarModule,
+    DividerModule,
+    NgxPermissionsModule,
+    GalleriaModule
   ],
 })
 export class SharedModuleModule { }

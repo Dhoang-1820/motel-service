@@ -17,4 +17,13 @@ export class OtherFeeService {
     deleteOtherFee(id: number) {
         return this.http.delete<any>(`${environment.apiUrl}/other-fee/${id}`).pipe(retry(1), delay(1000))
     }
+
+    getOtherFeeByAccomodation(accomodationId: any) {
+        return this.http.get<any>(`${environment.apiUrl}/other-fee/accomodation/${accomodationId}`)
+    }
+
+    getRemainOtherFeeByRoom(roomId: any, accomodationId: any) {
+        return this.http.get<any>(`${environment.apiUrl}/other-fee?room=${roomId}&accomodation=${accomodationId}`)
+    }
+
 }

@@ -83,22 +83,27 @@ export class AccomodationsComponent implements OnInit {
 
     saveOtherFee() {
         if (this.accomodation.id) {
+            let otherFeeResponse: any;
             this.loading = true
-            if (this.accomodation.otherFees) {
-                let id = this.accomodation.otherFees.findIndex((item) => item.id === this.otherFee.id)
-                console.log(this.accomodation.otherFees[id])
-                this.accomodation.otherFees[id] = this.otherFee
-                this.otherFee.accomodationId = this.accomodation.id
-                this.otherFeeService
-                    .saveOtherFee(this.otherFee)
-                    .pipe(
-                        finalize(() => {
-                            this.loading = false
-                            this.otherFeesDialog = false
-                        }),
-                    )
-                    .subscribe((data) => console.log(data))
-            }
+            this.otherFee.accomodationId = this.accomodation.id
+            this.otherFeeService
+                .saveOtherFee(this.otherFee)
+                .pipe(
+                    finalize(() => {
+                        if (this.accomodation.otherFees) {
+                            if (this.otherFee.id) {
+                                let id = this.accomodation.otherFees.findIndex((item) => item.id === otherFeeResponse.id)
+                                this.accomodation.otherFees[id] = otherFeeResponse
+                            } else {
+                                this.accomodation.otherFees?.push(otherFeeResponse)
+                            }   
+                        }
+                        this.loading = false
+                        this.otherFeesDialog = false
+                        this.otherFee = {}
+                    })
+                )
+                .subscribe((response) => otherFeeResponse = response.data)
         } else {
             this.otherFees.push(this.otherFee)
             if (this.accomodation.otherFees) {
@@ -109,7 +114,7 @@ export class AccomodationsComponent implements OnInit {
             }
             this.selectedOtherFees.push(this.otherFee)
         }
-        this.otherFee = {}
+       
         this.otherFeesDialog = false
     }
 

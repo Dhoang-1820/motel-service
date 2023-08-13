@@ -53,7 +53,7 @@
                         <td>
                             <div class="flex">
                                 <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editProduct(item)"></button>
-                                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteProduct(item)"></button>
+                                <!-- <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteProduct(item)"></button> -->
                             </div>
                         </td>
                     </tr>
@@ -80,15 +80,19 @@
                         <p-table [loading]="loading" [value]="accomodation.otherFees" [rows]="10">
                             <ng-template pTemplate="header">
                                 <tr>
-                                    <th pSortableColumn="name">Loại phí<p-sortIcon field="name"></p-sortIcon></th>
-                                    <th pSortableColumn="address">Giá<p-sortIcon field="address"></p-sortIcon></th>
+                                    <th pSortableColumn="feeType">Loại phí<p-sortIcon field="feeType"></p-sortIcon></th>
+                                    <th pSortableColumn="unit">Đơn vị tính<p-sortIcon field="unit"></p-sortIcon></th>
+                                    <th pSortableColumn="price">Giá<p-sortIcon field="price"></p-sortIcon></th>
                                     <th></th>
                                 </tr>
                             </ng-template>
                             <ng-template pTemplate="body" let-fee>
                                 <tr>
                                    <td style="width:50%; min-width:10rem;">{{fee.name}}</td>
-                                   <td style="width:50%; min-width:10rem;">{{fee.price}}</td>
+                                   <td style="width:50%; min-width:10rem;">{{fee.unit}}</td>
+                                   <td style="width:50%; min-width:10rem;">
+                                    <p-inputNumber suffix="đ" [(ngModel)]="fee.price" [readonly]="true"></p-inputNumber>
+                                    </td>
                                    <td>
                                         <div class="flex">
                                             <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editOtherFee(fee)"></button>
@@ -104,11 +108,11 @@
                 <div class="formgrid grid">
                     <div class="field col">
                         <label for="price">Giá điện</label>
-                        <p-inputNumber id="price" [(ngModel)]="accomodation.electricPrice" mode="currency" currency="VND" locale="vi-VN"></p-inputNumber>
+                        <p-inputNumber id="price" [(ngModel)]="accomodation.electricPrice" suffix="đ"></p-inputNumber>
                     </div>
                     <div class="field col">
                         <label for="quantity">Giá nước</label>
-                        <p-inputNumber id="quantity" [(ngModel)]="accomodation.waterPrice"  mode="currency" currency="VND" locale="vi-VN"></p-inputNumber>
+                        <p-inputNumber id="quantity" [(ngModel)]="accomodation.waterPrice" suffix="đ"></p-inputNumber>
                     </div>
                 </div>
             </ng-template>
@@ -125,8 +129,12 @@
                     <input type="text" pInputText id="name" [(ngModel)]="otherFee.name" required autofocus />
                 </div>
                 <div class="field">
+                    <label for="feeType">Đơn vị</label>
+                    <input type="text" pInputText id="feeType" [(ngModel)]="otherFee.unit" required autofocus />
+                </div>
+                <div class="field">
                     <label for="quantity">Giá</label>
-                    <p-inputNumber id="quantity" [(ngModel)]="otherFee.price" padControl="false" mode="currency" currency="VND" locale="vi-VN"></p-inputNumber>
+                    <p-inputNumber id="quantity" [(ngModel)]="otherFee.price" suffix="đ"></p-inputNumber>
                 </div>
             </ng-template>
             <ng-template pTemplate="footer">

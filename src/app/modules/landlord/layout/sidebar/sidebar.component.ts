@@ -20,9 +20,9 @@ export class SidebarComponent implements OnInit {
             {
                 label: 'Hệ thống',
                 items: [
-                    { label: 'Hồ sơ cá nhân', icon: 'pi pi-fw pi-prime', routerLink: ['/utilities/icons'] },
-                    { label: 'Cấu hình chung', icon: 'pi pi-fw pi-desktop', url: ['https://www.primefaces.org/primeflex/'] },
-                    { label: 'Danh sách dịch vụ', icon: 'pi pi-fw pi-desktop', url: ['https://www.primefaces.org/primeflex/'] },
+                    { label: 'Hồ sơ cá nhân', icon: 'pi pi-fw pi-prime', routerLink: ['/motel-management/profile'] },
+                    { label: 'Cấu hình chung', icon: 'pi pi-fw pi-desktop', routerLink: ['/motel-management/config-common'] },
+                    // { label: 'Danh sách dịch vụ', icon: 'pi pi-fw pi-desktop', url: ['https://www.primefaces.org/primeflex/'] },
                 ],
             },
             {
@@ -30,23 +30,29 @@ export class SidebarComponent implements OnInit {
                 items: [
                     { label: 'Nhà trọ', icon: 'pi pi-fw pi-id-card', routerLink: ['/motel-management/accomodation'] },
                     { label: 'Phòng', icon: 'pi pi-fw pi-check-square', routerLink: ['/motel-management/room'] },
-                    { label: 'Dịch vụ', icon: 'pi pi-fw pi-bookmark', routerLink: ['/motel-management/service'] },
-                    { label: 'Thiết bị', icon: 'pi pi-fw pi-exclamation-circle', routerLink: ['/uikit/invalidstate'] },
+                    { label: 'Quản lý ảnh phòng', icon: 'pi pi-fw pi-check-square', routerLink: ['/motel-management/room-image'] },
                 ],
             },
-
+            {
+                label: 'Hợp đồng',
+                items: [
+                    { label: 'Khách thuê', icon: 'pi pi-fw pi-id-card', routerLink: ['/motel-management/tenant'] },
+                    { label: 'Dịch vụ phòng', icon: 'pi pi-fw pi-bookmark', routerLink: ['/motel-management/service'] },
+                ],
+            },
             {
                 label: 'Hoá đơn',
                 icon: 'pi pi-fw pi-briefcase',
                 items: [
                     {
-                        label: 'Điện nước',
+                        label: 'Quản lý điện nước',
                         icon: 'pi pi-fw pi-globe',
-                        routerLink: ['/landing'],
+                        routerLink: ['/motel-management/bill'],
                     },
                     {
                         label: 'Xuất hoá đơn',
                         icon: 'pi pi-fw pi-user',
+                        routerLink: ['/motel-management/invoice'],
                     }
                 ],
             },

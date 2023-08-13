@@ -1,0 +1,61 @@
+<div class="grid">
+	<div class="col-12">
+		<div class="card">
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <h5>Ảnh phòng</h5>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="right">
+                   <div class="flex justify-content-center">
+                        <p-dropdown placeholder="Khu trọ" [options]="accomodations" (onChange)="onSelectAccomodation()" [(ngModel)]="selectedAccomodation" optionLabel="name" autoWidth="false"  [style]="{'width':'100%'}"></p-dropdown>
+                   </div>
+                </ng-template>
+            </p-toolbar>
+			<p-dataView #dv [value]="roomImages" [paginator]="true" [rows]="9" filterBy="name" layout="grid">
+                <ng-template pTemplate="header">
+					<div class="flex">
+                        <div class="flex flex-column md:flex-row md:justify-content-between gap-2">
+                            <p-dropdown  (onChange)="onSelectRoom()" placeholder="Phòng trọ" [options]="rooms" optionLabel="name" [(ngModel)]="selectedRoom" optionLabel="name" autoWidth="false"  [style]="{'width':'100%'}"></p-dropdown>
+                        </div>
+                        <div class="flex flex-column md:flex-row md:justify-content-between gap-2" style="margin-left: 12px;">
+                            <p-fileUpload (onBeforeUpload)="loading = true" mode="basic" chooseLabel="Thêm" [multiple]="true" name="file" method="post" [auto]="true" [url]="linkUpload + selectedRoom.id" accept="image/*" [maxFileSize]="1000000" (onUpload)="onUpload()"></p-fileUpload>
+                        </div>
+                    </div>
+				</ng-template>
+				<ng-template let-img pTemplate="gridItem">
+					<div class="col-12 md:col-4">
+						<div class="card m-3 border-1 surface-border">
+							<div class="flex flex-column align-items-center text-center mb-3">
+								<img [src]="img.imgUrl" [alt]="img.imgName" class="w-9 shadow-2 my-3 mx-0"/>
+							</div>
+                            <p-divider></p-divider>
+                            <div class="flex justify-content-center">
+                                <div class="flex">
+                                    <button pButton pRipple label="Xoá" [loading]="deleteLoading" loadingIcon="pi pi-spin pi-spinner"  icon="pi pi-delete-left" class="p-button-text" (click)="onDeleteImage(img.imageId)"></button>
+                                    <p-fileUpload (onBeforeUpload)="loading = true" mode="basic" chooseLabel="Thay đổi" name="file" method="put" [auto]="true" [url]="linkUpload + img.imageId" accept="image/*" [maxFileSize]="1000000" (onUpload)="onUpload()"></p-fileUpload>
+                                </div>
+                            </div>
+						</div>
+                       
+					</div>
+				</ng-template>
+			</p-dataView>
+            <p-dialog [(visible)]="deleteImageDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+                <div class="flex align-items-center justify-content-center">
+                    <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                    <span>Ảnh sẽ bị xoá vĩnh viễn?</span>
+                </div>
+                <ng-template pTemplate="footer">
+                    <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteImageDialog = false"></button>
+                    <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDelete()"></button>
+                </ng-template>
+            </p-dialog>
+		</div>
+	</div>
+</div>
+<div class="progress-spinner" *ngIf="loading">
+    <p-progressSpinner></p-progressSpinner>
+</div>

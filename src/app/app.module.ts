@@ -5,6 +5,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { JwtInterceptor } from './modules/auth/helper/jwt.interceptor';
+import { NgxPermissionsModule } from 'ngx-permissions';
+
 
 
 @NgModule({
@@ -16,6 +18,7 @@ import { JwtInterceptor } from './modules/auth/helper/jwt.interceptor';
     AppRoutingModule,
     HttpClientModule,
     BrowserAnimationsModule,
+    NgxPermissionsModule.forRoot()
   ],
   providers: [{ provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }],
   bootstrap: [AppComponent]

@@ -1,23 +1,30 @@
+import { HttpErrorResponse, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http'
 import { Injectable } from '@angular/core'
-import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpErrorResponse } from '@angular/common/http'
-import { BehaviorSubject, Observable, catchError, switchMap, throwError } from 'rxjs'
-import { AuthenticationService } from '../service/authentication.service'
+import { Observable, catchError, switchMap, throwError } from 'rxjs'
 import { environment } from 'src/environments/environment'
-import { User } from '../../model/user.model'
+import { AuthenticationService } from '../service/authentication.service'
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
     isRefreshing = false;
     user!: any;
     isLoggedIn: boolean = false;
+    expiryTime: any;
+    token: any;
 
     constructor(private authenticationService: AuthenticationService) {
         this.user = this.authenticationService.userValue
         this.isLoggedIn = this.user?.token
+        if (this.isLoggedIn) {
+            this.token = JSON.parse(atob( this.user.token.split('.')[1]));
+            this.expiryTime = (this.token.exp * 1000);
+        }
     }
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<any> {
         const isApiUrl = request.url.startsWith(environment.apiUrl)
+        this.user = this.authenticationService.userValue
+        this.isLoggedIn = this.user?.token
         if (this.isLoggedIn && isApiUrl) {
             request = request.clone({
                 setHeaders: {
@@ -38,9 +45,10 @@ export class JwtInterceptor implements HttpInterceptor {
     
 
     private handle401Error(request: HttpRequest<any>, next: HttpHandler) {
+        const isExpired: boolean = Date.now() > this.expiryTime;
         if (!this.isRefreshing) {
           this.isRefreshing = true;
-          if (this.isLoggedIn) {
+          if (this.isLoggedIn && !isExpired) {
             return this.authenticationService.refreshToken().pipe(
                 switchMap(() => {
                     this.isRefreshing = false;

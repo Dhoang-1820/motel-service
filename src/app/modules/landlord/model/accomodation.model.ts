@@ -4,6 +4,7 @@ export interface OtherFee {
     accomodationId?: number;
     id?: number;
     name?: string;
+    unit?: string;
     price?: string;
 }
 export interface Room {
@@ -13,8 +14,9 @@ export interface Room {
     airConditionor?: boolean,
     internet?: boolean,
     isRent?: boolean,
-    maxCapacity?: number,
-    price?: number
+    capacity?: number,
+    price?: number,
+    accomodationId?: number
 }
 
 export interface Accomodation {

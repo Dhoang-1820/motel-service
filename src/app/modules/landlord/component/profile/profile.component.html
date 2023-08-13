@@ -1,0 +1,197 @@
+
+<p-tabView styleClass="tabview-custom" *ngIf="!loading">
+    <p-toast></p-toast>
+    <p-tabPanel>
+        <ng-template pTemplate="header">
+            <i class="pi pi-user-edit"></i>
+            <span> &nbsp; Thông tin cá nhân</span>
+        </ng-template>
+        <p-card header="Thông tin cá nhân">
+            <div class="m-0 flex">
+                <div class="col-12 md:col-7">
+                    <div class="card p-fluid">
+                        <div class="field grid">
+                            <label htmlFor="firstName" class="col-12 mb-2 md:col-2 md:mb-0">Họ</label>
+                            <div class="col-12 md:col-10">
+                                <input pInputText id="firstName" [(ngModel)]="this.userResult.firstname" type="text" />
+                            </div>
+                        </div>
+                        <div class="field grid">
+                            <label htmlFor="name3" class="col-12 mb-2 md:col-2 md:mb-0">Tên</label>
+                            <div class="col-12 md:col-10">
+                                <input pInputText id="name3" [(ngModel)]="this.userResult.lastname" type="text" />
+                            </div>
+                        </div>
+                        <div class="field grid">
+                            <label htmlFor="email3" class="col-12 mb-2 md:col-2 md:mb-0">Email</label>
+                            <div class="col-12 md:col-10">
+                                <input pInputText id="email3" [(ngModel)]="this.userResult.email" type="text" />
+                            </div>
+                        </div>
+                        <div class="field grid">
+                            <label htmlFor="address" class="col-12 mb-2 md:col-2 md:mb-0">Địa chỉ</label>
+                            <div class="col-12 md:col-10">
+                                <input pInputText id="address" [(ngModel)]="this.userResult.address" type="text" />
+                            </div>
+                        </div>
+                        <div class="field grid">
+                            <label htmlFor="phone" class="col-12 mb-2 md:col-2 md:mb-0">Số điện thoại</label>
+                            <div class="col-12 md:col-10">
+                                <input pInputText id="phone" [(ngModel)]="this.userResult.phone" type="text" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 md:col-5">
+                    <div class="card p-fluid">
+                        <div class="field grid flex flex-column align-items-center" >
+                            <div class="user-image">
+                                <img  [src]="thumb || this.userResult.imageUrl">
+                            </div>
+                           <label htmlFor="file" pTooltip="Chỉnh sửa ảnh" tooltipPosition="bottom">
+                                <i class="pi pi-pencil" style="cursor: pointer; margin-top: 3px;" ></i>
+                                <input type='file' hidden id="file" (change)="onUpload($event)">
+                           </label>
+                            
+                        </div>
+                        <div class="field grid flex flex-column align-items-center" style="margin-top: 15px;">
+                            <div class="user-name">
+                                {{this.userResult.firstname + ' ' + this.userResult.lastname}}
+                            </div>
+                            <div class="user-phone">
+                                {{this.userResult.phone}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="m-0 flex justify-content-center  mt-5">
+                <div>
+                    <button pButton type="button" label="Cập nhật" icon="pi pi-save" [loading]="saveLoading" class="p-button"  (click)="saveUser()"></button>
+                </div>
+            </div>
+        </p-card>
+    </p-tabPanel>
+    <p-tabPanel header="Header II">
+        <ng-template pTemplate="header">
+            <i class="pi pi-lock"></i>
+            <span> &nbsp; Đổi mật khẩu</span>
+        </ng-template>
+        <p-card header="Đổi mật khẩu">
+            <div class="m-0 flex">
+                <div class="col-12 md:col-7">
+                    <form class="card p-fluid" [formGroup]="passwordForm">
+                        <div class="field grid">
+                            <label htmlFor="oldpass" class="col-12 mb-2 md:col-2 md:mb-0">Mật khẩu hiện tại</label>
+                            <div class="col-12 md:col-10">
+                                <input pInputText required id="oldpass" formControlName="currentPass" type="password" [ngClass]="{'ng-invalid ng-dirty' : passwordForm.controls['currentPass'].invalid && (passwordForm.controls['currentPass'].dirty || passwordForm.controls['currentPass'].touched)}"/>
+                                <small class="ng-dirty ng-invalid" *ngIf="this.passwordForm.get('currentPass')?.getError('invalid') && (passwordForm.controls['currentPass'].dirty || passwordForm.controls['currentPass'].touched)">Vui lòng nhập mật khẩu cũ.</small>
+                            </div>
+                        </div>
+                        <div class="field grid">
+                            <label htmlFor="newPass" class="col-12 mb-2 md:col-2 md:mb-0">Mật khẩu mới</label>
+                            <div class="col-12 md:col-10">
+                                <input pInputText required id="newPass"type="password" formControlName="newPass" [ngClass]="{'ng-invalid ng-dirty' : passwordForm.controls['newPass'].invalid && (passwordForm.controls['newPass'].dirty || passwordForm.controls['newPass'].touched)}"/>
+                                <small class="ng-dirty ng-invalid" *ngIf="this.passwordForm.get('newPass')?.getError('invalid') && (passwordForm.controls['newPass'].dirty || passwordForm.controls['newPass'].touched)">Vui lòng nhập mật khẩu mới.</small>
+                                <small class="ng-dirty ng-invalid" *ngIf="this.passwordForm.get('newPass')?.getError('incorrect') && (passwordForm.controls['newPass'].dirty || passwordForm.controls['newPass'].touched)">Vui lòng nhập mật khẩu mới khác mật khẩu cũ.</small>
+                            </div>
+                        </div>
+                        <div class="field grid">
+                            <label htmlFor="rePass" class="col-12 mb-2 md:col-2 md:mb-0" >Nhập lại mật khẩu mới</label>
+                            <div class="col-12 md:col-10">
+                                <input pInputText required id="rePass"  type="password" formControlName="confirmedPass" [ngClass]="{'ng-invalid ng-dirty' : passwordForm.controls['confirmedPass'].invalid && (passwordForm.controls['confirmedPass'].dirty || passwordForm.controls['confirmedPass'].touched)}"/>
+                                <small class="ng-dirty ng-invalid" *ngIf="this.passwordForm.get('confirmedPass')?.getError('invalid') && (passwordForm.controls['confirmedPass'].dirty || passwordForm.controls['confirmedPass'].touched)">Vui lòng nhập lại mật khẩu mới.</small>
+                                <small class="ng-dirty ng-invalid" *ngIf="this.passwordForm.get('confirmedPass')?.getError('incorrect') && (passwordForm.controls['confirmedPass'].dirty || passwordForm.controls['confirmedPass'].touched)">Nhập lại mật khẩu mới chính xác.</small>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-12 md:col-5">
+                    <div class="card p-fluid">
+                        <div class="field grid flex flex-column align-items-center" >
+                            <div class="user-image">
+                                <img  [src]="thumb || this.userResult.imageUrl">
+                            </div>                            
+                        </div>
+                        <div class="field grid flex flex-column align-items-center" style="margin-top: 15px;">
+                            <div class="user-name">
+                                {{this.userResult.firstname + ' ' + this.userResult.lastname}}
+                            </div>
+                            <div class="user-phone">
+                                {{this.userResult.phone}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="m-0 flex justify-content-center  mt-5">
+                <div>
+                    <button pButton type="button" label="Cập nhật" [loading]="saveLoading" (click)="changePassword()" icon="pi pi-save" class="p-button"></button>
+                </div>
+            </div>
+        </p-card>
+    </p-tabPanel>
+</p-tabView>
+<p-tabView styleClass="tabview-custom" *ngIf="loading">
+    <p-toast></p-toast>
+    <p-tabPanel>
+        <ng-template pTemplate="header">
+            <i class="pi pi-user-edit"></i>
+            <span> &nbsp; Thông tin cá nhân</span>
+        </ng-template>
+        <p-card header="Thông tin cá nhân">
+            <div class="card">
+                <div class="border-round border-1 surface-border p-4 surface-card">
+                    <ul class="m-0 p-0 list-none">
+                        <li class="mb-3">
+                            <div class="flex">
+                                <p-skeleton shape="circle" size="4rem" styleClass="mr-2"></p-skeleton>
+                                <div style="flex: 1">
+                                    <p-skeleton width="100%" styleClass="mb-2"></p-skeleton>
+                                    <p-skeleton width="75%"></p-skeleton>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="mb-3">
+                            <div class="flex">
+                                <p-skeleton shape="circle" size="4rem" styleClass="mr-2"></p-skeleton>
+                                <div style="flex: 1">
+                                    <p-skeleton width="100%" styleClass="mb-2"></p-skeleton>
+                                    <p-skeleton width="75%"></p-skeleton>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="mb-3">
+                            <div class="flex">
+                                <p-skeleton shape="circle" size="4rem" styleClass="mr-2"></p-skeleton>
+                                <div style="flex: 1">
+                                    <p-skeleton width="100%" styleClass="mb-2"></p-skeleton>
+                                    <p-skeleton width="75%"></p-skeleton>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="flex">
+                                <p-skeleton shape="circle" size="4rem" styleClass="mr-2"></p-skeleton>
+                                <div style="flex: 1">
+                                    <p-skeleton width="100%" styleClass="mb-2"></p-skeleton>
+                                    <p-skeleton width="75%"></p-skeleton>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </p-card>
+    </p-tabPanel>
+    <p-tabPanel header="Header II">
+        <ng-template pTemplate="header">
+            <i class="pi pi-lock"></i>
+            <span> &nbsp; Đổi mật khẩu</span>
+        </ng-template>
+        <p-card header="Đổi mật khẩu"></p-card>
+    </p-tabPanel>
+</p-tabView>
+<!-- <div class="progress-spinner" *ngIf="loading">
+    <p-progressSpinner></p-progressSpinner>
+</div> -->

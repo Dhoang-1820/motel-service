@@ -7,3 +7,9 @@ export class User {
     refreshToken?: string;
     roles: string[] = [];
 }
+
+export class ChangePassword {
+    userId?: number
+    oldPassword?: string
+    newPassword?: string
+}

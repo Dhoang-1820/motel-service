@@ -1,0 +1,202 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toast></p-toast>
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <!-- <div class="my-2">
+                        <button pButton pRipple label="Thêm" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
+                    </div> -->
+                </ng-template>
+
+                <ng-template pTemplate="right">
+                    <div class="flex justify-content-center">
+                        <p-dropdown
+                            [options]="accomodations"
+                            (onChange)="onSelectAccomodation()"
+                            [(ngModel)]="selectedAccomodation"
+                            optionLabel="name"
+                            autoWidth="false"
+                            [style]="{ width: '100%' }"
+                        ></p-dropdown>
+                    </div>
+                </ng-template>
+            </p-toolbar>
+
+            <p-table
+                #dt
+                [value]="rooms"
+                [columns]="cols"
+                responsiveLayout="scroll"
+                [rows]="10"
+                [globalFilterFields]="['name', 'capacity', 'price', 'acreage']"
+                [paginator]="true"
+                [rowsPerPageOptions]="[10, 20, 30]"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                [(selection)]="selectedProducts"
+                selectionMode="multiple"
+                [rowHover]="true"
+                dataKey="id"
+            >
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <h5 class="m-0">Quản lý khu trọ</h5>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <p-calendar (onSelect)="getInvoiceByMonth()" [(ngModel)]="selectedMonth" [showIcon]="true" view="month" dateFormat="mm/yy" placeholder="Chọn tháng..."></p-calendar>
+                        </span>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Tìm kiếm..." class="w-full sm:w-auto" />
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pSortableColumn="name">Tên phòng/Số phòng<p-sortIcon field="name"></p-sortIcon></th>
+                        <th pSortableColumn="month">Tháng<p-sortIcon field="month"></p-sortIcon></th>
+                        <th pSortableColumn="totalPrice">Tổng tiền<p-sortIcon field="totalPrice"></p-sortIcon></th>
+                        <th pSortableColumn="status">Trạng thái<p-sortIcon field="status"></p-sortIcon></th>
+                        <th pSortableColumn="status">Đã thanh toán<p-sortIcon field="status"></p-sortIcon></th>
+                        <th pSortableColumn="createdAt">Ngày tạo<p-sortIcon field="createdAt"></p-sortIcon></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-data>
+                    <tr>
+                        <td>{{ data.name }}</td>
+                        <td>{{ data.billDate | date:'MM/yyyy'}}</td>
+                        <td>{{ data.totalPrice | currency: 'VND':'symbol'}}</td>
+                        <td>{{ data.isSent ? 'Chưa gửi hoá đơn' : 'Đã gửi hoá đơn'}}</td>
+                        <td>{{ data.isPay ? 'Đã thanh toán' : 'Chưa thanh toán'}}</td>
+                        <td>{{ data.createdAt | date:'dd/MM/yyyy'}}</td>
+                        <td></td>
+                        <td>
+                            <div class="flex">
+                                <button
+                                    pButton
+                                    pRipple
+                                    icon="pi pi-file-export"
+                                    class="p-button-rounded p-button-success mr-2"
+                                    (click)="editProduct(data)"
+                                ></button>
+                            </div>
+                        </td>
+                        
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <p-dialog [(visible)]="productDialog" [style]="{ width: '850px' }" header="Xuất hoá đơn" [modal]="true" class="p-fluid">
+            <ng-template pTemplate="content">
+                <div class="field">
+                    <label for="name">Tên phòng/Số phòng</label>
+                    <input
+                        type="text"
+                        pInputText
+                        id="name"
+                        [(ngModel)]="room.name"
+                        disabled="true"
+                    />
+                </div>
+                <div class="field">
+                    <label for="price">Tháng</label>
+                    <p-calendar  [(ngModel)]="selectedMonth" dateFormat="mm/yy" disabled="true"></p-calendar>
+                </div>
+                <div class="formgrid grid">
+                    <div class="field col">
+                        <label>Số điện tiêu thụ</label>
+                        <div pInputText >{{room.electricNum}}</div>
+                    </div>
+                    <div class="field col">
+                        <label>Giá</label>
+                        <div pInputText> {{selectedAccomodation.electricPrice | currency: 'VND':'symbol'}}</div>
+                    </div>
+                    <div class="field col">
+                        <label>Thành tiền</label>
+                        <div pInputText >{{room.electricNum * selectedAccomodation.electricPrice | currency: 'VND':'symbol'}}</div>
+                    </div>
+                </div>
+                <div class="formgrid grid">
+                    <div class="field col">
+                        <label>Số nước tiêu thụ</label>
+                        <div pInputText >{{room.waterNum}}</div>
+                    </div>
+                    <div class="field col">
+                        <label>Giá</label>
+                        <div pInputText>{{selectedAccomodation.waterPrice | currency: 'VND':'symbol'}}</div>
+                    </div>
+                    <div class="field col">
+                        <label>Thành tiền</label>
+                        <div pInputText >{{room.waterNum * selectedAccomodation.waterPrice | currency: 'VND':'symbol'}}</div>
+                    </div>
+                </div>
+                <div class="field">
+                    <p-table [columns]="cols" [value]="room.fees">
+                        <ng-template pTemplate="header" let-columns>
+                            <tr>
+                                <th *ngFor="let col of columns">
+                                    {{ col.header }}
+                                </th>
+                                <th>Thành tiền</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-rowData let-columns="columns">
+                            <tr>
+                                <td *ngFor="let col of columns">
+                                    <span *ngIf="col.field == 'price'">
+                                        {{ rowData[col.field] | currency: 'VND':'symbol'}}
+                                    </span>
+                                    <span *ngIf="col.field != 'price'">
+                                        {{ rowData[col.field] }}
+                                    </span>
+                                </td>
+                                <td>{{rowData.price * rowData.quantity | currency: 'VND':'symbol'}}</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+                <p-divider></p-divider>
+                <div class="field">
+                    <div>Trạng thái thanh toán: {{room.isPay ? 'Đã thanh toán' : 'Chưa thanh toán'}}</div>
+                </div>
+                <p-divider></p-divider>
+                <div class="field">
+                    <div>Tổng hoá đơn: {{room.totalPrice | currency: 'VND':'symbol'}}</div>
+                </div>
+            </ng-template>
+
+            <ng-template pTemplate="footer" >
+                 <div class="flex justify-content-between">
+                    <div class="">
+                        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+                    </div>
+                    <div class="flex">
+                        <button pButton pRipple label="Gửi hoá đơn" icon="pi pi-send" class="p-button-text" (click)="sendInvoice()"></button>
+                        <!-- [disabled]="room.isPay" -->
+                        <button pButton pRipple [disabled]="room.isPay" label="Xác nhận thanh toán" [loading]="dataLoading" loadingIcon="pi pi-spin pi-spinner"  icon="pi pi-check" class="p-button-text" (click)="changePaymentStatus()"></button>
+                    </div>
+                </div>
+            </ng-template>
+        </p-dialog>
+
+        <p-dialog [(visible)]="deleteProductDialog" header="Confirm" [modal]="true" [style]="{ width: '450px' }">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span *ngIf="room"
+                    >Are you sure you want to delete <b>{{ room.name }}</b
+                    >?</span
+                >
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteProductDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDelete()"></button>
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>
+<div class="progress-spinner" *ngIf="loading">
+    <p-progressSpinner></p-progressSpinner>
+</div>
