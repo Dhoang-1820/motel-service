@@ -16,10 +16,10 @@
                 </ng-template>
             </p-toolbar>
 
-            <p-table #dt [value]="rooms" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['name','capacity','price','acreage']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [(selection)]="selectedProducts" selectionMode="multiple" [rowHover]="true" dataKey="id">
+            <p-table #dt [value]="rooms" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['name','capacity','price','acreage', 'internet', 'airConditionor', 'isRent']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [(selection)]="selectedProducts" selectionMode="multiple" [rowHover]="true" dataKey="id">
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-                        <h5 class="m-0">Quản lý khu trọ</h5>
+                        <h5 class="m-0">Quản lý phòng trọ</h5>
                         <span class="block mt-2 md:mt-0 p-input-icon-left">
                             <i class="pi pi-search"></i>
                             <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Tìm kiếm..."  class="w-full sm:w-auto"/>
@@ -34,7 +34,7 @@
                         <th pSortableColumn="acreage">Diện tích<p-sortIcon field="acreage"></p-sortIcon></th>
                         <th pSortableColumn="internet">Internet<p-sortIcon field="internet"></p-sortIcon></th>
                         <th pSortableColumn="airConditionor">Máy lạnh<p-sortIcon field="airConditionor"></p-sortIcon></th>
-                        <th pSortableColumn="status">Trạng thái<p-sortIcon field="status"></p-sortIcon></th>
+                        <th pSortableColumn="isRent">Trạng thái<p-sortIcon field="isRent"></p-sortIcon></th>
                         <th></th>
                     </tr>
                 </ng-template>
@@ -75,8 +75,8 @@
                     <small class="ng-dirty ng-invalid" *ngIf="submitted && !room.name">Name is required.</small>
                 </div>
                 <div class="field">
-                    <label for="price">Giá phòng</label>
-                    <p-inputNumber id="price" [(ngModel)]="room.price"  suffix="đ"></p-inputNumber>
+                    <label for="price">Giá phòng (đồng)</label>
+                    <p-inputNumber id="price" [(ngModel)]="room.price" ></p-inputNumber>
                 </div>
                 <div class="field">
                     <label class="mb-3">Dịch vụ</label>

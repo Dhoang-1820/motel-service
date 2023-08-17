@@ -42,12 +42,12 @@ export class AccomodationsComponent implements OnInit {
     ngOnInit() {
         this.selectedService = ['waterPrice', 'electricPrice']
         this.user = this.auth.userValue
-        this.getAccomodationsByUser()
+        this.getAccomodationsByUser().subscribe((result) => (this.accomodations = result.data))
     }
 
     getAccomodationsByUser() {
         this.dataLoading = true
-        this.accomodationService
+        return this.accomodationService
             .getAccomodationByUserId(this.user?.id)
             .pipe(
                 finalize(() => {
@@ -55,7 +55,6 @@ export class AccomodationsComponent implements OnInit {
                     this.fillOtherFee()
                 }),
             )
-            .subscribe((result) => (this.accomodations = result.data))
     }
 
     openOtherFee() {
@@ -98,6 +97,7 @@ export class AccomodationsComponent implements OnInit {
                                 this.accomodation.otherFees?.push(otherFeeResponse)
                             }   
                         }
+                        this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Chỉnh sửa thành công', life: 3000 })
                         this.loading = false
                         this.otherFeesDialog = false
                         this.otherFee = {}
@@ -132,6 +132,7 @@ export class AccomodationsComponent implements OnInit {
                 .pipe(
                     finalize(() => {
                         this.accomodation.otherFees = this.accomodation.otherFees?.filter((val) => val.id !== this.otherFee.id)
+                        this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Xoá thành công', life: 3000 })
                         this.loading = false
                     }),
                 )
@@ -196,7 +197,8 @@ export class AccomodationsComponent implements OnInit {
             .pipe(
                 finalize(() => {
                     this.submitted = false
-                    this.getAccomodationsByUser()
+                    this.getAccomodationsByUser().subscribe((result) => (this.accomodations = result.data))
+                    this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Chỉnh sửa thành công', life: 3000 })
                 }),
             )
             .subscribe((data) => console.log(data))

@@ -33,8 +33,9 @@ export class TenantsComponent implements OnInit {
     rooms: Room[] = []
     selectedRoom: any;
     tenantForm: FormGroup;
+    returnDate:  Date | undefined = moment(Date.now()).toDate();
 
-    constructor(private auth: AuthenticationService, private accomodationService: AccomodationService, private roomService: RoomService, private tenantService: TenantService) {
+    constructor(private messageService: MessageService, private auth: AuthenticationService, private accomodationService: AccomodationService, private roomService: RoomService, private tenantService: TenantService) {
         this.tenantForm = new FormGroup (
             {
                 firstName: new FormControl(this.tentant.firstName, [Validators.required]),
@@ -127,9 +128,15 @@ export class TenantsComponent implements OnInit {
         this.getRoomAndTenantData()
     }
 
-    deleteTenant(tentant: Tenant) {
+    returnRoom(tentant: Tenant) {
         this.deleteTenantDialog = true
-        this.tentant = { ...tentant }
+        this.tentant = {...tentant}
+        let request: {id: any, returnDate: any} = {id: this.tentant.id, returnDate: this.returnDate}
+        this.tenantService.returnRoom(request).pipe(
+            finalize(() => {
+                this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Trả phòng thành công', life: 3000 })
+            })
+        ).subscribe
     }
 
     editTenant(tentant: Tenant) {
@@ -143,6 +150,12 @@ export class TenantsComponent implements OnInit {
         this.tenantForm.get('image')?.setValue(tentant.imageUrl)
         this.tenantForm.get('email')?.setValue(tentant.email)
         this.tenantForm.get('phone')?.setValue(tentant.phone)
+        if (!tentant.isStayed) {
+            this.tenantForm.disable()
+        } else {
+            this.tenantForm.enable()
+        }
+       
         this.tenantDialog = true
     }
 
@@ -152,9 +165,15 @@ export class TenantsComponent implements OnInit {
 
     saveTenant() {
         this.loading = true
-        
+        let message: string
+        if (this.tentant.id) {
+            message = 'Chỉnh sửa thành công'
+        } else {
+            message = 'Thêm thành công'
+        }
         this.tenantService.saveTenant(this.tentant).pipe(
             finalize(() => {
+                this.messageService.add({ severity: 'success', summary: 'Successful', detail: message, life: 3000 })
                 this.getRoomAndTenantData()
             })
         ).subscribe(data => console.log(data))
@@ -162,7 +181,19 @@ export class TenantsComponent implements OnInit {
     }
 
     confirmDelete() {
+        this.loading = true
         this.deleteTenantDialog = false
+        let request: {id?: any, returnDate?: any} = {id: this.tentant.id, returnDate: this.returnDate}
+        console.log(request)
+        this.tenantService.returnRoom(request).pipe(
+            finalize(() => {
+               this.getTenantByAccomodation().pipe(
+                finalize(() => {
+                    this.loading = false
+                })
+               ).subscribe(res  => this.tentants = res.data)
+            })
+        ).subscribe()
         
     }
 

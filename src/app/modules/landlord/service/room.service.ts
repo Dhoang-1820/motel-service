@@ -51,6 +51,13 @@ export class RoomService {
         )
     }
 
+    removeRoomFee(roomId: any, feeId: any) {
+        return this.http.delete<any>(`${environment.apiUrl}/room/fee/${roomId}/${feeId}`).pipe(
+            retry(1),
+            delay(1000),
+        )
+    }
+
     getImageByRoom(roomId: any) {
         return this.http.get<any>(`${environment.apiUrl}/room/image/${roomId}`).pipe(
             retry(1),

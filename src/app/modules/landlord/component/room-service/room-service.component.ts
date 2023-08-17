@@ -50,6 +50,8 @@ export class RoomServiceComponent implements OnInit {
     loading: boolean = false
     
     isEdit: boolean = false;
+    deleteRoomFeeDialog: boolean = false
+    selectedRoomFee: any;
 
     constructor(
         private otherFeeService: OtherFeeService,
@@ -153,20 +155,31 @@ export class RoomServiceComponent implements OnInit {
         this.room = { ...room }
         this.selectedRoomId = this.room.room.roomId
         this.productDialog = true
+        console.log('room', this.room)
     }
 
     editOtherFee(fee: any) {
         this.isEdit = true
         this.roomFee = { ...fee }
         this.otherFeesDialog = true
-        console.log(this.roomFee)
+        console.log('roomFee',this.roomFee)
     }
 
-    deleteOtherFee(fee: any) {}
+    deleteOtherFeeDialog(fee: any) {
+        this.selectedRoomFee = fee
+        this.deleteRoomFeeDialog = true
+    }
 
-    hideOtherFeeDialog() {
-        this.addOtherFeesDialog = false
-        this.otherFeesDialog = false
+    confirmDeleteRoomFee() {
+        this.loading = true
+        this.deleteRoomFeeDialog = false
+        this.productDialog = false
+        this.roomService.removeRoomFee( this.selectedRoomFee.roomId, this.selectedRoomFee.feeId).pipe(
+            finalize(() => {
+                this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Xoá thành công', life: 3000 })
+                this.getDropdownAccomodation();
+            })
+        ).subscribe()   
     }
 
     saveOtherFee() {
@@ -196,21 +209,23 @@ export class RoomServiceComponent implements OnInit {
     saveRoomFee() {
         this.addFeeLoading = true
         let request: { feeId?: any; roomId?: any; quantity?: any } = {}
+        let message: string
         if (this.isEdit) {
             request = {
                 feeId: this.roomFee.feeId,
                 roomId: this.roomFee.roomId,
                 quantity: this.roomFee.quantity
             }
+            message = 'Chỉnh sửa thành công'
         } else {
             request = {
                 feeId: this.selectedFee.id,
                 roomId: this.room.room.roomId || this.room.roomId,
                 quantity: this.selectedFee.quantity,
             }
+            message = 'Thêm thành công'
         }
         
-        console.log(request)
         this.roomService
             .saveRoomFee(request)
             .pipe(
@@ -222,6 +237,7 @@ export class RoomServiceComponent implements OnInit {
                     this.addRoomFeeDialog = false
                     this.otherFeesDialog = false
                     this.isEdit = false
+                    this.messageService.add({ severity: 'success', summary: 'Successful', detail: message, life: 3000 })
                 }),
             )
             .subscribe((data) => console.log(data))
@@ -232,23 +248,6 @@ export class RoomServiceComponent implements OnInit {
         this.room = { ...room }
     }
 
-    // confirmDeleteSelected() {
-    //     this.deleteProductsDialog = false
-    //     this.rooms = this.rooms.filter((val) => !this.selectedProducts.includes(val))
-    //     this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 })
-    //     this.selectedProducts = []
-    // }
-
-    // confirmDelete() {
-    //     this.deleteProductDialog = false
-    //     this.roomService.removeRoom(this.room.id).pipe(
-    //         finalize(() => {
-    //             this.rooms = this.rooms.filter((val) => val.id !== this.room.id)
-    //             this.room = {}
-    //             this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Accomodation Deleted', life: 3000 })
-    //         })
-    //     ).subscribe(data => console.log(data))
-    // }
 
     hideDialog() {
         this.productDialog = false
@@ -258,7 +257,12 @@ export class RoomServiceComponent implements OnInit {
 
     saveRoom() {
         this.loading = true
-        console.log(this.room)
+        let message: string
+        if (this.room.id) {
+            message = 'Chỉnh sửa thành công'
+        } else {
+            message = 'Thêm thành công'
+        }
         this.room.accomodationId = this.selectedAccomodation.id
         this.roomService
             .saveRoom(this.room)
@@ -266,6 +270,7 @@ export class RoomServiceComponent implements OnInit {
                 finalize(() => {
                     this.submitted = false
                     this.getDropdownAccomodation()
+                    this.messageService.add({ severity: 'success', summary: 'Successful', detail: message, life: 3000 })
                 }),
             )
             .subscribe((data) => console.log(data))

@@ -29,6 +29,7 @@ import { NgxPermissionsModule } from 'ngx-permissions';
 import { DataViewModule } from 'primeng/dataview';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { GalleriaModule } from 'primeng/galleria';
+import { MenuModule } from 'primeng/menu';
 
 @NgModule({
   declarations: [],
@@ -65,7 +66,8 @@ import { GalleriaModule } from 'primeng/galleria';
     CalendarModule,
     DividerModule,
     NgxPermissionsModule,
-    GalleriaModule
+    GalleriaModule,
+    MenuModule
   ],
 })
 export class SharedModuleModule { }

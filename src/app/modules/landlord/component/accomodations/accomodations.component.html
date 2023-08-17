@@ -15,7 +15,7 @@
                 </ng-template> -->
             </p-toolbar>
 
-            <p-table #dt [value]="accomodations" [loading]="dataLoading" loadingIcon="pi pi-spin pi-spinner" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['name','country.name','representative.name','status']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [(selection)]="selectedProducts" selectionMode="multiple" [rowHover]="true" dataKey="id">
+            <p-table #dt [value]="accomodations" [loading]="dataLoading" loadingIcon="pi pi-spin pi-spinner" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['name', 'address']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [(selection)]="selectedProducts" selectionMode="multiple" [rowHover]="true" dataKey="id">
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                         <h5 class="m-0">Quản lý khu trọ</h5>
@@ -107,12 +107,12 @@
 
                 <div class="formgrid grid">
                     <div class="field col">
-                        <label for="price">Giá điện</label>
-                        <p-inputNumber id="price" [(ngModel)]="accomodation.electricPrice" suffix="đ"></p-inputNumber>
+                        <label for="price">Giá điện (đồng)</label>
+                        <p-inputNumber id="price" [(ngModel)]="accomodation.electricPrice" ></p-inputNumber>
                     </div>
                     <div class="field col">
-                        <label for="quantity">Giá nước</label>
-                        <p-inputNumber id="quantity" [(ngModel)]="accomodation.waterPrice" suffix="đ"></p-inputNumber>
+                        <label for="quantity">Giá nước (đồng)</label>
+                        <p-inputNumber id="quantity" [(ngModel)]="accomodation.waterPrice" ></p-inputNumber>
                     </div>
                 </div>
             </ng-template>
@@ -133,8 +133,8 @@
                     <input type="text" pInputText id="feeType" [(ngModel)]="otherFee.unit" required autofocus />
                 </div>
                 <div class="field">
-                    <label for="quantity">Giá</label>
-                    <p-inputNumber id="quantity" [(ngModel)]="otherFee.price" suffix="đ"></p-inputNumber>
+                    <label for="quantity">Giá (đồng)</label>
+                    <p-inputNumber id="quantity" [(ngModel)]="otherFee.price" ></p-inputNumber>
                 </div>
             </ng-template>
             <ng-template pTemplate="footer">

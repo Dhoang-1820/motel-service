@@ -35,7 +35,7 @@ export class AuthenticationService {
     logout() {
         localStorage.removeItem('user')
         this.userSubject.next(null)
-        this.router.navigate(['/login'])
+        this.router.navigate(['/auth'])
     }
 
     refreshToken() {
@@ -49,7 +49,7 @@ export class AuthenticationService {
                     localStorage['user'] = JSON.stringify(this.userValue)
                     return this.userValue
                 } else {
-                    this.router.navigate(['/login'])
+                    this.router.navigate(['/auth'])
                     return null
                 }
             }),

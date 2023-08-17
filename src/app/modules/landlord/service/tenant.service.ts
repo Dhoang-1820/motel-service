@@ -16,4 +16,8 @@ export class TenantService {
     saveTenant(request: any): Observable<any> {
         return this.http.post<any>(`${environment.apiUrl}/tenant`, request).pipe(retry(1), delay(1000))
     }
+
+    returnRoom(request: any): Observable<any> {
+        return this.http.post<any>(`${environment.apiUrl}/tenant/return`, request).pipe(retry(1), delay(1000))
+    }
 }

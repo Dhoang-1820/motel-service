@@ -32,10 +32,10 @@ export class AuthComponent implements OnInit {
       finalize(() => {
         if (this.user) {
           this.userRole = this.user.roles;
-          if (this.userRole[0] === AppConstant.ROLE_ADMIN) {
-             const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
-             console.log(returnUrl)
-             this.router.navigateByUrl(returnUrl);
+          if (this.userRole[0] === AppConstant.ROLE_LANDLORD) {
+             this.router.navigateByUrl('/motel-management/accomodation');
+          } else if (this.userRole[0] === AppConstant.ROLE_ADMIN) {
+            this.router.navigateByUrl('/admin/user-management');
           }
           this.loading = false;
         }

@@ -29,7 +29,8 @@ const routes: Routes = [
         loadChildren: () => import('./modules/users/users.module').then((m) => m.UsersModule),
     },
     { path: 'auth', loadChildren: () => import('./modules/auth/auth.module').then((m) => m.AuthModule) },
-    { path: 'access-denined', component: AccessDeninedComponent}
+    { path: 'access-denined', component: AccessDeninedComponent},
+    { path: 'admin', loadChildren: () => import('./modules/admin/admin.module').then(m => m.AdminModule) }
 ]
 
 @NgModule({

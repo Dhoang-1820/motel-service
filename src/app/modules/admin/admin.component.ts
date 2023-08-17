@@ -1,16 +1,16 @@
 import { Component, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { Subscription, filter } from 'rxjs';
-import { LayoutService } from './service/layout.service';
 import { NavigationEnd, Router } from '@angular/router';
-import { SidebarComponent } from './layout/sidebar/sidebar.component';
-import { HeaderComponent } from './layout/header/header.component';
+import { LayoutService } from '../landlord/service/layout.service';
+import { SidebarComponent } from '../landlord/layout/sidebar/sidebar.component';
+import { HeaderComponent } from '../landlord/layout/header/header.component';
 
 @Component({
-  selector: 'app-landlord',
-  templateUrl: './landlord.component.html',
-  styleUrls: ['./landlord.component.scss']
+  selector: 'app-admin',
+  templateUrl: './admin.component.html',
+  styleUrls: ['./admin.component.scss']
 })
-export class LandlordComponent implements OnInit {
+export class AdminComponent implements OnInit {
 
   overlayMenuOpenSubscription: Subscription;
 
@@ -121,4 +121,5 @@ export class LandlordComponent implements OnInit {
           this.menuOutsideClickListener();
       }
   }
+
 }

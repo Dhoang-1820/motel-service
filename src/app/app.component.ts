@@ -18,7 +18,7 @@ export class AppComponent implements OnInit {
       this.user = this.auth.userValue
       this.userRole = this.user?.roles;
       console.log('role', this.userRole)
-      this.permissionsService.loadPermissions(this.userRole );
+      // this.permissionsService.loadPermissions(this.userRole );
     }
     title = 'motel-service'
 }

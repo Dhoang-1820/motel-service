@@ -40,7 +40,7 @@ export class RoomComponent implements OnInit {
 
     ngOnInit() {
         this.user = this.auth.userValue
-        this.getDropdownAccomodation()
+        this.getDropdownAccomodation().subscribe(response => this.accomodations = response.data)
     }
 
     openNew() {
@@ -51,14 +51,13 @@ export class RoomComponent implements OnInit {
 
     getDropdownAccomodation() {
         this.loading = true
-        this.accomodationService.getDropdownAccomodation(this.user?.id).pipe(
+        return this.accomodationService.getDropdownAccomodation(this.user?.id).pipe(
             finalize(() => {
                 this.selectedAccomodation = this.accomodations[0];
                 this.loading = false;
                 this.getRoomByAccomodation()
             })
-        ).subscribe(response => this.accomodations = response.data)
-        
+        )
     }
 
     getRoomByAccomodation() {
@@ -125,12 +124,22 @@ export class RoomComponent implements OnInit {
         this.loading = true
         console.log(this.room)
         this.room.accomodationId = this.selectedAccomodation.id;
+        let message: string
+        if (this.room.id) {
+            message = 'Chỉnh sửa thành công'
+        } else {
+            message = 'Thêm thành công'
+        }
         this.roomService
             .saveRoom(this.room)
             .pipe(
                 finalize(() => {
                     this.submitted = false
-                    this.getDropdownAccomodation()
+                    this.getDropdownAccomodation().pipe(
+                        finalize(() => {
+                            this.messageService.add({ severity: 'success', summary: 'Successful', detail: message, life: 3000 })
+                        })
+                    ).subscribe(response => this.accomodations = response.data)
                 }),
             )
             .subscribe((data) => console.log(data))

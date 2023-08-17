@@ -16,7 +16,7 @@
                 </ng-template>
             </p-toolbar>
 
-            <p-table #dt [value]="tentants" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['name','capacity','price','acreage']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"  selectionMode="multiple" [rowHover]="true" dataKey="id">
+            <p-table #dt [value]="tentants" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['firstName', 'lastName', 'room.name', 'startDate', 'isStayed', 'identifyNum', 'email', 'phone']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"  selectionMode="multiple" [rowHover]="true" dataKey="id">
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                         <h5 class="m-0">Quản lý khách thuê</h5>
@@ -28,14 +28,14 @@
                 </ng-template>
                 <ng-template pTemplate="header">
                     <tr>
-                        <th pSortableColumn="firstname">Họ<p-sortIcon field="firstname"></p-sortIcon></th>
-                        <th pSortableColumn="lastname">Tên<p-sortIcon field="lastname"></p-sortIcon></th>
-                        <th pSortableColumn="status">Trạng thái<p-sortIcon field="status"></p-sortIcon></th>
-                        <th pSortableColumn="room">Phòng<p-sortIcon field="room"></p-sortIcon></th>
+                        <th pSortableColumn="firstName">Họ<p-sortIcon field="firstName"></p-sortIcon></th>
+                        <th pSortableColumn="lastName">Tên<p-sortIcon field="lastName"></p-sortIcon></th>
+                        <th pSortableColumn="isStayed">Trạng thái<p-sortIcon field="isStayed"></p-sortIcon></th>
+                        <th pSortableColumn="room.name">Phòng<p-sortIcon field="room.name"></p-sortIcon></th>
                         <th pSortableColumn="startDate">Ngày bắt đầu ở<p-sortIcon field="startDate"></p-sortIcon></th>
-                        <th pSortableColumn="idNum">Số định danh<p-sortIcon field="idNum"></p-sortIcon></th>
-                        <th pSortableColumn="idNum">Email<p-sortIcon field="idNum"></p-sortIcon></th>
-                        <th pSortableColumn="idNum">Số điện thoại<p-sortIcon field="idNum"></p-sortIcon></th>
+                        <th pSortableColumn="identifyNum">Số định danh<p-sortIcon field="identifyNum"></p-sortIcon></th>
+                        <th pSortableColumn="email">Email<p-sortIcon field="email"></p-sortIcon></th>
+                        <th pSortableColumn="phone">Số điện thoại<p-sortIcon field="phone"></p-sortIcon></th>
                         <!-- <th pSortableColumn="image">Ảnh<p-sortIcon field="image"></p-sortIcon></th> -->
                         <th></th>
                     </tr>
@@ -53,11 +53,10 @@
                         <td>{{tenant.identifyNum}}</td>
                         <td>{{tenant.email}}</td>
                         <td>{{tenant.phone}}</td>
-                        <!-- <td>{{tenant.image}}</td> -->
                         <td>
                             <div class="flex">
                                 <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editTenant(tenant)"></button>
-                                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteTenant(tenant)"></button>
+                                <button pButton pRipple [disabled]="!tenant.isStayed" pTooltip="Trả phòng" tooltipPosition="bottom" icon="pi pi-refresh" class="p-button-rounded p-button-warning" (click)="returnRoom(tenant)"></button>
                             </div>
                         </td>
                     </tr>
@@ -109,7 +108,7 @@
                         <label for="name">Trạng thái (còn ở)</label>
                         <div class="formgrid grid">
                             <div class="field-radiobutton col-6">
-                                <p-radioButton id="yes" formControlName="status" [value]="true" ></p-radioButton>
+                                <p-radioButton id="yes" formControlName="status"  [value]="true" ></p-radioButton>
                                 <label for="yes">Còn</label>
                             </div>
                             <div class="field-radiobutton col-6">
@@ -123,15 +122,17 @@
 
             <ng-template pTemplate="footer">
                 <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-                <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveTenant()"></button>
+                <button pButton pRipple label="Save" icon="pi pi-check"  class="p-button-text" (click)="saveTenant()"></button>
             </ng-template>
         </p-dialog>
 
-        <p-dialog [(visible)]="deleteTenantDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
-            <div class="flex align-items-center justify-content-center">
-                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
-                <span *ngIf="tentant">Are you sure you want to delete <b>{{tentant.firstName}} {{tentant.lastName}}</b>?</span>
-            </div>
+        <p-dialog [(visible)]="deleteTenantDialog" header="Xác nhận trả phòng" [modal]="true" [style]="{width:'450px'}">
+            <ng-template pTemplate="content">
+                <div class="field">
+                    <label for="name" style="margin-right: 12px;">Ngày trả phòng</label>
+                    <p-calendar [(ngModel)]="returnDate"  dateFormat="dd/mm/yy" [touchUI]="true" [ngClass]="{'ng-invalid ng-dirty' : tenantForm.controls['startDate'].invalid && (tenantForm.controls['startDate'].dirty || tenantForm.controls['startDate'].touched)}"></p-calendar>
+                </div>
+            </ng-template>
             <ng-template pTemplate="footer">
                 <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteTenantDialog = false"></button>
                 <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDelete()"></button>

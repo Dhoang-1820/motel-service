@@ -23,19 +23,9 @@ export class HeaderComponent implements OnInit {
                 label: 'Menu',
                 items: [
                     {
-                        label: 'Thông tin cá nhân',
-                        icon: 'pi pi-user',
-                        routerLink: '/motel-management/profile',
-                    },
-                    {
-                        label: 'Quản lý phòng trọ',
-                        icon: 'pi pi-server',
-                        routerLink: '/motel-management/room',
-                    },
-                    {
-                        label: 'Quản lý khách thuê',
-                        icon: 'pi pi-users',
-                        routerLink: '/motel-management/tenant',
+                        label: 'Quản lý người dùng',
+                        icon: 'pi pi-fw pi-users',
+                        routerLink: '/admin/user-management',
                     },
                     {
                         label: 'Đăng xuất',
