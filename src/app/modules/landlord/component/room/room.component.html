@@ -11,12 +11,12 @@
 
                 <ng-template pTemplate="right">
                    <div class="flex justify-content-center">
-                        <p-dropdown  [options]="accomodations" (onChange)="onSelectAccomodation()" [(ngModel)]="selectedAccomodation" optionLabel="name" autoWidth="false"  [style]="{'width':'100%'}"></p-dropdown>
+                        <p-dropdown placeholder="Chọn phòng trọ"  [options]="accomodations" (onChange)="onSelectAccomodation()" [(ngModel)]="selectedAccomodation" optionLabel="name" autoWidth="false"  [style]="{'width':'100%'}"></p-dropdown>
                    </div>
                 </ng-template>
             </p-toolbar>
 
-            <p-table #dt [value]="rooms" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['name','capacity','price','acreage', 'internet', 'airConditionor', 'isRent']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [(selection)]="selectedProducts" selectionMode="multiple" [rowHover]="true" dataKey="id">
+            <p-table #dt [value]="rooms" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['name','capacity','price','acreage', 'isRent']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [(selection)]="selectedProducts" selectionMode="multiple" [rowHover]="true" dataKey="id">
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                         <h5 class="m-0">Quản lý phòng trọ</h5>
@@ -32,8 +32,6 @@
                         <th pSortableColumn="capacity">Số người ở tối đa<p-sortIcon field="capacity"></p-sortIcon></th>
                         <th pSortableColumn="price">Giá phòng<p-sortIcon field="price"></p-sortIcon></th>
                         <th pSortableColumn="acreage">Diện tích<p-sortIcon field="acreage"></p-sortIcon></th>
-                        <th pSortableColumn="internet">Internet<p-sortIcon field="internet"></p-sortIcon></th>
-                        <th pSortableColumn="airConditionor">Máy lạnh<p-sortIcon field="airConditionor"></p-sortIcon></th>
                         <th pSortableColumn="isRent">Trạng thái<p-sortIcon field="isRent"></p-sortIcon></th>
                         <th></th>
                     </tr>
@@ -44,22 +42,14 @@
                         <td>{{product.capacity}}</td>
                         <td>{{product.price | currency: 'VND':'symbol'}}</td>
                         <td>{{product.acreage}} m²</td>
-                        <td *ngIf="product.internet; else isInternet">Có</td>
-                        <ng-template #isInternet>
-                            <td>Không</td>
-                        </ng-template>
-                        <td  *ngIf="product.airConditionor; else isAirConditionor">Có</td>
-                        <ng-template #isAirConditionor>
-                            <td>Không</td>
-                        </ng-template>
                         <td *ngIf="product.isRent; else isRent">Đã cho thuê</td>
                         <ng-template #isRent>
                             <td>Chưa cho thuê</td>
                         </ng-template>
                         <td>
                             <div class="flex">
-                                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editProduct(product)"></button>
-                                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteProduct(product)"></button>
+                                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editRoom(product)"></button>
+                                <button pButton pRipple icon="pi pi-trash" [disabled]="product.isRent" class="p-button-rounded p-button-warning" (click)="deleteRoom(product)"></button>
                             </div>
                         </td>
                     </tr>
@@ -67,36 +57,23 @@
             </p-table>
         </div>
 
-        <p-dialog [(visible)]="productDialog" [style]="{width: '550px'}" header="Chi tiết phòng trọ" [modal]="true" class="p-fluid">
+        <p-dialog [(visible)]="addDialog" [style]="{width: '550px'}" header="Chi tiết phòng trọ" [modal]="true" class="p-fluid">
             <ng-template pTemplate="content">
                 <div class="field">
                     <label for="name">Tên phòng/Số phòng</label>
                     <input type="text" pInputText id="name" [(ngModel)]="room.name" required autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !room.name}"/>
-                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !room.name">Name is required.</small>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !room.name">Vui lòng nhập tên phòng.</small>
                 </div>
                 <div class="field">
                     <label for="price">Giá phòng (đồng)</label>
-                    <p-inputNumber id="price" [(ngModel)]="room.price" ></p-inputNumber>
-                </div>
-                <div class="field">
-                    <label class="mb-3">Dịch vụ</label>
-                    <div class="formgrid grid">
-                        <div class="field-radiobutton col-6">
-                            <p-checkbox [(ngModel)]="room.airConditionor" [binary]="true" inputId="binary"></p-checkbox>
-                            <label for="category2">Máy lạnh</label>
-                        </div>
-                        <div class="field-radiobutton col-6">
-                            <p-checkbox [(ngModel)]="room.internet" [binary]="true" inputId="binary"></p-checkbox>
-                            <label for="category3">Internet</label>
-                        </div>
-                        
-                    </div>
-                </div>
-                
+                    <p-inputNumber id="price" [(ngModel)]="room.price" [ngClass]="{'ng-invalid ng-dirty' : submitted && !room.name}"></p-inputNumber>
+                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !room.price">Vui lòng nhập giá.</small>
+                </div>                
                 <div class="formgrid grid">
                     <div class="field col">
                         <label for="price">Diện tích</label>
-                        <p-inputNumber id="price" [(ngModel)]="room.acreage" mode="decimal"  suffix="m²"></p-inputNumber>
+                        <p-inputNumber id="price" [(ngModel)]="room.acreage" mode="decimal" suffix="m²" [ngClass]="{'ng-invalid ng-dirty' : submitted && !room.name}"></p-inputNumber>
+                        <small class="ng-dirty ng-invalid" *ngIf="submitted && !room.price">Vui lòng nhập diện tích.</small>
                     </div>
                     <div class="field col">
                         <label for="price">Số người ở</label>

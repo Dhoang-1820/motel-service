@@ -8,14 +8,9 @@
                         <button pButton pRipple label="Thêm" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
                     </div>
                 </ng-template>
-
-                <!-- <ng-template pTemplate="right">
-                    <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import" chooseLabel="Import" class="mr-2 inline-block"></p-fileUpload>
-                    <button pButton pRipple label="Export" icon="pi pi-upload" class="p-button-help" (click)="dt.exportCSV()"></button>
-                </ng-template> -->
             </p-toolbar>
 
-            <p-table #dt [value]="accomodations" [loading]="dataLoading" loadingIcon="pi pi-spin pi-spinner" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['name', 'address']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [(selection)]="selectedProducts" selectionMode="multiple" [rowHover]="true" dataKey="id">
+            <p-table #dt [value]="accomodations" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['name', 'addressLine', 'ward', 'district', 'province']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" selectionMode="multiple" [rowHover]="true" dataKey="id">
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                         <h5 class="m-0">Quản lý khu trọ</h5>
@@ -28,7 +23,7 @@
                 <ng-template pTemplate="header">
                     <tr>
                         <th pSortableColumn="name">Tên khu/Toà nhà <p-sortIcon field="name"></p-sortIcon></th>
-                        <th pSortableColumn="address">Địa chỉ<p-sortIcon field="address"></p-sortIcon></th>
+                        <th pSortableColumn="addressLine">Địa chỉ<p-sortIcon field="addressLine"></p-sortIcon></th>
                         <th></th>
                         <th></th>
                         <th></th>
@@ -43,7 +38,7 @@
                             {{item.name}}
                         </td>
                         <td style="width:50%; min-width:10rem;">
-                            {{item.address}}
+                            {{item.addressLine + ', ' + item.ward + ', ' + item.district + ', ' + item.province}}
                         </td>
                         <td></td>
                         <td></td>
@@ -52,8 +47,8 @@
                         <td></td>
                         <td>
                             <div class="flex">
-                                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editProduct(item)"></button>
-                                <!-- <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteProduct(item)"></button> -->
+                                <button pButton [loading]="item.loading" pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editAccomodation(item)"></button>
+                                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteAccomodation(item)"></button>
                             </div>
                         </td>
                     </tr>
@@ -62,59 +57,36 @@
             
         </div>
 
-        <p-dialog [(visible)]="productDialog"  [style]="{width: '650px'}" header="Chi tiết khu trọ" [modal]="true" class="p-fluid">
+        <p-dialog [(visible)]="addDialog" [resizable]="true" [style]="{width: '550px', height: '600px'}" header="Chi tiết khu trọ" [modal]="true" class="p-fluid">
             <ng-template pTemplate="content">
-                <div class="field">
-                    <label for="name">Tên khu/Toà nhà</label>
-                    <input type="text" pInputText id="name" [(ngModel)]="accomodation.name" required autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !accomodation.name}"/>
-                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !accomodation.name">Name is required.</small>
-                </div>
-                <div class="field">
-                    <label for="description">Địa chỉ</label>
-                    <textarea id="description" pInputTextarea [(ngModel)]="accomodation.address" required rows="3" cols="20"></textarea>
-                </div>
-                <div class="field" >
-                    <label class="mb-3">Dịch vụ chung</label>
-                    <button style="width: 100px; height: 35px; margin-left: 20px; margin-bottom: 5px;" pButton pRipple label="Thêm" icon="pi pi-plus" class="p-button-success mr-2" (click)="openOtherFee()"></button>
-                    <ng-container *ngIf="accomodation.otherFees && accomodation.otherFees.length > 0">
-                        <p-table [loading]="loading" [value]="accomodation.otherFees" [rows]="10">
-                            <ng-template pTemplate="header">
-                                <tr>
-                                    <th pSortableColumn="feeType">Loại phí<p-sortIcon field="feeType"></p-sortIcon></th>
-                                    <th pSortableColumn="unit">Đơn vị tính<p-sortIcon field="unit"></p-sortIcon></th>
-                                    <th pSortableColumn="price">Giá<p-sortIcon field="price"></p-sortIcon></th>
-                                    <th></th>
-                                </tr>
-                            </ng-template>
-                            <ng-template pTemplate="body" let-fee>
-                                <tr>
-                                   <td style="width:50%; min-width:10rem;">{{fee.name}}</td>
-                                   <td style="width:50%; min-width:10rem;">{{fee.unit}}</td>
-                                   <td style="width:50%; min-width:10rem;">
-                                    <p-inputNumber suffix="đ" [(ngModel)]="fee.price" [readonly]="true"></p-inputNumber>
-                                    </td>
-                                   <td>
-                                        <div class="flex">
-                                            <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editOtherFee(fee)"></button>
-                                            <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteOtherFee(fee)"></button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </ng-template>
-                        </p-table>
-                    </ng-container>
-                </div>
-
-                <div class="formgrid grid">
-                    <div class="field col">
-                        <label for="price">Giá điện (đồng)</label>
-                        <p-inputNumber id="price" [(ngModel)]="accomodation.electricPrice" ></p-inputNumber>
+                <form [formGroup]="accomodationForm">
+                    <div class="field">
+                        <label for="name">Tên khu/Toà nhà</label>
+                        <input type="text" pInputText  formControlName="name" autofocus [ngClass]="{'ng-invalid ng-dirty' : accomodationForm.controls['name'].invalid && (accomodationForm.controls['name'].dirty || accomodationForm.controls['name'].touched)}"/>
+                        <small class="ng-dirty ng-invalid" *ngIf="this.accomodationForm.get('name')?.invalid && (accomodationForm.controls['name'].dirty || accomodationForm.controls['name'].touched)">Vui lòng nhập tên khu trọ.</small>
                     </div>
-                    <div class="field col">
-                        <label for="quantity">Giá nước (đồng)</label>
-                        <p-inputNumber id="quantity" [(ngModel)]="accomodation.waterPrice" ></p-inputNumber>
+                    <div class="field">
+                        <label for="province">Tỉnh/Thành phố</label>
+                        <p-dropdown (onChange)="getDistrictByProvince()" placeholder="Tỉnh/Thành phố" [options]="provices" formControlName="province" optionLabel="name" [ngClass]="{'ng-invalid ng-dirty' : accomodationForm.controls['province'].invalid && (accomodationForm.controls['province'].dirty || accomodationForm.controls['province'].touched)}">
+                        </p-dropdown>
+                        <small class="ng-dirty ng-invalid" *ngIf="this.accomodationForm.get('province')?.invalid && (accomodationForm.controls['province'].dirty || accomodationForm.controls['province'].touched)">Vui lòng chọn địa chỉ.</small>
                     </div>
-                </div>
+                    <div class="field">
+                        <label for="district">Quận/Huyện</label>
+                        <p-dropdown (onChange)="getWardByDistrict()" placeholder="Quận/Huyện" formControlName="district" [options]="districts" optionLabel="name" [ngClass]="{'ng-invalid ng-dirty' : accomodationForm.controls['district'].invalid && (accomodationForm.controls['district'].dirty || accomodationForm.controls['district'].touched)}"></p-dropdown>
+                        <small class="ng-dirty ng-invalid" *ngIf="this.accomodationForm.get('district')?.invalid && (accomodationForm.controls['district'].dirty || accomodationForm.controls['district'].touched)">Vui lòng chọn địa chỉ.</small>
+                    </div>
+                    <div class="field">
+                        <label for="ward">Phường/Xã</label>
+                        <p-dropdown [options]="wards" formControlName="ward" placeholder="Phường/Xã" optionLabel="name" [ngClass]="{'ng-invalid ng-dirty' : accomodationForm.controls['ward'].invalid && (accomodationForm.controls['ward'].dirty || accomodationForm.controls['ward'].touched)}"></p-dropdown>
+                        <small class="ng-dirty ng-invalid" *ngIf="this.accomodationForm.get('ward')?.invalid && (accomodationForm.controls['ward'].dirty || accomodationForm.controls['ward'].touched)">Vui lòng nhập chọn địa chỉ.</small>
+                    </div>
+                    <div class="field">
+                        <label for="address_line">Số nhà, tên đường</label>
+                        <input pInputText formControlName="addressLine" [ngClass]="{'ng-invalid ng-dirty' : accomodationForm.controls['addressLine'].invalid && (accomodationForm.controls['addressLine'].dirty || accomodationForm.controls['addressLine'].touched)}"/>
+                        <small class="ng-dirty ng-invalid" *ngIf="this.accomodationForm.get('addressLine')?.invalid && (accomodationForm.controls['addressLine'].dirty || accomodationForm.controls['addressLine'].touched)">Vui lòng nhập chọn địa chỉ.</small>
+                    </div>
+                </form>
             </ng-template>
 
             <ng-template pTemplate="footer">
@@ -122,48 +94,20 @@
                 <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveAccomodation()"></button>
             </ng-template>
         </p-dialog>
-        <p-dialog [(visible)]="otherFeesDialog" [style]="{width: '450px'}" header="Thêm phí khác" [modal]="true" class="p-fluid">
-            <ng-template pTemplate="content">
-                <div class="field">
-                    <label for="name">Loại phí</label>
-                    <input type="text" pInputText id="name" [(ngModel)]="otherFee.name" required autofocus />
-                </div>
-                <div class="field">
-                    <label for="feeType">Đơn vị</label>
-                    <input type="text" pInputText id="feeType" [(ngModel)]="otherFee.unit" required autofocus />
-                </div>
-                <div class="field">
-                    <label for="quantity">Giá (đồng)</label>
-                    <p-inputNumber id="quantity" [(ngModel)]="otherFee.price" ></p-inputNumber>
-                </div>
-            </ng-template>
-            <ng-template pTemplate="footer">
-                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideOtherFeeDialog()"></button>
-                <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveOtherFee()"></button>
-            </ng-template>
-        </p-dialog>
 
-        <p-dialog [(visible)]="deleteProductDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+        <p-dialog [(visible)]="deleteDialog" header="Xác nhận" [modal]="true" [style]="{width:'450px'}">
             <div class="flex align-items-center justify-content-center">
                 <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
-                <span *ngIf="accomodation">Are you sure you want to delete <b>{{accomodation.name}}</b>?</span>
+                <span *ngIf="accomodation">Bạn có chắc chắn muốn xoá <b>{{accomodation.name}}</b>?</span>
             </div>
             <ng-template pTemplate="footer">
-                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteProductDialog = false"></button>
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteDialog = false"></button>
                 <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDelete()"></button>
             </ng-template>
         </p-dialog>
-
-        <p-dialog [(visible)]="deleteProductsDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
-            <div class="flex align-items-center justify-content-center">
-                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
-                <span>Are you sure you want to delete selected products?</span>
-            </div>
-            <ng-template pTemplate="footer">
-                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteProductsDialog = false"></button>
-                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDeleteSelected()"></button>
-            </ng-template>
-        </p-dialog>
     </div>
+</div>
+<div class="progress-spinner" *ngIf="dataLoading">
+    <p-progressSpinner></p-progressSpinner>
 </div>
 

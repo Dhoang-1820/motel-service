@@ -22,7 +22,6 @@ export class SidebarComponent implements OnInit {
                 items: [
                     { label: 'Hồ sơ cá nhân', icon: 'pi pi-fw pi-user', routerLink: ['/motel-management/profile'] },
                     { label: 'Cấu hình chung', icon: 'pi pi-fw pi-desktop', routerLink: ['/motel-management/config-common'] },
-                    // { label: 'Danh sách dịch vụ', icon: 'pi pi-fw pi-desktop', url: ['https://www.primefaces.org/primeflex/'] },
                 ],
             },
             {
@@ -30,14 +29,16 @@ export class SidebarComponent implements OnInit {
                 items: [
                     { label: 'Nhà trọ', icon: 'pi pi-fw pi-id-card', routerLink: ['/motel-management/accomodation'] },
                     { label: 'Phòng', icon: 'pi pi-fw pi-server', routerLink: ['/motel-management/room'] },
+                    { label: 'Dịch vụ', icon: 'pi pi-th-large', routerLink: ['/motel-management/service'] },
+                    { label: 'Thiết bị', icon: 'pi pi-table', routerLink: ['/motel-management/equipment'] },
                     { label: 'Quản lý ảnh phòng', icon: 'pi pi-fw pi-images', routerLink: ['/motel-management/room-image'] },
                 ],
             },
             {
                 label: 'Hợp đồng',
                 items: [
+                    { label: 'Đặt cọc phòng', icon: 'pi pi-fw pi-sitemap', routerLink: ['/motel-management/deposit'] },
                     { label: 'Khách thuê', icon: 'pi pi-fw pi-users', routerLink: ['/motel-management/tenant'] },
-                    { label: 'Dịch vụ phòng', icon: 'pi pi-fw pi-sitemap', routerLink: ['/motel-management/service'] },
                 ],
             },
             {

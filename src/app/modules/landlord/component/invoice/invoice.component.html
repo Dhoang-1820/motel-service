@@ -68,7 +68,7 @@
                         <td>{{ data.name }}</td>
                         <td>{{ data.billDate | date:'MM/yyyy'}}</td>
                         <td>{{ data.totalPrice | currency: 'VND':'symbol'}}</td>
-                        <td>{{ data.isSent ? 'Chưa gửi hoá đơn' : 'Đã gửi hoá đơn'}}</td>
+                        <td>{{ data.isSent ? 'Đã gửi hoá đơn' : 'Chưa gửi hoá đơn'}}</td>
                         <td>{{ data.isPay ? 'Đã thanh toán' : 'Chưa thanh toán'}}</td>
                         <td>{{ data.createdAt | date:'dd/MM/yyyy'}}</td>
                         <td></td>
@@ -160,11 +160,14 @@
                 </div>
                 <p-divider></p-divider>
                 <div class="field">
-                    <div>Trạng thái thanh toán: {{room.isPay ? 'Đã thanh toán' : 'Chưa thanh toán'}}</div>
+                    <div>Trạng thái thanh toán: <p-tag *ngIf="room.isPay" severity="success" value="Đã thanh toán"></p-tag>
+                        <p-tag *ngIf="!room.isPay" severity="danger" value="Chưa thanh toán"></p-tag>
+                    </div>
+                    
                 </div>
                 <p-divider></p-divider>
                 <div class="field">
-                    <div>Tổng hoá đơn: {{room.totalPrice | currency: 'VND':'symbol'}}</div>
+                    <div>Tổng hoá đơn: {{room.totalPrice | currency: 'VND':'symbol'}} </div>
                 </div>
             </ng-template>
 

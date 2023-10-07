@@ -17,7 +17,7 @@ export class AuthComponent implements OnInit {
   loading = false;
   username!: string;
   password!: string;
-  userRole: string[] = [];
+  userRole!: string | undefined;
 
   user!: User;
 
@@ -32,10 +32,12 @@ export class AuthComponent implements OnInit {
       finalize(() => {
         if (this.user) {
           this.userRole = this.user.roles;
-          if (this.userRole[0] === AppConstant.ROLE_LANDLORD) {
+          if (this.userRole === AppConstant.ROLE_LANDLORD) {
              this.router.navigateByUrl('/motel-management/accomodation');
-          } else if (this.userRole[0] === AppConstant.ROLE_ADMIN) {
+          } else if (this.userRole === AppConstant.ROLE_ADMIN) {
             this.router.navigateByUrl('/admin/user-management');
+          } else {
+            this.router.navigateByUrl('/motel-service');
           }
           this.loading = false;
         }

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core'
 import { HttpClient } from '@angular/common/http'
-import { Accomodation } from '../model/accomodation.model'
+import { Accomodation, AccomodationUtilities } from '../model/accomodation.model'
 import { Observable, delay, retry, take } from 'rxjs'
 import { environment } from 'src/environments/environment'
 
@@ -43,10 +43,24 @@ export class AccomodationService {
         )
     }
 
-    getAllRoomForLanding() {
+    getAllRoomForLanding(): Observable<any> {
         return this.http.get<any>(`${environment.apiUrl}/accomodation`).pipe(
             retry(1),
             delay(1000),
+        )
+    }
+
+    getAccomodationService(accomodationId: number): Observable<any> {
+        return this.http.get<any>(`${environment.apiUrl}/accomodation/services/${accomodationId}`).pipe(
+            retry(1),
+            delay(1000)
+        )
+    }
+
+    saveService(request: AccomodationUtilities): Observable<any> {
+        return this.http.post<any>(`${environment.apiUrl}/accomodation/services`, request).pipe(
+            retry(1),
+            delay(1000)
         )
     }
 }

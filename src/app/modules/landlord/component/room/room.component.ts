@@ -16,7 +16,7 @@ import { RoomService } from '../../service/room.service'
     providers: [MessageService],
 })
 export class RoomComponent implements OnInit {
-    productDialog: boolean = false
+    addDialog: boolean = false
     otherFeesDialog: boolean = false
     deleteProductDialog: boolean = false
     deleteProductsDialog: boolean = false
@@ -46,7 +46,7 @@ export class RoomComponent implements OnInit {
     openNew() {
         this.room = {}
         this.submitted = false
-        this.productDialog = true
+        this.addDialog = true
     }
 
     getDropdownAccomodation() {
@@ -73,25 +73,14 @@ export class RoomComponent implements OnInit {
         this.getRoomByAccomodation()
     }
 
-    deleteSelectedProducts() {
-        this.deleteProductsDialog = true
-    }
-
-    editProduct(room: Room) {
+    editRoom(room: Room) {
         this.room = { ...room }
-        this.productDialog = true
+        this.addDialog = true
     }
 
-    deleteProduct(room: Room) {
+    deleteRoom(room: Room) {
         this.deleteProductDialog = true
         this.room = { ...room }
-    }
-
-    confirmDeleteSelected() {
-        this.deleteProductsDialog = false
-        this.rooms = this.rooms.filter((val) => !this.selectedProducts.includes(val))
-        this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 })
-        this.selectedProducts = []
     }
 
     confirmDelete() {
@@ -100,29 +89,18 @@ export class RoomComponent implements OnInit {
             finalize(() => {
                 this.rooms = this.rooms.filter((val) => val.id !== this.room.id)
                 this.room = {}
-                this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Accomodation Deleted', life: 3000 })
+                this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Xoá thành công!', life: 3000 })
             })
         ).subscribe(data => console.log(data))
     }
 
     hideDialog() {
-        this.productDialog = false
+        this.addDialog = false
         this.submitted = false
-        console.log(this.room)
     }
-
-    onUpload(event: any) {
-        for(let file of event.files) {
-            this.uploadedFiles.push(file);
-        }
-        console.log(this.uploadedFiles)
-        // this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Tải ảnh thành công', life: 3000 })
-    }
-
 
     saveRoom() {
         this.loading = true
-        console.log(this.room)
         this.room.accomodationId = this.selectedAccomodation.id;
         let message: string
         if (this.room.id) {
@@ -135,15 +113,12 @@ export class RoomComponent implements OnInit {
             .pipe(
                 finalize(() => {
                     this.submitted = false
-                    this.getDropdownAccomodation().pipe(
-                        finalize(() => {
-                            this.messageService.add({ severity: 'success', summary: 'Successful', detail: message, life: 3000 })
-                        })
-                    ).subscribe(response => this.accomodations = response.data)
+                    this.loading = false
+                    this.messageService.add({ severity: 'success', summary: 'Successful', detail: message, life: 3000 })
                 }),
             )
-            .subscribe((data) => console.log(data))
-        this.productDialog = false
+            .subscribe(response => this.rooms = response.data)
+        this.addDialog = false
     }
 
     onGlobalFilter(table: Table, event: Event) {

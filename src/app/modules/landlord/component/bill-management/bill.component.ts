@@ -221,6 +221,7 @@ export class BillsComponent implements OnInit {
             .saveBill(this.bill)
             .pipe(
                 finalize(() => {
+                    this.bill = {}
                     this.getRoomAndTenantData()
                 }),
             )

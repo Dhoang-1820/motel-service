@@ -1,12 +1,14 @@
 import { Component, OnInit } from '@angular/core'
 import { OtherFee, Accomodation } from '../../model/accomodation.model'
-import { MessageService } from 'primeng/api'
+import { LazyLoadEvent, MessageService } from 'primeng/api'
 import { AccomodationService } from '../../service/accomodation.service'
 import { Table } from 'primeng/table'
-import { finalize } from 'rxjs'
+import { finalize, forkJoin } from 'rxjs'
 import { User } from 'src/app/modules/model/user.model'
 import { AuthenticationService } from 'src/app/modules/auth/service/authentication.service'
 import { OtherFeeService } from '../../service/other-fee.service'
+import { AddressService } from '../../service/address.service'
+import { FormControl, FormGroup, Validators } from '@angular/forms'
 
 @Component({
     selector: 'app-accomodations',
@@ -15,194 +17,197 @@ import { OtherFeeService } from '../../service/other-fee.service'
     providers: [MessageService],
 })
 export class AccomodationsComponent implements OnInit {
-    productDialog: boolean = false
+    addDialog: boolean = false
     otherFeesDialog: boolean = false
-    deleteProductDialog: boolean = false
-    deleteProductsDialog: boolean = false
+    deleteDialog: boolean = false
     accomodations: Accomodation[] = []
     accomodation: Accomodation = {}
-    selectedProducts: Accomodation[] = []
     submitted: boolean = false
     rowsPerPageOptions = [5, 10, 20]
-    otherFees: OtherFee[] = []
-    otherFee: OtherFee = {}
-    selectedService: any[] = []
-    selectedOtherFees: any[] = []
     dataLoading: boolean = false
     loading: boolean = false
+    provices: any[] = []
+    districts: any[] = []
+    wards: any[] = []
+    selectedProvince: any
+    selectedDistrict: any
+    selectedWard: any
     user!: User | null
+
+    existingProvince!: any;
+    existingDistrict!: any;
+    existingWard!: any
+
+    accomodationForm: FormGroup
 
     constructor(
         private accomodationService: AccomodationService,
         private messageService: MessageService,
         private auth: AuthenticationService,
-        private otherFeeService: OtherFeeService,
-    ) {}
+        private addressService: AddressService,
+    ) {
+        this.accomodationForm = new FormGroup({
+            name: new FormControl(this.accomodation.name, [Validators.required]),
+            province: new FormControl(this.accomodation.province, [Validators.required]),
+            district: new FormControl(this.accomodation.district, [Validators.required]),
+            ward: new FormControl(this.accomodation.ward, [Validators.required]),
+            addressLine: new FormControl(this.accomodation.addressLine, [Validators.required]),
+        })
+    }
 
     ngOnInit() {
-        this.selectedService = ['waterPrice', 'electricPrice']
         this.user = this.auth.userValue
-        this.getAccomodationsByUser().subscribe((result) => (this.accomodations = result.data))
+
+        forkJoin({
+            provinces: this.getProvinces(),
+            accomodations: this.getAccomodationsByUser(),
+        })
+            .subscribe((response) => {
+                this.provices = response.provinces
+                this.accomodations = response.accomodations.data
+            })
+
+            this.accomodationForm.get('name')?.valueChanges.subscribe(data => {
+                this.accomodation.name = data
+            })
+            this.accomodationForm.get('province')?.valueChanges.subscribe(data => {
+                if (data) {
+                    this.accomodation.province = data.name
+                    this.accomodation.provinceCode = data.code
+                    this.selectedProvince = data.code
+                }
+            })      
+            this.accomodationForm.get('district')?.valueChanges.subscribe(data => {
+                if (data) {
+                    this.accomodation.district = data.name
+                    this.accomodation.districtCode = data.code
+                    this.selectedDistrict = data.code
+                }
+            })        
+            this.accomodationForm.get('ward')?.valueChanges.subscribe(data => {
+                if (data) {
+                    this.accomodation.ward = data.name
+                    this.accomodation.wardCode = data.code
+                }
+            })       
+            this.accomodationForm.get('addressLine')?.valueChanges.subscribe(data => {
+                if (data) {
+                    this.accomodation.addressLine = data
+                }
+            })  
     }
 
     getAccomodationsByUser() {
         this.dataLoading = true
-        return this.accomodationService
-            .getAccomodationByUserId(this.user?.id)
-            .pipe(
-                finalize(() => {
-                    this.dataLoading = false
-                    this.fillOtherFee()
-                }),
-            )
+        return this.accomodationService.getAccomodationByUserId(this.user?.id).pipe(
+            finalize(() => {
+                this.dataLoading = false
+            }),
+        )
     }
 
-    openOtherFee() {
-        this.otherFee = {}
-        this.otherFeesDialog = true
+    getWardByDistrict() {
+        this.wards = []
+        this.addressService.getWardByDistrict(this.selectedDistrict).subscribe((result) => (this.wards = result.wards))
+    }
+
+    getDistrictByProvince() {
+        this.districts = []
+        this.wards = []
+        this.addressService
+            .getDistrictByProvince(this.selectedProvince)
+            .subscribe((result) => (this.districts = result.districts))
+    }
+
+    getProvinces() {
+        return this.addressService.getAllProvinces().pipe(
+            finalize(() => this.selectedProvince = this.provices[0])
+        )
     }
 
     hideOtherFeeDialog() {
         this.otherFeesDialog = false
         this.submitted = false
     }
-
-    test() {
-        console.log('test', this.selectedOtherFees)
+    openNew() {
+        this.accomodation = {}
+        this.accomodationForm.get('name')?.setValue(null)        
+        this.accomodationForm.get('province')?.setValue(null)        
+        this.accomodationForm.get('district')?.setValue(null)        
+        this.accomodationForm.get('ward')?.setValue(null)        
+        this.accomodationForm.get('addressLine')?.setValue(null)   
+        this.addDialog = true
     }
 
-    fillOtherFee() {
-        this.selectedOtherFees = []
-        this.accomodations.forEach((item) => {
-            item.otherFees?.forEach((fee) => {
-                this.selectedOtherFees.push(fee)
-            })
+    getFullAddress() {
+        return forkJoin({
+            districts: this.addressService.getDistrictByProvince(this.accomodation.provinceCode),
+            wards: this.addressService.getWardByDistrict(this.accomodation.districtCode)
         })
     }
 
-    saveOtherFee() {
-        if (this.accomodation.id) {
-            let otherFeeResponse: any;
-            this.loading = true
-            this.otherFee.accomodationId = this.accomodation.id
-            this.otherFeeService
-                .saveOtherFee(this.otherFee)
-                .pipe(
-                    finalize(() => {
-                        if (this.accomodation.otherFees) {
-                            if (this.otherFee.id) {
-                                let id = this.accomodation.otherFees.findIndex((item) => item.id === otherFeeResponse.id)
-                                this.accomodation.otherFees[id] = otherFeeResponse
-                            } else {
-                                this.accomodation.otherFees?.push(otherFeeResponse)
-                            }   
-                        }
-                        this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Chỉnh sửa thành công', life: 3000 })
-                        this.loading = false
-                        this.otherFeesDialog = false
-                        this.otherFee = {}
-                    })
-                )
-                .subscribe((response) => otherFeeResponse = response.data)
-        } else {
-            this.otherFees.push(this.otherFee)
-            if (this.accomodation.otherFees) {
-                this.accomodation.otherFees?.push(this.otherFee)
-            } else {
-                this.accomodation.otherFees = []
-                this.accomodation.otherFees?.push(this.otherFee)
-            }
-            this.selectedOtherFees.push(this.otherFee)
-        }
-       
-        this.otherFeesDialog = false
-    }
-
-    editOtherFee(otherFee: OtherFee) {
-        this.otherFee = { ...otherFee }
-        this.otherFeesDialog = true
-    }
-
-    deleteOtherFee(otherFee: OtherFee) {
-        this.otherFee = { ...otherFee }
-        if (this.otherFee.id) {
-            this.loading = true
-            this.otherFeeService
-                .deleteOtherFee(this.otherFee.id)
-                .pipe(
-                    finalize(() => {
-                        this.accomodation.otherFees = this.accomodation.otherFees?.filter((val) => val.id !== this.otherFee.id)
-                        this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Xoá thành công', life: 3000 })
-                        this.loading = false
-                    }),
-                )
-                .subscribe((data) => console.log(data))
-        }
-    }
-
-    openNew() {
-        this.accomodation = {}
-        this.submitted = false
-        this.productDialog = true
-    }
-
-    deleteSelectedProducts() {
-        this.deleteProductsDialog = true
-    }
-
-    editProduct(accomodation: Accomodation) {
+    editAccomodation(accomodation: any) {
         this.accomodation = { ...accomodation }
-        this.productDialog = true
+        accomodation.loading = true;
+        this.existingProvince = this.findAddressByName(this.accomodation.provinceCode, this.provices)
+        this.accomodationForm.get('name')?.setValue(this.accomodation.name)     
+        this.accomodationForm.get('province')?.setValue(this.existingProvince )        
+        this.accomodationForm.get('addressLine')?.setValue(this.accomodation.addressLine)   
+        
+        this.getFullAddress().pipe(
+            finalize(() => {
+                this.existingDistrict = this.findAddressByName(this.accomodation.districtCode, this.districts)
+                this.existingWard = this.findAddressByName(this.accomodation.wardCode, this.wards)
+                this.accomodationForm.get('district')?.setValue(this.existingDistrict)  
+                this.accomodationForm.get('ward')?.setValue(this.existingWard)       
+                this.addDialog = true
+                accomodation.loading = false
+            })
+        ).subscribe((response: any) => {
+            this.districts = response.districts.districts
+            this.wards = response.wards.wards
+        })
     }
 
-    deleteProduct(accomodation: Accomodation) {
-        this.deleteProductDialog = true
+    findAddressByName(code: any, source: any[]) {
+        return source.find((item: any) => item.code === code)
+    }
+
+    deleteAccomodation(accomodation: Accomodation) {
+        this.deleteDialog = true
         this.accomodation = { ...accomodation }
-    }
-
-    confirmDeleteSelected() {
-        this.deleteProductsDialog = false
-        this.accomodations = this.accomodations.filter((val) => !this.selectedProducts.includes(val))
-        this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 })
-        this.selectedProducts = []
     }
 
     confirmDelete() {
-        this.deleteProductDialog = false
+        this.deleteDialog = false
         this.accomodations = this.accomodations.filter((val) => val.id !== this.accomodation.id)
         this.accomodationService.removeAccomodation(this.accomodation.id).pipe().subscribe()
         this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Accomodation Deleted', life: 3000 })
         this.accomodation = {}
     }
 
-    hideDialog() {
-        let index = this.accomodation.otherFees?.findIndex((item) => item.name == this.otherFee.name)
-        console.log(this.otherFee)
-        console.log(index)
-        if (index && index > 0) {
-            this.accomodation.otherFees?.splice(index, 1)
+    saveAccomodation() {
+        if (!this.accomodationForm.invalid) {
+            this.accomodation.userId = this.user?.id
+            this.dataLoading = true
+            this.accomodationService
+                .saveAccomodation(this.accomodation)
+                .pipe(
+                    finalize(() => {
+                        this.submitted = false
+                        this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Chỉnh sửa thành công', life: 3000 })
+                        this.dataLoading = false
+                    }),
+                )
+                .subscribe((result) => this.accomodations = result.data)
+            this.addDialog = false
+        } else {
+            this.accomodationForm.markAllAsTouched()
         }
-        this.productDialog = false
-        this.submitted = false
-        this.otherFee = {}
     }
 
-    saveAccomodation() {
-        this.accomodation.isActive = true
-        this.accomodation.otherFees = this.otherFees
-        this.accomodation.userId = this.user?.id
-        this.dataLoading = true
-        this.accomodationService
-            .saveAccomodation(this.accomodation)
-            .pipe(
-                finalize(() => {
-                    this.submitted = false
-                    this.getAccomodationsByUser().subscribe((result) => (this.accomodations = result.data))
-                    this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Chỉnh sửa thành công', life: 3000 })
-                }),
-            )
-            .subscribe((data) => console.log(data))
-        this.productDialog = false
+    hideDialog() {
+        this.addDialog = false
     }
 
     onGlobalFilter(table: Table, event: Event) {

@@ -58,6 +58,7 @@ export class RoomImagesComponent implements OnInit {
     }
 
     getRoomByAccomodation() {
+        this.selectedRoom = {}
         this.loading = true
         this.roomService
             .getRoomByAccomodation(this.selectedAccomodation.id)
@@ -65,6 +66,7 @@ export class RoomImagesComponent implements OnInit {
                 finalize(() => {
                     this.loading = false
                     this.selectedRoom = this.rooms[0]
+                    console.log('in get room', this.selectedRoom)
                     this.getImagesByRoom()
                 }),
             )
@@ -81,6 +83,7 @@ export class RoomImagesComponent implements OnInit {
 
     getImagesByRoom() {
         this.loading = true;
+        console.log(this.selectedRoom)
         this.roomService.getImageByRoom(this.selectedRoom.id).pipe(
             finalize(() => {
                 this.loading = false

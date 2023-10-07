@@ -5,7 +5,7 @@ export class User {
     lastName?: string;
     token?: string;
     refreshToken?: string;
-    roles: string[] = [];
+    roles?: string;
 }
 
 export class ChangePassword {

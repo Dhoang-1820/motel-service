@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core'
-import { RouterModule, Routes } from '@angular/router'
-import { NgxPermissionsGuard } from 'ngx-permissions'
+import { PreloadAllModules, RouterModule, Routes } from '@angular/router'
 import { AccessDeninedComponent } from './modules/auth/access-denined/access-denined.component'
 
 const routes: Routes = [

@@ -30,6 +30,7 @@ import { DataViewModule } from 'primeng/dataview';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { GalleriaModule } from 'primeng/galleria';
 import { MenuModule } from 'primeng/menu';
+import { MultiSelectModule } from 'primeng/multiselect';
 
 @NgModule({
   declarations: [],
@@ -67,7 +68,8 @@ import { MenuModule } from 'primeng/menu';
     DividerModule,
     NgxPermissionsModule,
     GalleriaModule,
-    MenuModule
+    MenuModule,
+    MultiSelectModule
   ],
 })
 export class SharedModuleModule { }

@@ -1,0 +1,186 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toast></p-toast>
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button pButton pRipple label="Thêm" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="right">
+                   <div class="flex justify-content-center">
+                        <p-dropdown placeholder="Chọn phòng trọ" [options]="accomodations" (onChange)="onSelectAccomodation()" [(ngModel)]="selectedAccomodation" optionLabel="name" autoWidth="false"  [style]="{'width':'100%'}"></p-dropdown>
+                   </div>
+                </ng-template>
+            </p-toolbar>
+
+            <p-table #dt [value]="equipments" [columns]="cols" [expandedRowKeys]="expandedRows" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['name','capacity','price','acreage', 'isRent']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]"  selectionMode="multiple" [rowHover]="true" dataKey="id">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <h5 class="m-0">Quản lý thiết bị</h5>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <p-dropdown [showClear]="true" (onChange)="onFilterByRoom()" [(ngModel)]="filterRoom" optionLabel="name" optionValue="id" [options]="rooms" placeholder="Lọc theo phòng" > </p-dropdown>
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th></th>
+                        <th pSortableColumn="name">Tên thiết bị<p-sortIcon field="name"></p-sortIcon></th>
+                        <th pSortableColumn="unit">Đơn vị<p-sortIcon field="unit"></p-sortIcon></th>
+                        <th pSortableColumn="price">Giá<p-sortIcon field="price"></p-sortIcon></th>
+                        <th pSortableColumn="status">Trạng thái<p-sortIcon field="status"></p-sortIcon></th>
+                        <th pSortableColumn="description">Mô tả<p-sortIcon field="description"></p-sortIcon></th>
+                        <th pSortableColumn="quantity">Số lượng<p-sortIcon field="quantity"></p-sortIcon></th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-data let-expanded="expanded" let-rowIndex="rowIndex">
+                    <tr>
+                        <td>
+                            <div class="flex" *ngIf="!filterRoom">
+                                <button type="button" pButton pRipple [pRowToggler]="data" (click)="onExpand(data)" class="p-button-text p-button-rounded" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                            </div>
+						</td>
+                        <td style="width:15%; min-width:10rem;">{{data.name}}</td>
+                        <td style="width:15%; min-width:10rem;">{{data.unit}}</td>
+                        <td style="width:15%; min-width:10rem;">{{data.price | currency: 'VND':'symbol'}}</td>
+                        <td style="width:15%; min-width:10rem;">{{data.status}}</td>
+                        <td style="width:15%; min-width:10rem;">{{data.description}}</td>
+                        <td style="width:15%; min-width:10rem;">{{data.quantity}}</td>
+                        <td style="width:15%; min-width:10rem;">
+                            <div class="flex">
+                                <button *ngIf="filterRoom" pButton pRipple pTooltip="Chỉnh sửa" icon="pi pi-pencil" tooltipPosition="top" class="p-button-rounded p-button-success mr-2" (click)="editEquipment(data)"></button>
+                                <button pButton pRipple pTooltip="Xoá" icon="pi pi-trash" tooltipPosition="top" class="p-button-rounded p-button-warning mr-2" (click)="deleteRoom(data)"></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="rowexpansion" let-item>
+					<tr>
+						<td colspan="7">
+							<div class="p-3">
+								<p-table [value]="item.child" dataKey="id" responsiveLayout="scroll">
+									<ng-template pTemplate="header">
+										<tr>
+                                            <th></th>
+											<th>Tên thiết bị</th>
+                                            <th>Đơn vị</th>
+                                            <th>Giá</th>
+                                            <th>Trạng thái</th>
+                                            <th>Mô tả</th>
+                                            <th>Phòng</th>
+											<th style="width: 4rem"></th>
+										</tr>
+									</ng-template>
+									<ng-template pTemplate="body" let-itemChild>
+										<tr>
+                                            <td></td>
+											<td style="width:15%; min-width:10rem;">{{itemChild.name}}</td>
+                                            <td style="width:15%; min-width:10rem;">{{itemChild.unit}}</td>
+                                            <td style="width:15%; min-width:10rem;">{{itemChild.price | currency: 'VND':'symbol'}}</td>
+                                            <td style="width:15%; min-width:10rem;">{{itemChild.status}}</td>
+                                            <td style="width:15%; min-width:10rem;">{{itemChild.description}}</td>
+                                            <td style="width:15%; min-width:10rem;" *ngIf="itemChild.room.name; else isExistRoom">{{itemChild.room.name}}</td>
+                                            <ng-template style="width:15%; min-width:10rem;" #isExistRoom>Trống</ng-template>
+                                            <td style="width:15%; min-width:10rem;">
+                                                <div class="flex">
+                                                    <button pButton pRipple pTooltip="Chỉnh sửa" icon="pi pi-pencil" tooltipPosition="top" class="p-button-rounded p-button-success mr-2" (click)="editEquipment(itemChild)"></button>
+                                                    <button pButton pRipple pTooltip="Xoá" icon="pi pi-trash" tooltipPosition="top" class="p-button-rounded p-button-warning mr-2" (click)="deleteRoom(itemChild)"></button>
+                                                </div>
+                                            </td>
+										</tr>
+									</ng-template>
+									<ng-template pTemplate="emptymessage">
+										<tr>
+											
+										</tr>
+									</ng-template>
+								</p-table>
+							</div>
+						</td>
+					</tr>
+				</ng-template>
+                
+            </p-table>
+        </div>
+
+        <p-dialog [(visible)]="addDialog" [style]="{width: '550px'}" header="Chi tiết thiết bị" [modal]="true" class="p-fluid">
+            <ng-template pTemplate="content">
+                <form [formGroup]="equipmentForm">
+                    <div class="field">
+                        <label for="name">Tên thiết bị</label>
+                        <input type="text" pInputText id="name" formControlName="name" required autofocus [ngClass]="{'ng-invalid ng-dirty' : equipmentForm.controls['name'].invalid && (equipmentForm.controls['name'].dirty || equipmentForm.controls['name'].touched)}"/>
+                        <small class="ng-dirty ng-invalid" *ngIf="equipmentForm.get('name')?.invalid && (equipmentForm.controls['name'].dirty || equipmentForm.controls['name'].touched)">Vui lòng nhập tên thiết bị.</small>
+                    </div>
+                    <div class="formgrid grid">
+                        <div class="field col">
+                            <label for="unit">Đơn vị</label>
+                            <p-dropdown  placeholder="Đơn vị" formControlName="unit" [options]="units"  [ngClass]="{'ng-invalid ng-dirty' : equipmentForm.controls['unit'].invalid && (equipmentForm.controls['unit'].dirty || equipmentForm.controls['unit'].touched)}"></p-dropdown>
+                            <small class="ng-dirty ng-invalid" *ngIf="equipmentForm.get('unit')?.invalid && (equipmentForm.controls['unit'].dirty || equipmentForm.controls['unit'].touched)">Vui lòng nhập đơn vị.</small>
+                        </div>
+                        <div class="field col">
+                            <label for="status">Trạng thái</label>
+                            <p-dropdown  placeholder="Trạng thái" formControlName="status" [options]="status"  [ngClass]="{'ng-invalid ng-dirty' : equipmentForm.controls['status'].invalid && (equipmentForm.controls['status'].dirty || equipmentForm.controls['status'].touched)}"></p-dropdown>
+                            <small class="ng-dirty ng-invalid" *ngIf="equipmentForm.get('status')?.invalid && (equipmentForm.controls['status'].dirty || equipmentForm.controls['status'].touched)">Vui lòng chọn trạng thái.</small>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="price">Giá (đồng)</label>
+                        <p-inputNumber id="price" formControlName="price"></p-inputNumber>
+                    </div>   
+                    <div class="field">
+                        <label for="description">Mô tả</label>
+                        <input type="text" pInputText id="description" formControlName="description"/>
+                    </div> 
+                    <div class="formgrid grid" *ngIf="!isNew">
+                        <div class="field col" style="max-width: 50%;">
+                            <p-dropdown [filter]="true" filterBy="name" [showClear]="true" (onClear)="onClearRoom()" formControlName="room" optionLabel="name" [options]="rooms" placeholder="Lọc theo phòng" > </p-dropdown>
+                        </div>
+                    </div>
+                    <div class="formgrid grid" *ngIf="isNew">
+                        <div class="field col flex align-items-center">
+                            <label for="description" class="mr-3">Thêm thiết bị vào phòng trọ</label>
+                            <p-inputSwitch formControlName="isAddRoom"></p-inputSwitch>
+                        </div> 
+                        <div class="field col" style="max-width: 50%;" [style.visibility]="equipment.isAddRoom ? 'visible' : 'hidden'">
+                            <div style="margin-bottom: 5px;">
+                                <p-inputNumber placeholder="Số lượng" formControlName="quantity" [ngClass]="{'ng-invalid ng-dirty' : equipmentForm.controls['quantity'].invalid && (equipmentForm.controls['quantity'].dirty || equipmentForm.controls['quantity'].touched)}"></p-inputNumber>
+                                <small class="ng-dirty ng-invalid" *ngIf="equipmentForm.get('quantity')?.invalid && (equipmentForm.controls['quantity'].dirty || equipmentForm.controls['quantity'].touched)">Vui lòng nhập số lượng.</small>
+                            </div> 
+                            <div>
+                                <p-multiSelect placeholder="Chọn phòng"  [options]="rooms" formControlName="selectedRoom" optionLabel="name" optionValue="id" display="chip" [ngClass]="{'ng-invalid ng-dirty' : equipmentForm.controls['selectedRoom'].invalid && (equipmentForm.controls['selectedRoom'].dirty || equipmentForm.controls['selectedRoom'].touched)}"></p-multiSelect>
+                                <small class="ng-dirty ng-invalid" *ngIf="equipmentForm.get('selectedRoom')?.invalid && (equipmentForm.controls['selectedRoom'].dirty || equipmentForm.controls['selectedRoom'].touched)">Vui lòng chọn phòng.</small>
+                            </div> 
+                        </div>
+                       
+                    </div>
+                    
+                </form>            
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+                <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveEquipment()"></button>
+            </ng-template>
+        </p-dialog>
+
+        
+
+        <p-dialog [(visible)]="deleteProductDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span *ngIf="equipment">Are you sure you want to delete <b>{{equipment.name}}</b>?</span>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteProductDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDelete()"></button>
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>
+<div class="progress-spinner" *ngIf="loading">
+    <p-progressSpinner></p-progressSpinner>
+</div>

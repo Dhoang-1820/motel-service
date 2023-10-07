@@ -13,6 +13,10 @@ export class TenantService {
         return this.http.get<any>(`${environment.apiUrl}/tenant/${id}`).pipe(retry(1), delay(1000))
     }
 
+    getTenantWithoutDeposit(accomodationId: any): Observable<any> {
+        return this.http.get<any>(`${environment.apiUrl}/tenant/deposit/${accomodationId}`).pipe(retry(1), delay(1000))
+    }
+
     saveTenant(request: any): Observable<any> {
         return this.http.post<any>(`${environment.apiUrl}/tenant`, request).pipe(retry(1), delay(1000))
     }

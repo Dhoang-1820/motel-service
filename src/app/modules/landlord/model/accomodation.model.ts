@@ -1,5 +1,3 @@
-
-
 export interface OtherFee {
     accomodationId?: number;
     id?: number;
@@ -8,11 +6,9 @@ export interface OtherFee {
     price?: string;
 }
 export interface Room {
-    id?: number,
+    id?: Number,
     name?: string,
     acreage?: number,
-    airConditionor?: boolean,
-    internet?: boolean,
     isRent?: boolean,
     capacity?: number,
     price?: number,
@@ -22,10 +18,22 @@ export interface Room {
 export interface Accomodation {
     id?: number;
     name?: string;
-    waterPrice?: number;
-    electricPrice?: number;
-    address?: string;
+    addressLine?: string;
     userId?: number;
     isActive?: boolean;
-    otherFees?: OtherFee[];
+    district?: string;
+    districtCode?: number;
+    province?: string;
+    provinceCode?: number
+    ward?: string;
+    wardCode?: number;
+}
+
+export interface AccomodationUtilities {
+    accomodationId?: number,
+    id?: number;
+    name?: string;
+    price?: number;
+    unit?: string;
+    description?: string;
 }

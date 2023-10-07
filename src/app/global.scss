@@ -38,3 +38,9 @@ html {
   background-color: rgba(0,0,0,0.53);
 }
 
+::ng-deep  {
+    .p-dialog-content {
+        overflow-y: unset !important;
+    }
+}
+
