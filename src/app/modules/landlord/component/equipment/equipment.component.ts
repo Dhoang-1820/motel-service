@@ -268,20 +268,25 @@ export class EquipmentComponent implements OnInit {
         let selectedRoom = this.equipmentForm.get('selectedRoom')?.value
         let newEquipment: any
 
-        equipSubmit.push(this.equipment)
-        for (let i = 0; i < quantity; i++) {
-            for (let j = 0; j < selectedRoom.length; j++) {
-                newEquipment = Object.assign({}, this.equipment)
-                newEquipment.roomId = selectedRoom[i]
-                equipSubmit.push(newEquipment)
+        if (quantity > 0) {
+            for (let i = 0; i < quantity; i++) {
+                for (let j = 0; j < selectedRoom.length; j++) {
+                    newEquipment = Object.assign({}, this.equipment)
+                    newEquipment.roomId = selectedRoom[i]
+                    equipSubmit.push(newEquipment)
+                }
             }
+        } else {
+            equipSubmit.push(this.equipment)
         }
+        
 
         this.equipmentService
             .saveEquipment(equipSubmit)
             .pipe(
                 finalize(() => {
                     this.loading = false
+                    this.equipment = {}
                     this.collapse()
                     this.messageService.add({ severity: 'success', summary: 'Successful', detail: message, life: 3000 })
                 }),

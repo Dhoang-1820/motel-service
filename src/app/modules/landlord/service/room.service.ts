@@ -44,6 +44,20 @@ export class RoomService {
         )
     }
 
+    getRoomNotRented(accomodationId: any): Observable<any> {
+        return this.http.get<any>(`${environment.apiUrl}/room/utility/no-rent/${accomodationId}`).pipe(
+            retry(1),
+            delay(1000),
+        )
+    }
+
+   checkRoomNotDeposit(roomId: any): Observable<any> {
+        return this.http.get<any>(`${environment.apiUrl}/room?roomId=${roomId}`).pipe(
+            retry(1),
+            delay(1000),
+        )
+    }
+
     removeRoom(id: any): Observable<any> {
         return this.http.delete<any>(`${environment.apiUrl}/room/${id}`).pipe(
             retry(1),

@@ -57,6 +57,13 @@ export class AccomodationService {
         )
     }
 
+    checkValidService(request: any): Observable<any> {
+        return this.http.post<any>(`${environment.apiUrl}/accomodation/services/validation`, request).pipe(
+            retry(1),
+            delay(1000)
+        )
+    }
+
     saveService(request: AccomodationUtilities): Observable<any> {
         return this.http.post<any>(`${environment.apiUrl}/accomodation/services`, request).pipe(
             retry(1),

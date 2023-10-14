@@ -1,11 +1,9 @@
-interface Room {
-    id?: Number
-    name?: string
-}
+import { RoomDropdown } from "./accomodation.model"
+
 
 export class Deposit {
     id?: Number
-    room?: Room
+    room?: RoomDropdown
     dueDate?: Date
     startDate?: Date
     note?: String
