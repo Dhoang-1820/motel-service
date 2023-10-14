@@ -37,7 +37,9 @@
                 <ng-template pTemplate="body" let-data>
                     <tr>
                         <td>
-                            <button pButton pTooltip="Tạo hợp đồng" icon="pi pi-directions" tooltipPosition="top" class="p-button-rounded p-button-success"></button>
+                            <div class="flex"> 
+                                <button type="button" pButton pTooltip="Tạo hợp đồng" icon="pi pi-directions" tooltipPosition="top" class="p-button-rounded p-button-success"></button>
+                            </div>
                         </td>
                         <td style="width:15%; min-width:10rem;">{{data.room.name}}</td>
                         <td style="width:15%; min-width:10rem;">{{data.firstName}} {{data.lastName}}</td>
@@ -56,7 +58,7 @@
             </p-table>
         </div>
 
-        <p-dialog [(visible)]="addDialog" [style]="{width: '650px'}" header="Chi tiết thông tin đặt cọc phòng" [modal]="true" class="p-fluid">
+        <p-dialog (onHide)="onDialogHide()" [(visible)]="addDialog" [style]="{width: '650px'}" header="Chi tiết thông tin đặt cọc phòng" [modal]="true" class="p-fluid">
             <ng-template pTemplate="content">
                 <form [formGroup]="depositForm">
                     <div class="formgrid grid">
@@ -74,12 +76,13 @@
                             <div class="field">
                                 <label  for="startDate">Ngày đặt cọc</label>
                                 <p-calendar id="startDate" formControlName="startDate" dateFormat="dd/mm/yy" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['startDate'].invalid && (depositForm.controls['startDate'].dirty || depositForm.controls['startDate'].touched)}"></p-calendar>
-                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('startDate')?.invalid && (depositForm.controls['startDate'].dirty || depositForm.controls['startDate'].touched)">Vui lòng chọn ngày đặt cọ.</small>
+                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('startDate')?.invalid && (depositForm.controls['startDate'].dirty || depositForm.controls['startDate'].touched)">Vui lòng chọn ngày đặt cọc.</small>
                             </div> 
                             <div class="field">
                                 <label for="dueDate">Ngày hết hạn</label>
                                 <p-calendar id="dueDate" formControlName="dueDate" dateFormat="dd/mm/yy" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['dueDate'].invalid && (depositForm.controls['dueDate'].dirty || depositForm.controls['dueDate'].touched)}"></p-calendar>
-                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('dueDate')?.invalid && (depositForm.controls['dueDate'].dirty || depositForm.controls['dueDate'].touched)">Vui lòng chọn ngày hết hạn.</small>
+                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('dueDate')?.hasError('required') && (depositForm.controls['dueDate'].dirty || depositForm.controls['dueDate'].touched)">Vui lòng chọn ngày hết hạn.</small>
+                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('dueDate')?.hasError('dateInvalid') && (depositForm.controls['dueDate'].dirty || depositForm.controls['dueDate'].touched)">Ngày hết hạn cần sau ngày đặt cọc.</small>
                             </div> 
                             <div class="field">
                                 <label for="deposit">Tiền đặt cọc (đồng)</label>
@@ -99,20 +102,20 @@
                                         <div>
                                             <div class="field-checkbox">
                                                 <label class="mr-2">Thêm mới</label>
-                                                <p-radioButton formControlName="isNew" [value]="true"></p-radioButton>
+                                                <p-radioButton (ngModelChange)="onSwitch()" [(ngModel)]="isChooseExisted" [value]="true" [ngModelOptions]="{standalone: true}"></p-radioButton>
                                             </div>
                                         </div>
                                         <div>
                                             <div class="field-checkbox">
                                                 <label class="mr-2">Đã tồn tại</label>
-                                                <p-radioButton formControlName="isNew" [value]="false"></p-radioButton>
+                                                <p-radioButton (ngModelChange)="onSwitch()" [(ngModel)]="isChooseExisted" [value]="false" [ngModelOptions]="{standalone: true}"></p-radioButton>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="formgrid grid">
-                               <ng-container *ngIf="depositForm.controls['isNew'].value; else isNew">
+                               <ng-container *ngIf="isChooseExisted; else isNew">
                                     <div class="field col-8">
                                         <label for="firstName">Họ</label>
                                         <input type="text" pInputText id="firstName" formControlName="firstName" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['firstName'].invalid && (depositForm.controls['firstName'].dirty || depositForm.controls['firstName'].touched)}"/>

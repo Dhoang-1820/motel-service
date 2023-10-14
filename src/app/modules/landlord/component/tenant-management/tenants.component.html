@@ -28,27 +28,29 @@
                 </ng-template>
                 <ng-template pTemplate="header">
                     <tr>
-                        <th pSortableColumn="firstName">Họ<p-sortIcon field="firstName"></p-sortIcon></th>
-                        <th pSortableColumn="lastName">Tên<p-sortIcon field="lastName"></p-sortIcon></th>
+                        <th pSortableColumn="firstName">Tên khách thuê<p-sortIcon field="firstName"></p-sortIcon></th>
+                        <th pSortableColumn="gender">Giới tinh<p-sortIcon field="gender"></p-sortIcon></th>
                         <th pSortableColumn="isStayed">Trạng thái<p-sortIcon field="isStayed"></p-sortIcon></th>
-                        <th pSortableColumn="room.name">Phòng<p-sortIcon field="room.name"></p-sortIcon></th>
                         <th pSortableColumn="startDate">Ngày bắt đầu ở<p-sortIcon field="startDate"></p-sortIcon></th>
                         <th pSortableColumn="identifyNum">Số định danh<p-sortIcon field="identifyNum"></p-sortIcon></th>
                         <th pSortableColumn="email">Email<p-sortIcon field="email"></p-sortIcon></th>
                         <th pSortableColumn="phone">Số điện thoại<p-sortIcon field="phone"></p-sortIcon></th>
-                        <!-- <th pSortableColumn="image">Ảnh<p-sortIcon field="image"></p-sortIcon></th> -->
                         <th></th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-tenant>
                     <tr>
-                        <td>{{tenant.firstName}}</td>
-                        <td>{{tenant.lastName}}</td>
-                        <td *ngIf="tenant.isStayed; else isStayed">Còn ở</td>
+                        <td>{{tenant.firstName}} {{tenant.lastName}}</td>
+                        <ng-container [ngSwitch]="tenant.gender">
+                            <td *ngSwitchCase="'MALE'">Nam</td>
+                            <td *ngSwitchCase="'FEMALE'">Nữ</td>
+                            <td  *ngSwitchDefault>Chưa biết</td>
+                        </ng-container>
+                        <td *ngIf="tenant.isStayed; else isStayed">Đang ở</td>
                         <ng-template #isStayed>
-                            <td>Không còn ở</td>
+                            <td *ngIf="tenant.endDate">Đã chuyển đi</td>
+                            <td *ngIf="!tenant.endDate">Chưa ở</td>
                         </ng-template>
-                        <td>{{tenant.room.name}}</td>
                         <td>{{tenant.startDate | date:'dd/MM/yyyy'}}</td>
                         <td>{{tenant.identifyNum}}</td>
                         <td>{{tenant.email}}</td>
@@ -56,7 +58,7 @@
                         <td>
                             <div class="flex">
                                 <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editTenant(tenant)"></button>
-                                <button pButton pRipple [disabled]="!tenant.isStayed" pTooltip="Trả phòng" tooltipPosition="bottom" icon="pi pi-refresh" class="p-button-rounded p-button-warning" (click)="returnRoom(tenant)"></button>
+                                <!-- <button pButton pRipple [disabled]="!tenant.isStayed" pTooltip="Trả phòng" tooltipPosition="bottom" icon="pi pi-refresh" class="p-button-rounded p-button-warning" (click)="returnRoom(tenant)"></button> -->
                             </div>
                         </td>
                     </tr>
@@ -67,11 +69,6 @@
         <p-dialog [(visible)]="tenantDialog" [style]="{width: '450px'}" header="Chi tiết khách thuê trọ" [modal]="true" class="p-fluid">
             <ng-template pTemplate="content">
                 <form [formGroup]="tenantForm">
-                    <div class="field">
-                        <label for="status">Phòng</label>
-                        <p-dropdown formControlName="room" optionLabel="name" [options]="rooms" placeholder="Chọn" [ngClass]="{'ng-invalid ng-dirty' : tenantForm.controls['room'].invalid && (tenantForm.controls['room'].dirty || tenantForm.controls['room'].touched)}">
-                        </p-dropdown>
-                    </div>
                     <div class="formgrid grid">
                         <div class="field">
                             <label for="firstName">Họ</label>
@@ -90,6 +87,11 @@
                         <small class="ng-dirty ng-invalid" *ngIf="this.tenantForm.get('identifyNum')?.getError('invalid') && (tenantForm.controls['identifyNum'].dirty || tenantForm.controls['identifyNum'].touched)">Vui lòng nhập mật tên.</small>
                     </div>
                     <div class="field">
+                        <label for="gender">Giới tính</label>
+                        <p-dropdown id="gender" formControlName="gender" optionLabel="value" [options]="gender" placeholder="Chọn giới tính" [ngClass]="{'ng-invalid ng-dirty' : tenantForm.controls['gender'].invalid && (tenantForm.controls['gender'].dirty || tenantForm.controls['gender'].touched)}"> </p-dropdown>
+                        <small class="ng-dirty ng-invalid" *ngIf="this.tenantForm.get('gender')?.getError('invalid') && (tenantForm.controls['gender'].dirty || tenantForm.controls['gender'].touched)">Vui lòng nhập mật tên.</small>
+                    </div>
+                    <div class="field">
                         <label for="email">Email</label>
                         <input formControlName="email" type="text" pInputText id="email" [ngClass]="{'ng-invalid ng-dirty' : tenantForm.controls['email'].invalid && (tenantForm.controls['email'].dirty || tenantForm.controls['email'].touched)}"/>
                         <small class="ng-dirty ng-invalid" *ngIf="this.tenantForm.get('email')?.getError('invalid') && (tenantForm.controls['email'].dirty || tenantForm.controls['email'].touched)">Vui lòng nhập mật tên.</small>
@@ -103,19 +105,6 @@
                         <label for="name">Ngày bắt đầu ở</label>
                         <p-calendar formControlName="startDate" dateFormat="dd/mm/yy" [touchUI]="true" [ngClass]="{'ng-invalid ng-dirty' : tenantForm.controls['startDate'].invalid && (tenantForm.controls['startDate'].dirty || tenantForm.controls['startDate'].touched)}"></p-calendar>
                         <small class="ng-dirty ng-invalid" *ngIf="this.tenantForm.get('startDate')?.getError('invalid') && (tenantForm.controls['startDate'].dirty || tenantForm.controls['startDate'].touched)">Vui lòng nhập mật tên.</small>
-                    </div>
-                    <div class="field">
-                        <label for="name">Trạng thái (còn ở)</label>
-                        <div class="formgrid grid">
-                            <div class="field-radiobutton col-6">
-                                <p-radioButton id="yes" formControlName="status"  [value]="true" ></p-radioButton>
-                                <label for="yes">Còn</label>
-                            </div>
-                            <div class="field-radiobutton col-6">
-                                <p-radioButton id="no" formControlName="status" [value]="false" ></p-radioButton>
-                                <label for="no">Không</label>
-                            </div>
-                        </div>
                     </div>
                 </form>
             </ng-template>

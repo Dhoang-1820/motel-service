@@ -54,7 +54,6 @@
                     </tr>
                 </ng-template>
             </p-table>
-            
         </div>
 
         <p-dialog [(visible)]="addDialog" [resizable]="true" [style]="{width: '550px', height: '600px'}" header="Chi tiết khu trọ" [modal]="true" class="p-fluid">
@@ -83,8 +82,20 @@
                     </div>
                     <div class="field">
                         <label for="address_line">Số nhà, tên đường</label>
-                        <input pInputText formControlName="addressLine" [ngClass]="{'ng-invalid ng-dirty' : accomodationForm.controls['addressLine'].invalid && (accomodationForm.controls['addressLine'].dirty || accomodationForm.controls['addressLine'].touched)}"/>
+                        <input pInputText formControlName="addressLine"  [ngClass]="{'ng-invalid ng-dirty' : accomodationForm.controls['addressLine'].invalid && (accomodationForm.controls['addressLine'].dirty || accomodationForm.controls['addressLine'].touched)}"/>
                         <small class="ng-dirty ng-invalid" *ngIf="this.accomodationForm.get('addressLine')?.invalid && (accomodationForm.controls['addressLine'].dirty || accomodationForm.controls['addressLine'].touched)">Vui lòng nhập chọn địa chỉ.</small>
+                    </div>
+                    <div class="formgrid grid">
+                        <div class="field col mr-3">
+                            <label for="address_line">Giá nước (Khối)</label>
+                            <p-inputNumber id="waterPrice" formControlName="waterPrice" [ngClass]="{'ng-invalid ng-dirty' : accomodationForm.controls['waterPrice'].invalid && (accomodationForm.controls['waterPrice'].dirty || accomodationForm.controls['waterPrice'].touched)}"></p-inputNumber>
+                            <small class="ng-dirty ng-invalid" *ngIf="this.accomodationForm.get('waterPrice')?.invalid && (accomodationForm.controls['waterPrice'].dirty || accomodationForm.controls['waterPrice'].touched)">Vui lòng nhập giá nước.</small>
+                        </div>
+                        <div class="field col">
+                            <label for="address_line">Giá điện (kWh)</label>
+                            <p-inputNumber id="electricPrice" formControlName="electricPrice" [ngClass]="{'ng-invalid ng-dirty' : accomodationForm.controls['electricPrice'].invalid && (accomodationForm.controls['electricPrice'].dirty || accomodationForm.controls['electricPrice'].touched)}"></p-inputNumber>
+                            <small class="ng-dirty ng-invalid" *ngIf="this.accomodationForm.get('electricPrice')?.invalid && (accomodationForm.controls['electricPrice'].dirty || accomodationForm.controls['electricPrice'].touched)">Vui lòng nhập giá điện.</small>
+                        </div>
                     </div>
                 </form>
             </ng-template>

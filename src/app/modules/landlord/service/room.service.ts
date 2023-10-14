@@ -30,6 +30,13 @@ export class RoomService {
         )
     }
 
+    getRoomNoElectricWater(request: any): Observable<any> {
+        return this.http.post<any>(`${environment.apiUrl}/room/utility/no-electric-water`, request).pipe(
+            retry(1),
+            delay(1000),
+        )
+    }
+
     getRoomNotHasService(accomodationId: any): Observable<any> {
         return this.http.get<any>(`${environment.apiUrl}/room/utility/no-service/${accomodationId}`).pipe(
             retry(1),
@@ -39,6 +46,20 @@ export class RoomService {
     
     getRoomNotDeposit(accomodationId: any): Observable<any> {
         return this.http.get<any>(`${environment.apiUrl}/room/utility/no-deposit/${accomodationId}`).pipe(
+            retry(1),
+            delay(1000),
+        )
+    }
+
+    getRoomNotRented(accomodationId: any): Observable<any> {
+        return this.http.get<any>(`${environment.apiUrl}/room/utility/no-rent/${accomodationId}`).pipe(
+            retry(1),
+            delay(1000),
+        )
+    }
+
+   checkRoomNotDeposit(roomId: any): Observable<any> {
+        return this.http.get<any>(`${environment.apiUrl}/room?roomId=${roomId}`).pipe(
             retry(1),
             delay(1000),
         )
