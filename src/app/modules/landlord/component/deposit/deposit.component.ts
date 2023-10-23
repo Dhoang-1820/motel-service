@@ -33,6 +33,7 @@ export class DepositComponent implements OnInit {
     user!: User | null
     dataLoading: boolean = false
     loading: boolean = false
+    isNewTenant: boolean = false
     rooms: Room[] = []
     tenants: Tenant[] = []
     depositForm: FormGroup
@@ -43,9 +44,6 @@ export class DepositComponent implements OnInit {
     existedTenant: Set<any> = new Set()
     roomInvalids: unknown[] = [];
     isRepaid: boolean = false
-    preRoom: any 
-    isChooseExisted: boolean = false
-    roomPresent: any
 
     constructor(
         private accomodationService: AccomodationService,
@@ -66,6 +64,7 @@ export class DepositComponent implements OnInit {
             identifyNum: new FormControl(this.deposit.identifyNum, [Validators.required]),
             email: new FormControl(this.deposit.email, []),
             room: new FormControl(this.deposit.room, [Validators.required]),
+            isNew: new FormControl(this.isNewTenant, []),
             selectedTenant: new FormControl(this.selectedTenant, []),
         })
     }
@@ -79,17 +78,6 @@ export class DepositComponent implements OnInit {
         })
         this.depositForm.get('dueDate')?.valueChanges.subscribe((data) => {
             this.deposit.dueDate = data
-            if (this.deposit.startDate) {
-                let startDate = moment(this.deposit.startDate)
-                if (data) {
-                    let endDate = moment(this.deposit.dueDate)
-                    if (!endDate.isAfter(startDate)) {
-                        this.depositForm.get('dueDate')?.setErrors({dateInvalid: true})
-                    } else if (!this.depositForm.get('dueDate')?.invalid) {
-                        this.depositForm.get('dueDate')?.setErrors(null)
-                    }
-                }
-            }
         })
         this.depositForm.get('note')?.valueChanges.subscribe((data) => {
             this.deposit.note = data
@@ -117,22 +105,20 @@ export class DepositComponent implements OnInit {
         })
         this.depositForm.get('selectedTenant')?.valueChanges.subscribe((data) => {
             this.selectedTenant = data
-            if (data) {
-                this.deposit.tenantId = data.id
-            }
+            this.deposit.tenantId = data.id
         })
-    }
-
-    onDialogHide() {
-        if (this.roomPresent) {
-            this.rooms = this.rooms.filter(item => item.id !== this.roomPresent.id)
-        }
-        this.depositForm.reset()
+        this.depositForm.get('isNew')?.valueChanges.subscribe((data) => {
+            if (data) {
+                this.depositForm.get('selectedTenant')?.setValidators([Validators.required])
+            } else {
+                this.depositForm.get('selectedTenant')?.setValidators([])
+            }
+            this.depositForm.get('selectedTenant')?.updateValueAndValidity()
+        })
     }
 
     openNew() {
         this.deposit = {}
-        this.preRoom = {}
         this.addDialog = true
         this.isAddNew = true
         this.depositForm.get('startDate')?.setValue(null)
@@ -145,6 +131,7 @@ export class DepositComponent implements OnInit {
         this.depositForm.get('phone')?.setValue(null)
         this.depositForm.get('room')?.setValue(null)
         this.depositForm.get('email')?.setValue(null)
+        this.depositForm.get('isNew')?.setValue(false)
     }
 
     getDropdownAccomodation() {
@@ -157,30 +144,16 @@ export class DepositComponent implements OnInit {
         )
     }
 
-    onSwitch() {
-        if (!this.isChooseExisted) {
-            this.depositForm.get('firstName')?.setValue(null)
-            this.depositForm.get('lastName')?.setValue(null)
-            this.depositForm.get('identifyNum')?.setValue(null)
-            this.depositForm.get('phone')?.setValue(null)
-            this.depositForm.get('email')?.setValue(null)
-            this.depositForm.get('selectedTenant')?.setValidators([Validators.required])
-        } else {
-            this.depositForm.get('firstName')?.setValue(this.selectedTenant.firstName)
-            this.depositForm.get('lastName')?.setValue(this.selectedTenant.lastName)
-            this.depositForm.get('identifyNum')?.setValue(this.selectedTenant.identifyNum)
-            this.depositForm.get('phone')?.setValue(this.selectedTenant.phone)
-            this.depositForm.get('email')?.setValue(this.selectedTenant.email)
-            this.depositForm.get('selectedTenant')?.setValidators([])
-        }
-        this.depositForm.get('selectedTenant')?.updateValueAndValidity()
-        this.depositForm.updateValueAndValidity()
-    }
-
     onChangeTenant() {
         this.depositForm.get('identifyNum')?.setValue(this.selectedTenant.identifyNum)
         this.depositForm.get('phone')?.setValue(this.selectedTenant.phone)
         this.depositForm.get('email')?.setValue(this.selectedTenant.email)
+    }
+
+    getRoomHasDeposit() {
+        this.deposits.forEach(item => {
+            this.roomInvalids.push(item.room?.id) 
+        })
     }
 
     initData() {
@@ -192,6 +165,7 @@ export class DepositComponent implements OnInit {
             .pipe(
                 finalize(() => {
                     this.loading = false
+                    this.getRoomHasDeposit()
                 }),
             )
             .subscribe((response) => {
@@ -202,7 +176,7 @@ export class DepositComponent implements OnInit {
     }
 
     getRoomByAccomodation() {
-        return this.roomService.getRoomNotDeposit(this.selectedAccomodation.id)
+        return this.roomService.getRoomDropDown(this.selectedAccomodation.id)
     }
 
     getDepositByAccomodation() {
@@ -227,7 +201,6 @@ export class DepositComponent implements OnInit {
     editDeposit(deposit: Deposit) {
         this.isAddNew = false
         this.deposit = { ...deposit }
-        this.preRoom = this.deposit.room?.id
         this.depositForm.get('startDate')?.setValue((moment(this.deposit.startDate)).toDate())
         this.depositForm.get('dueDate')?.setValue(moment(this.deposit.dueDate).toDate())
         this.depositForm.get('note')?.setValue(this.deposit.note)
@@ -238,8 +211,7 @@ export class DepositComponent implements OnInit {
         this.depositForm.get('phone')?.setValue(this.deposit.phone)
         this.depositForm.get('email')?.setValue(this.deposit.email)
         this.depositForm.get('room')?.setValue(this.deposit.room)
-        this.roomPresent = this.deposit.room
-        this.rooms.push(this.roomPresent)
+        this.depositForm.get('isNew')?.setValue(true)
         this.addDialog = true
     }
 
@@ -249,8 +221,7 @@ export class DepositComponent implements OnInit {
     }
 
     onChangeRoom() {
-        console.log('this.preRoom', this.preRoom)
-        if (this.roomInvalids.includes(this.deposit.room?.id) && this.preRoom !== this.deposit.room?.id) {
+        if (this.roomInvalids.includes(this.deposit.room?.id)) {
             this.depositForm.get('room')?.setErrors({roomInvalid: true})
         } else {
             if (!this.depositForm.get('room')?.invalid) {
@@ -297,11 +268,12 @@ export class DepositComponent implements OnInit {
                 .saveDeposit(this.deposit)
                 .pipe(
                     finalize(() => {
+                        this.loading = false
                         this.messageService.add({ severity: 'success', summary: 'Successful', detail: message, life: 3000 })
-                        this.initData()
+                        this.getRoomHasDeposit()
                     }),
                 )
-                .subscribe()
+                .subscribe((response) => (this.deposits = response.data))
             this.addDialog = false
         } else {
             this.depositForm.markAllAsTouched()

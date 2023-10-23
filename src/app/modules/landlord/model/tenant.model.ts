@@ -7,6 +7,7 @@ export class Tenant {
     endDate?: string;
     isStayed?: string;
     imageUrl?: string;
+    room?: any;
     phone?: any;
     email?: string;
     gender?: string;

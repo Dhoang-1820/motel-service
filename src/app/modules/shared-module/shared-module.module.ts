@@ -31,9 +31,6 @@ import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { GalleriaModule } from 'primeng/galleria';
 import { MenuModule } from 'primeng/menu';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { PickListModule } from 'primeng/picklist';
-import { SpeedDialModule } from 'primeng/speeddial';
-
 
 @NgModule({
   declarations: [],
@@ -41,7 +38,6 @@ import { SpeedDialModule } from 'primeng/speeddial';
     CommonModule
   ],
   exports: [
-    SpeedDialModule,
     ConfirmPopupModule,
     DataViewModule,
     InputTextModule,
@@ -73,8 +69,7 @@ import { SpeedDialModule } from 'primeng/speeddial';
     NgxPermissionsModule,
     GalleriaModule,
     MenuModule,
-    MultiSelectModule,
-    PickListModule
+    MultiSelectModule
   ],
 })
 export class SharedModuleModule { }

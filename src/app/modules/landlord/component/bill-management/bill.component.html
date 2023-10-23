@@ -16,12 +16,12 @@
                 </ng-template>
             </p-toolbar>
 
-            <p-table [loading]="dataLoading" #dt [value]="electricWaters" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['room','month']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"  selectionMode="multiple" [rowHover]="true" dataKey="id">
+            <p-table [loading]="dataLoading" #dt [value]="bills" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['billDate','firstElectric','lastElectric','room']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"  selectionMode="multiple" [rowHover]="true" dataKey="id">
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-                        <h5 class="m-0">Quản lý chỉ số điện nước</h5>
+                        <h5 class="m-0">Quản lý hoá đơn</h5>
                         <span class="block mt-2 md:mt-0 p-input-icon-left">
-                            <p-calendar (onSelect)="getElectricWatersByMonth()" [(ngModel)]="selectedMonth" [showIcon]="true" view="month" dateFormat="mm/yy" placeholder="Chọn tháng..."></p-calendar>
+                            <p-calendar (onSelect)="getBillsByMonth()" [(ngModel)]="selectedMonth" [showIcon]="true" view="month" dateFormat="mm/yy" placeholder="Chọn tháng..."></p-calendar>
                         </span>
                         <span class="block mt-2 md:mt-0 p-input-icon-left">
                             <i class="pi pi-search"></i>
@@ -33,25 +33,29 @@
                     <tr>
                         <th pSortableColumn="room">Phòng<p-sortIcon field="room"></p-sortIcon></th>
                         <th pSortableColumn="month">Tháng<p-sortIcon field="month"></p-sortIcon></th>
-                        <th>Số điện đầu</th>
-                        <th>Số điện cuối</th>
-                        <th>Số điện tiêu thụ</th>
-                        <th>Số nước đầu</th>
-                        <th>Số nước cuối</th>
-                        <th>Số nước tiêu thụ</th>
+                        <th pSortableColumn="firstElectric">Số điện đầu<p-sortIcon field="firstElectric"></p-sortIcon></th>
+                        <th pSortableColumn="lastElectric">Số điện cuối<p-sortIcon field="lastElectric"></p-sortIcon></th>
+                        <th pSortableColumn="electricNum">Số điện tiêu thụ<p-sortIcon field="electricNum"></p-sortIcon></th>
+                        <th pSortableColumn="firstWater">Số nước đầu<p-sortIcon field="firstWater"></p-sortIcon></th>
+                        <th pSortableColumn="lastWater">Số nước cuối<p-sortIcon field="lastWater"></p-sortIcon></th>
+                        <th pSortableColumn="waterNum">Số nước tiêu thụ<p-sortIcon field="waterNum"></p-sortIcon></th>
+                        <th pSortableColumn="totalPrice">Tổng tiền<p-sortIcon field="totalPrice"></p-sortIcon></th>
+                        <th pSortableColumn="createdAt">Ngày tạo<p-sortIcon field="createdAt"></p-sortIcon></th>
                         <th></th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-bill>
                     <tr>
                         <td>{{bill.room.name}}</td>
-                        <td>{{bill.month | date:'MM/yyyy'}}</td>
+                        <td>{{bill.billDate | date:'MM/yyyy'}}</td>
                         <td>{{bill.firstElectric}} (kWH)</td>
                         <td>{{bill.lastElectric}} (kWH)</td>
                         <td>{{bill.electricNum}} (kWH)</td>
                         <td>{{bill.firstWater}} (m³)</td>
                         <td>{{bill.lastWater}} (m³)</td>
                         <td>{{bill.waterNum}} (m³)</td>
+                        <p-inputNumber suffix="đ" mode="decimal" [readonly]="true" [(ngModel)]="bill.totalPrice"></p-inputNumber>
+                        <td>{{bill.createdAt  | date:'dd/MM/yyyy'}}</td>
                         <td>
                             <div class="flex">
                                 <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editTenant(bill)"></button>
@@ -63,62 +67,67 @@
             </p-table>
         </div>
 
-        <p-dialog (onHide)="onHideDialog()" [(visible)]="billDialog" [style]="{width: '450px'}" header="Chi tiết chỉ số điện nước" [modal]="true" class="p-fluid">
+        <p-dialog [(visible)]="billDialog" [style]="{width: '450px'}" header="Chi tiết hoá đơn" [modal]="true" class="p-fluid">
             <ng-template pTemplate="content">
                 <form [formGroup]="billForm">
                     <div class="field">
-                        <label for="room">Phòng</label>
-                        <p-dropdown formControlName="room" optionLabel="name" [options]="rooms" placeholder="Chọn phòng" [ngClass]="{'ng-invalid ng-dirty' : billForm.controls['room'].invalid && (billForm.controls['room'].dirty || billForm.controls['room'].touched)}">
+                        <label for="status">Phòng</label>
+                        <p-dropdown formControlName="room" optionLabel="name" [options]="rooms" placeholder="Chọn" [ngClass]="{'ng-invalid ng-dirty' : billForm.controls['room'].invalid && (billForm.controls['room'].dirty || billForm.controls['room'].touched)}">
                         </p-dropdown>
-                        <small class="ng-dirty ng-invalid" *ngIf="this.billForm.get('room')?.invalid && (billForm.controls['room'].dirty || billForm.controls['room'].touched)">Vui lòng chọn phòng.</small>
                     </div>
                     <div class="field">
-                        <label for="month">Tháng</label>
-                        <p-calendar formControlName="month" view="month" dateFormat="mm/yy" [touchUI]="true"></p-calendar>
+                        <label for="billDate">Tháng</label>
+                        <p-calendar formControlName="billDate" view="month" dateFormat="mm/yy" [touchUI]="true" [ngClass]="{'ng-invalid ng-dirty' : billForm.controls['billDate'].invalid && (billForm.controls['billDate'].dirty || billForm.controls['billDate'].touched)}"></p-calendar>
+                        <small class="ng-dirty ng-invalid" *ngIf="this.billForm.get('billDate')?.getError('invalid') && (billForm.controls['billDate'].dirty || billForm.controls['billDate'].touched)">Vui lòng nhập mật tên.</small>
                     </div>
                     <div class="field">
                         <label for="firstElectric">Số điện đầu</label>
                         <input formControlName="firstElectric" type="number" pInputText id="firstElectric" [ngClass]="{'ng-invalid ng-dirty' : billForm.controls['firstElectric'].invalid && (billForm.controls['firstElectric'].dirty || billForm.controls['firstElectric'].touched)}"/>
-                        <small class="ng-dirty ng-invalid" *ngIf="this.billForm.get('firstElectric')?.invalid && (billForm.controls['firstElectric'].dirty || billForm.controls['firstElectric'].touched)">Chỉ số điện đầu không hợp lệ.</small>
+                        <small class="ng-dirty ng-invalid" *ngIf="this.billForm.get('firstElectric')?.getError('invalid') && (billForm.controls['firstElectric'].dirty || billForm.controls['firstElectric'].touched)">Vui lòng nhập họ.</small>
                     </div>
                     <div class="field">
                         <label for="lastElectric">Số điện cuối</label>
                         <input formControlName="lastElectric" pInputText type="number" id="lastElectric" [ngClass]="{'ng-invalid ng-dirty' : billForm.controls['lastElectric'].invalid && (billForm.controls['lastElectric'].dirty || billForm.controls['lastElectric'].touched)}"/>
-                        <small class="ng-dirty ng-invalid" *ngIf="this.billForm.get('lastElectric')?.invalid && (billForm.controls['lastElectric'].dirty || billForm.controls['lastElectric'].touched)">Chỉ số điện cuối không hợp lệ.</small>
+                        <small class="ng-dirty ng-invalid" *ngIf="this.billForm.get('lastElectric')?.getError('invalid') && (billForm.controls['lastElectric'].dirty || billForm.controls['lastElectric'].touched)">Vui lòng nhập mật tên.</small>
                     </div>
                     <div class="field">
                         <label for="electricNum">Số điện tiêu thụ</label>
-                        <input [readOnly]="true" formControlName="electricNum" type="number" pInputText id="electricNum" [ngClass]="{'ng-invalid ng-dirty' : billForm.controls['electricNum'].invalid}"/>
-                        <small class="ng-dirty ng-invalid" *ngIf="this.billForm.get('electricNum')?.getError('electricInvalid')">Chỉ số điện không hợp lệ.</small>
+                        <input formControlName="electricNum" type="number" pInputText id="electricNum" [ngClass]="{'ng-invalid ng-dirty' : billForm.controls['electricNum'].invalid && (billForm.controls['electricNum'].dirty || billForm.controls['electricNum'].touched)}"/>
+                        <small class="ng-dirty ng-invalid" *ngIf="this.billForm.get('electricNum')?.getError('invalid') && (billForm.controls['electricNum'].dirty || billForm.controls['electricNum'].touched)">Vui lòng nhập mật tên.</small>
                     </div>
                     <div class="field">
                         <label for="firstWater">Số nước đầu</label>
                         <input formControlName="firstWater" type="number" pInputText id="firstWater" [ngClass]="{'ng-invalid ng-dirty' : billForm.controls['firstWater'].invalid && (billForm.controls['firstWater'].dirty || billForm.controls['firstWater'].touched)}"/>
-                        <small class="ng-dirty ng-invalid" *ngIf="this.billForm.get('firstWater')?.invalid && (billForm.controls['firstWater'].dirty || billForm.controls['firstWater'].touched)">Chỉ số nước đầu không hợp lệ.</small>
+                        <small class="ng-dirty ng-invalid" *ngIf="this.billForm.get('firstWater')?.getError('invalid') && (billForm.controls['firstWater'].dirty || billForm.controls['firstWater'].touched)">Vui lòng nhập mật tên.</small>
                     </div>
                     <div class="field">
                         <label for="lastWater">Số nước cuối</label>
                         <input formControlName="lastWater" type="number" pInputText id="lastWater" [ngClass]="{'ng-invalid ng-dirty' : billForm.controls['lastWater'].invalid && (billForm.controls['lastWater'].dirty || billForm.controls['lastWater'].touched)}"/>
-                        <small class="ng-dirty ng-invalid" *ngIf="this.billForm.get('lastWater')?.invalid && (billForm.controls['lastWater'].dirty || billForm.controls['lastWater'].touched)">Chỉ số nước cuối không hợp lệ.</small>
+                        <small class="ng-dirty ng-invalid" *ngIf="this.billForm.get('lastWater')?.getError('invalid') && (billForm.controls['lastWater'].dirty || billForm.controls['lastWater'].touched)">Vui lòng nhập mật tên.</small>
                     </div>
                     <div class="field">
                         <label for="waterNum">Số nước tiêu thụ</label>
-                        <input [readOnly]="true" formControlName="waterNum" type="number" pInputText id="waterNum" [ngClass]="{'ng-invalid ng-dirty' : billForm.controls['waterNum'].invalid}"/>
-                        <small class="ng-dirty ng-invalid" *ngIf="this.billForm.get('waterNum')?.getError('waterInvalid')">Chỉ số nước không hợp lệ.</small>
+                        <input formControlName="waterNum" type="number" pInputText id="waterNum" [ngClass]="{'ng-invalid ng-dirty' : billForm.controls['waterNum'].invalid && (billForm.controls['waterNum'].dirty || billForm.controls['waterNum'].touched)}"/>
+                        <small class="ng-dirty ng-invalid" *ngIf="this.billForm.get('waterNum')?.getError('invalid') && (billForm.controls['waterNum'].dirty || billForm.controls['waterNum'].touched)">Vui lòng nhập mật tên.</small>
                     </div>
+                    <!-- <div class="field">
+                        <label for="totalPrice">Tổng tiền</label>
+                        <input formControlName="totalPrice" type="number" mode="decimal"  pInputText id="totalPrice" [ngClass]="{'ng-invalid ng-dirty' : billForm.controls['totalPrice'].invalid && (billForm.controls['totalPrice'].dirty || billForm.controls['totalPrice'].touched)}"/>
+                        <small class="ng-dirty ng-invalid" *ngIf="this.billForm.get('totalPrice')?.getError('invalid') && (billForm.controls['totalPrice'].dirty || billForm.controls['totalPrice'].touched)">Vui lòng nhập mật tên.</small>
+                    </div> -->
                 </form>
             </ng-template>
 
             <ng-template pTemplate="footer">
                 <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-                <button pButton pRipple label="Save" [disabled]="billForm.invalid" icon="pi pi-check" class="p-button-text" (click)="saveBill()"></button>
+                <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveBill()"></button>
             </ng-template>
         </p-dialog>
 
         <p-dialog [(visible)]="deleteTenantDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
             <div class="flex align-items-center justify-content-center">
                 <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
-                <span *ngIf="electricWater">Are you sure you want to delete?</span>
+                <span *ngIf="bill">Are you sure you want to delete?</span>
             </div>
             <ng-template pTemplate="footer">
                 <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteTenantDialog = false"></button>

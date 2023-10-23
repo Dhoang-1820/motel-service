@@ -5,7 +5,8 @@ import { SharedModuleModule } from '../shared-module/shared-module.module'
 import { AccomodationsComponent } from './component/accomodations/accomodations.component'
 import { ReportComponent } from './component/report/report.component'
 import { RoomComponent } from './component/room/room.component'
-import { TenantsComponent } from './component/tenant-management/tenants.component'
+import { BillsComponent } from './component/bill-management/bill.component'
+import { TenantsComponent } from './component/tenantManagement/tenants.component'
 import { LandlordRoutingModule } from './landlord-routing.module'
 import { LandlordComponent } from './landlord.component'
 import { ProfileManagement } from './component/profile/profile.component'
@@ -18,11 +19,7 @@ import { HeaderComponent } from './layout/header/header.component'
 import { TagModule } from 'primeng/tag';
 import { ServiceManagementComponent } from './component/service-management/service-management.component';
 import { EquipmentComponent } from './component/equipment/equipment.component';
-import { DepositComponent } from './component/deposit/deposit.component';
-import { ContractComponent } from './component/contract/contract.component'
-import { ElectricityWaterComponent } from './component/electricity-water/electricity-water.component';
-import { ReturnRoomComponent } from './component/return-room/return-room.component'
-
+import { DepositComponent } from './component/deposit/deposit.component'
 
 @NgModule({
     declarations: [
@@ -31,7 +28,7 @@ import { ReturnRoomComponent } from './component/return-room/return-room.compone
         TenantsComponent,
         AccomodationsComponent,
         RoomComponent,
-        ElectricityWaterComponent,
+        BillsComponent,
         ProfileManagement,
         CommonConfigComponent,
         ServiceManagementComponent,
@@ -42,8 +39,6 @@ import { ReturnRoomComponent } from './component/return-room/return-room.compone
         HeaderComponent,
         EquipmentComponent,
         DepositComponent,
-        ContractComponent,
-        ReturnRoomComponent,
     ],
     imports: [CommonModule, LandlordRoutingModule, SharedModuleModule, TagModule],
 })

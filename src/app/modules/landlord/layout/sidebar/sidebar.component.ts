@@ -37,10 +37,8 @@ export class SidebarComponent implements OnInit {
             {
                 label: 'Hợp đồng',
                 items: [
-                    { label: 'Hợp đồng', icon: 'pi pi-ticket', routerLink: ['/motel-management/contract'] },
                     { label: 'Đặt cọc phòng', icon: 'pi pi-fw pi-sitemap', routerLink: ['/motel-management/deposit'] },
                     { label: 'Khách thuê', icon: 'pi pi-fw pi-users', routerLink: ['/motel-management/tenant'] },
-                    { label: 'Lịch sử khách thuê', icon: 'pi pi-history', routerLink: ['/motel-management/#'] },
                 ],
             },
             {
@@ -50,22 +48,12 @@ export class SidebarComponent implements OnInit {
                     {
                         label: 'Quản lý điện nước',
                         icon: 'pi pi-fw pi-globe',
-                        routerLink: ['/motel-management/electricity-waters'],
+                        routerLink: ['/motel-management/bill'],
                     },
                     {
                         label: 'Xuất hoá đơn',
                         icon: 'pi pi-fw pi-euro',
                         routerLink: ['/motel-management/invoice'],
-                    },
-                    {
-                        label: 'Trả phòng',
-                        icon: 'pi pi-wallet',
-                        routerLink: ['/motel-management/checkout'],
-                    },
-                    {
-                        label: 'Phiếu chi',
-                        icon: 'pi pi-shopping-bag',
-                        routerLink: ['/motel-management/#'],
                     }
                 ],
             },

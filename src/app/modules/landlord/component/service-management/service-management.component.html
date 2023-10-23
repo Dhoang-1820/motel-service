@@ -38,13 +38,13 @@
                 <ng-template pTemplate="body" let-data>
                     <tr>
                         <td style="width:25%; min-width:10rem;">{{data.name}}</td>
-                        <td style="width:25%; min-width:10rem;">{{data.price | currency: 'VND':'symbol'}}</td>
+                        <td style="width:25%; min-width:10rem;">{{data.price}}</td>
                         <td style="width:25%; min-width:10rem;">{{data.unit}}</td>
                         <td style="width:25%; min-width:10rem;">{{data.description}}</td>
                         <td>
                             <div class="flex">
                                 <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editService(data)"></button>
-                                <button pButton pRipple icon="pi pi-trash" [pTooltip]="data.isDefault ? 'Không thể xoá dịch vụ mặc định' : 'Xoá'" tooltipPosition="top" [disabled]="data.isDefault" class="p-button-rounded p-button-warning" (click)="deleteService(data)"></button>
+                                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteService(data)"></button>
                             </div>
                         </td>
                     </tr>
@@ -57,15 +57,11 @@
                 <form [formGroup]="serviceForm"> 
                     <div class="field">
                         <label for="name">Tên dịch vụ</label>
-                        <span class="p-input-icon-right">
-                            <i class="pi pi-spin pi-spinner" *ngIf="isValidating"></i>
-                            <input type="text" pInputText id="name" formControlName="name" [ngClass]="{'ng-invalid ng-dirty' : serviceForm.controls['name'].invalid && (serviceForm.controls['name'].dirty || serviceForm.controls['name'].touched)}">
-                        </span>
-                        <small class="ng-dirty ng-invalid" *ngIf="serviceForm.get('name')?.hasError('required') && (serviceForm.controls['name'].dirty || serviceForm.controls['name'].touched)">Vui lòng nhập tên dịch vụ.</small>
-                        <small class="ng-dirty ng-invalid" *ngIf="serviceForm.get('name')?.hasError('nameExisted') && (serviceForm.controls['name'].dirty || serviceForm.controls['name'].touched)">Dịch vụ đã tồn tại.</small>
+                        <input type="text" pInputText id="name" formControlName="name" [ngClass]="{'ng-invalid ng-dirty' : serviceForm.controls['name'].invalid && (serviceForm.controls['name'].dirty || serviceForm.controls['name'].touched)}">
+                        <small class="ng-dirty ng-invalid" *ngIf="serviceForm.get('name')?.invalid && (serviceForm.controls['name'].dirty || serviceForm.controls['name'].touched)">Vui lòng nhập tên dịch vụ.</small>
                     </div>
                     <div class="field">
-                        <label for="price">Đơn giá (đồng)</label>
+                        <label for="price">Đơn giá</label>
                         <p-inputNumber id="price" formControlName="price" [ngClass]="{'ng-invalid ng-dirty' : serviceForm.controls['price'].invalid && (serviceForm.controls['price'].dirty || serviceForm.controls['price'].touched)}"></p-inputNumber>
                         <small class="ng-dirty ng-invalid" *ngIf="serviceForm.get('price')?.invalid && (serviceForm.controls['price'].dirty || serviceForm.controls['price'].touched)">Vui lòng nhập đơn giá.</small>
                     </div>
@@ -83,7 +79,7 @@
 
             <ng-template pTemplate="footer">
                 <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-                <button pButton pRipple label="Save" icon="pi pi-check" [disabled]="isValidating || serviceForm.invalid" class="p-button-text" (click)="saveService()"></button>
+                <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveService()"></button>
             </ng-template>
         </p-dialog>
 

@@ -1,15 +1,14 @@
 import { Component, OnInit } from '@angular/core'
-import { FormControl, FormGroup, Validators } from '@angular/forms'
-import * as moment from 'moment'
-import { MenuItem, MessageService } from 'primeng/api'
+import { MessageService } from 'primeng/api'
 import { Table } from 'primeng/table'
-import { Observable, distinctUntilChanged, finalize } from 'rxjs'
+import { finalize, findIndex } from 'rxjs'
 import { AuthenticationService } from 'src/app/modules/auth/service/authentication.service'
-import { AppConstant } from 'src/app/modules/common/Constants'
 import { User } from 'src/app/modules/model/user.model'
-import { Invoice } from '../../model/bill.model'
+import { Room } from '../../model/accomodation.model'
 import { AccomodationService } from '../../service/accomodation.service'
+import { RoomService } from '../../service/room.service'
 import { BillService } from '../../service/bill.service'
+import * as moment from 'moment'
 
 @Component({
     selector: 'app-invoice',
@@ -18,155 +17,51 @@ import { BillService } from '../../service/bill.service'
     providers: [MessageService],
 })
 export class InvoiceComponent implements OnInit {
-    invoiceDialog: boolean = false
-
+    productDialog: boolean = false
+    otherFeesDialog: boolean = false
+    deleteProductDialog: boolean = false
+    deleteProductsDialog: boolean = false
     accomodations: any[] = []
     selectedAccomodation!: any
 
-    invoices: Invoice[] = []
-    invoice: Invoice = {}
+    rooms: Room[] = []
+    room: any = {}
+    selectedProducts: Room[] = []
+    submitted: boolean = false
+    cols: any[] = []
+    statuses: any[] = []
     rowsPerPageOptions = [5, 10, 20]
+    selectedService: string[] = []
     user!: User | null
     dataLoading: boolean = false
     loading: boolean = false
     selectedMonth: Date | undefined
-    invoiceForm: FormGroup
-    issueRequest!: { roomId: any; month?: Date }
-    getInvoiceRequest!: { accomodationId: any; month: any }
-    isEdit: boolean = false
-    preMonth: Date
 
-    items: MenuItem[] = []
-    
     constructor(
         private accomodationService: AccomodationService,
         private auth: AuthenticationService,
+        private roomService: RoomService,
         private billService: BillService,
         private messageService: MessageService,
     ) {
+        this.cols = [
+            { field: 'feeName', header: 'Tên dịch vụ' },
+            { field: 'unit', header: 'Đơn vị' },
+            { field: 'price', header: 'Đơn giá' },
+            { field: 'quantity', header: 'Số lượng' },
+        ]
         this.selectedMonth = moment().toDate()
-        this.preMonth = moment(this.selectedMonth).subtract(1,'months').endOf('month').toDate();
-
-        this.invoiceForm = new FormGroup({
-            totalService: new FormControl(this.invoice.totalService, []),
-            discount: new FormControl(this.invoice.discount, [Validators.required, Validators.min(0)]),
-            totalPrice: new FormControl(this.invoice.totalPrice, []),
-            paidMoney: new FormControl(this.invoice.paidMoney, [Validators.required]),
-            totalPayment: new FormControl(this.invoice.totalPayment, []),
-            debt: new FormControl(this.invoice.debt, []),
-            newDebt: new FormControl(this.invoice.newDebt, [Validators.required, Validators.min(0)]),
-            description: new FormControl(this.invoice.description, []),
-        })
     }
 
     ngOnInit() {
         this.user = this.auth.userValue
         this.getDropdownAccomodation()
-
-        this.invoiceForm.get('totalService')?.valueChanges.subscribe((data) => {
-            this.invoice.totalService = data
-        })
-        this.invoiceForm.get('discount')?.valueChanges.subscribe((data) => {
-            this.invoice.discount = data
-            if (this.invoice.totalPrice && this.invoice.discount != undefined) {
-                let remain = this.invoice.totalPrice - this.invoice.discount;
-                this.invoiceForm.get('totalPayment')?.setValue(remain)
-            }
-            if (this.invoiceForm.get('newDebt')?.value < 0) {
-                console.log(this.invoiceForm.get('newDebt'))
-                this.invoiceForm.setErrors({incorrect: true})
-                this.invoiceForm.get('newDebt')?.markAsTouched()
-            } else {
-                this.invoiceForm.setErrors(null)
-                this.invoiceForm.get('newDebt')?.markAsTouched()
-            }
-        })
-        this.invoiceForm.get('totalPrice')?.valueChanges.subscribe((data) => {
-            this.invoice.totalPrice = data
-        })
-        this.invoiceForm.get('paidMoney')?.valueChanges.subscribe((data) => {
-            this.invoice.paidMoney = data
-            if (this.invoice.totalPayment && this.invoice.paidMoney) {
-                let newDebt = this.invoice.totalPayment - this.invoice.paidMoney
-                this.invoiceForm.get('newDebt')?.setValue(newDebt)
-            }
-        })
-        this.invoiceForm.get('totalPayment')?.valueChanges.subscribe((data) => {
-            this.invoice.totalPayment = data
-            if (this.invoice.totalPayment && this.invoice.paidMoney) {
-                let newDebt = this.invoice.totalPayment - this.invoice.paidMoney
-                this.invoiceForm.get('newDebt')?.setValue(newDebt)
-            }
-        })
-        this.invoiceForm.get('debt')?.valueChanges.subscribe((data) => {
-            this.invoice.debt = data
-        })
-        this.invoiceForm.get('newDebt')?.valueChanges.subscribe((data) => {
-            this.invoice.newDebt = data
-        })
-        this.invoiceForm.get('description')?.valueChanges.subscribe((data) => {
-            this.invoice.description = data
-        })
-
     }
 
     openNew() {
-        this.invoice = {}
-        this.invoiceDialog = true
-    }
-
-    onShowMenu(invoice: Invoice) {
-        this.getMenuItems(invoice)
-    }
-
-    getMenuItems(invoice: Invoice): MenuItem[] {
-        this.items = [
-            {
-                icon: 'pi pi-pencil',
-                label: 'Sửa hoá đơn',
-                command: (e: any) => {
-                    console.log(e)
-                    this.isEdit = true
-                    this.getInvoiceDetail(e.item.data.id)
-                },
-            },
-            {
-                icon: 'pi pi-check',
-                label: 'Xác nhận thanh toán',
-                disabled: invoice.isPay,
-                command: (e: any) => {
-                    this.confirmPayment(e.item.data)
-                },
-            },
-            {
-                label: 'Gửi mail',
-                icon: 'pi pi-send',
-                disabled: invoice.isPay,
-                command: (e) => {
-                    this.sendInvoiceMail(e.item.data.id)
-                },
-            },
-            {
-                label: 'Xoá',
-                icon: 'pi pi-trash',
-                disabled: invoice.isPay,
-                command: (e) => {
-                    this.removeInvoice(e.item.data.id)
-                },
-            },
-        ]
-        this.items.forEach((menuItem: any) => {
-            menuItem.data = invoice
-        })
-        return this.items;
-    }
-
-    toggleMenu(menu: any, event: any) {
-        menu.toggle(event)
-    }
-
-    onDialogHide() {
-        this.isEdit = false
+        this.room = {}
+        this.submitted = false
+        this.productDialog = true
     }
 
     getDropdownAccomodation() {
@@ -177,7 +72,7 @@ export class InvoiceComponent implements OnInit {
                 finalize(() => {
                     this.selectedAccomodation = this.accomodations[0]
                     this.loading = false
-                    this.getInvoiceByAccomodation().subscribe((response) => (this.invoices = response.data))
+                    this.getInvoiceByAccomodation()
                 }),
             )
             .subscribe((response) => (this.accomodations = response.data))
@@ -185,184 +80,106 @@ export class InvoiceComponent implements OnInit {
 
     getInvoiceByAccomodation() {
         this.loading = true
-        this.getInvoiceRequest = { accomodationId: this.selectedAccomodation.id, month: this.selectedMonth }
-        return this.billService
-            .getMonthInvoiceByAccomodation(this.getInvoiceRequest )
+        let request: { accomodationId: any; month: any } = { accomodationId: this.selectedAccomodation.id, month: this.selectedMonth }
+        console.log(request)
+        this.billService
+            .getMonthInvoiceByAccomodation(request)
             .pipe(
                 finalize(() => {
                     this.loading = false
                 }),
             )
-            
+            .subscribe((response) => (this.rooms = response.data))
     }
 
     getInvoiceByMonth() {
         this.loading = true
-        this.getInvoiceRequest = { accomodationId: this.selectedAccomodation.id, month: this.selectedMonth }
-        this.preMonth = moment(this.selectedMonth).subtract(1,'months').endOf('month').toDate();
+        let request: { accomodationId: any; month: any } = { accomodationId: this.selectedAccomodation.id, month: this.selectedMonth }
         this.billService
-            .getMonthInvoiceByAccomodation(this.getInvoiceRequest )
+            .getMonthInvoiceByAccomodation(request)
             .pipe(
                 finalize(() => {
                     this.loading = false
                 }),
             )
-            .subscribe((response) => (this.invoices = response.data))
+            .subscribe((response) => (this.rooms = response.data))
+    }
+
+    changePaymentStatus() {
+        this.dataLoading = true
+        this.billService
+            .savePaymentConfirmation(this.room.billId)
+            .pipe(
+                finalize(() => {
+                    this.productDialog = false
+                    this.getInvoiceByAccomodation()
+                    this.dataLoading = false
+                }),
+            )
+            .subscribe((data) => console.log(data))
     }
 
     onSelectAccomodation() {
-        this.getInvoiceByAccomodation().subscribe((response) => (this.invoices = response.data))
+        this.getInvoiceByAccomodation()
     }
 
-    getInvoicePreview(invoice: Invoice) {
-        invoice.loading = true
-        this.issueRequest = { roomId: invoice.room?.id, month: this.selectedMonth }
-        this.billService
-            .getPreviewInvoice(this.issueRequest)
+    deleteSelectedProducts() {
+        this.deleteProductsDialog = true
+    }
+
+    editProduct(room: Room) {
+        this.room = { ...room }
+        this.productDialog = true
+    }
+
+    deleteProduct(room: Room) {
+        this.deleteProductDialog = true
+        this.room = { ...room }
+    }
+
+    confirmDeleteSelected() {
+        this.deleteProductsDialog = false
+        this.rooms = this.rooms.filter((val) => !this.selectedProducts.includes(val))
+        this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 })
+        this.selectedProducts = []
+    }
+
+    confirmDelete() {
+        this.deleteProductDialog = false
+        this.roomService
+            .removeRoom(this.room.id)
             .pipe(
                 finalize(() => {
-                    invoice.loading = false
-                    this.editInvoice()
+                    this.rooms = this.rooms.filter((val) => val.id !== this.room.id)
+                    this.room = {}
+                    this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Accomodation Deleted', life: 3000 })
                 }),
             )
-            .subscribe((response) => this.invoice = response.data)
-    }
-
-    issueInvoice() {
-        this.loading = true
-        this.invoice.billDate = moment(new Date()).toDate()
-        this.billService
-            .issueInvoice(this.invoice)
-            .pipe(
-                finalize(() => {
-                    this.hideDialog()
-                    this.getInvoiceByAccomodation().pipe(
-                        finalize(() => {
-                            this.messageService.add({ severity: 'success', summary: 'Thành công', detail: 'Xuất hoá đơn thành công' })
-                        })
-                    ).subscribe((response) => (this.invoices = response.data))
-                }),
-            )
-            .subscribe((response) => console.log(response))
-    }
-
-    sendInvoiceMail(invoiceId: number) {
-        this.billService.sendInvoice(invoiceId).pipe(
-            finalize(() => {
-                this.messageService.add({ severity: 'success', summary: 'Thành công', detail: 'Mail đã gửi thành công' })
-            })
-        ).subscribe(response => console.log(response))
-    }
-
-    editInvoice() {
-        this.invoiceDialog = true
-        this.invoiceForm.get('totalService')?.setValue(this.invoice.totalService)
-        this.invoiceForm.get('description')?.setValue(this.invoice.description)
-        this.invoiceForm.get('discount')?.setValue(this.invoice.discount || 0)
-        this.invoiceForm.get('totalPrice')?.setValue(this.invoice.totalPrice)
-        this.invoiceForm.get('paidMoney')?.setValue(this.invoice.paidMoney)
-        this.invoiceForm.get('totalPayment')?.setValue(this.invoice.totalPayment)
-        this.invoiceForm.get('debt')?.setValue(this.invoice.debt)
-        this.invoiceForm.get('newDebt')?.setValue(this.invoice.newDebt)
-        let totalPayment: number = this.invoice.totalPayment || 0
-        let totalPrice: number = this.invoice.totalPrice || 0
-        this.invoiceForm.get('paidMoney')?.setValidators([Validators.max(totalPayment)])
-        this.invoiceForm.get('discount')?.setValidators([Validators.max(totalPrice)])
-        this.invoiceForm.get('paidMoney')?.updateValueAndValidity()
-        this.invoiceForm.get('discount')?.updateValueAndValidity()
-    }
-
-    getInvoiceDetail(invoiceId: number) {
-        this.loading = true
-        this.billService
-            .getInvoiceDetail(invoiceId)
-            .pipe(
-                finalize(() => {
-                    this.loading = false
-                    console.log(this.invoice)
-                    this.editInvoice()
-                }),
-            )
-            .subscribe((response) => this.invoice = response.data)
-    }
-
-    removeInvoice(invoiceId: number) {
-        this.loading = true
-        this.billService
-            .removeInvoice(invoiceId)
-            .pipe(
-                finalize(() => {
-                    this.getInvoiceByAccomodation().subscribe((response) => (this.invoices = response.data))
-                }),
-            )
-            .subscribe((response) => console.log(response))
+            .subscribe((data) => console.log(data))
     }
 
     hideDialog() {
-        this.invoiceDialog = false
+        this.productDialog = false
+        this.submitted = false
+        console.log(this.room)
     }
 
-    confirmPayment(invoice: Invoice) {
-        console.log(this.invoice)
+    sendInvoice() {
         this.loading = true
-        this.invoice.isPay = true
-        this.billService.confirmPayment(invoice.id).pipe(
-            finalize(() => {
-                this.hideDialog()
-                this.getInvoiceByAccomodation().pipe(
-                    finalize(() => {
-                        this.messageService.add({ severity: 'success', summary: 'Thành công', detail: 'Xuất hoá đơn thành công' })
-                    })
-                ).subscribe((response) => (this.invoices = response.data))
-            })
-        ).subscribe(response => console.log(response))
-    }
-
-    // sendInvoice() {
-    //     this.loading = true
-    //     let request: {roomId: any, billId: any, month: any} = {roomId: this.room.id, billId: this.room.billId, month: this.selectedMonth}
-    //     this.billService
-    //         .sendInvoice(request)
-    //         .pipe(
-    //             finalize(() => {
-    //                 this.submitted = false
-    //                 this.getDropdownAccomodation()
-    //             }),
-    //         )
-    //         .subscribe((data) => console.log(data))
-    //     this.invoiceDialog = false
-    // }
-
-    updateInvoice() {
-        console.log(this.invoiceForm)
-        if (!this.invoiceForm.invalid) {
-            this.loading = true
-            console.log('invoice',this.invoice)
-            this.billService.updateInvoice(this.invoice).pipe(
+        let request: {roomId: any, billId: any, month: any} = {roomId: this.room.id, billId: this.room.billId, month: this.selectedMonth}
+        this.billService
+            .sendInvoice(request)
+            .pipe(
                 finalize(() => {
-                    this.hideDialog()
-                    this.getInvoiceByAccomodation().pipe(
-                        finalize(() => {
-                            this.messageService.add({ severity: 'success', summary: 'Thành công', detail: 'Xuất hoá đơn thành công' })
-                        })
-                    ).subscribe((response) => (this.invoices = response.data))
-                })
-            ).subscribe(response => console.log(response))
-
-        } else {
-            this.invoiceForm.markAllAsTouched()
-        }
+                    this.submitted = false
+                    this.getDropdownAccomodation()
+                }),
+            )
+            .subscribe((data) => console.log(data))
+        this.productDialog = false
     }
 
     onGlobalFilter(table: Table, event: Event) {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains')
-    }
-
-    get staticElectricPriceName() {
-        return AppConstant.ELECTRIC_PRICE_NAME
-    }
-
-    get staticWaterPriceName() {
-        return AppConstant.WATER_PRICE_NAME
     }
 }

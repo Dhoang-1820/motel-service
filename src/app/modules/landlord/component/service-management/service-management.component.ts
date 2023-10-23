@@ -2,12 +2,14 @@ import { Component, OnInit } from '@angular/core'
 import { FormControl, FormGroup, Validators } from '@angular/forms'
 import { MessageService } from 'primeng/api'
 import { Table } from 'primeng/table'
-import { debounceTime, distinctUntilChanged, finalize } from 'rxjs'
+import { finalize } from 'rxjs'
 import { AuthenticationService } from 'src/app/modules/auth/service/authentication.service'
-import { AppConstant } from 'src/app/modules/common/Constants'
 import { User } from 'src/app/modules/model/user.model'
-import { AccomodationUtilities } from '../../model/accomodation.model'
+import { AccomodationUtilities, Room } from '../../model/accomodation.model'
 import { AccomodationService } from '../../service/accomodation.service'
+import { OtherFeeService } from '../../service/other-fee.service'
+import { RoomService } from '../../service/room.service'
+import { AppConstant } from 'src/app/modules/common/Constants'
 
 @Component({
     selector: 'app-room-service',
@@ -30,8 +32,6 @@ export class ServiceManagementComponent implements OnInit {
     service: AccomodationUtilities = {};
     serviceForm: FormGroup
     units: String[] = AppConstant.UNITS
-    isValidating: boolean = false
-    isAdd: boolean = false
 
     constructor(
         private accomodationService: AccomodationService,
@@ -48,16 +48,8 @@ export class ServiceManagementComponent implements OnInit {
 
     ngOnInit() {
         this.user = this.auth.userValue
-        this.serviceForm.get('name')?.valueChanges.pipe(
-            debounceTime(500),
-            distinctUntilChanged()
-        ).subscribe(data => {
-            if (data) {
-                this.service.name = data
-                if (this.isAdd) {
-                    this.checkValidService()
-                }
-            }
+        this.serviceForm.get('name')?.valueChanges.subscribe(data => {
+            this.service.name = data
         })
         this.serviceForm.get('price')?.valueChanges.subscribe(data => {
             this.service.price = data
@@ -69,21 +61,6 @@ export class ServiceManagementComponent implements OnInit {
             this.service.description = data
         })
         this.getDropdownAccomodation()
-    }
-
-    checkValidService() {
-        let isValid = false;
-        this.isValidating = true
-        this.service.accomodationId = this.selectedAccomodation.id
-        this.accomodationService.checkValidService(this.service).pipe(
-            finalize(() => {
-                console.log('isValid', isValid)
-                this.isValidating = false
-                if (!isValid) {
-                    this.serviceForm.get('name')?.setErrors({nameExisted: true})
-                }
-            })
-        ).subscribe(response => isValid = response.data)
     }
 
     getDropdownAccomodation() {
@@ -105,14 +82,11 @@ export class ServiceManagementComponent implements OnInit {
 
     openNewService() {
         this.addDialog = true
-        this.isAdd = true
         this.service = {}
         this.serviceForm.get('name')?.setValue(null)
         this.serviceForm.get('price')?.setValue(null)
         this.serviceForm.get('unit')?.setValue(null)
         this.serviceForm.get('description')?.setValue(null)
-        this.serviceForm.get('name')?.enable()
-        this.serviceForm.get('unit')?.enable()
     }
 
     getServiceByAccomodation() {
@@ -134,15 +108,7 @@ export class ServiceManagementComponent implements OnInit {
         this.serviceForm.get('price')?.setValue(this.service.price)
         this.serviceForm.get('unit')?.setValue(this.service.unit)
         this.serviceForm.get('description')?.setValue(this.service.description)
-        if (this.service.isDefault) {
-            this.serviceForm.get('name')?.disable()
-            this.serviceForm.get('unit')?.disable()
-        } else {
-            this.serviceForm.get('name')?.enable()
-            this.serviceForm.get('unit')?.enable()
-        }
         this.addDialog = true
-        this.isAdd = false
     }  
 
     deleteService(service: AccomodationUtilities) {

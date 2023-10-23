@@ -1,5 +1,3 @@
-<!-- @format -->
-
 <div class="grid">
     <div class="col-12">
         <div class="card px-6 py-6">
@@ -27,27 +25,25 @@
 
             <p-table
                 #dt
-                [value]="invoices"
+                [value]="rooms"
+                [columns]="cols"
                 responsiveLayout="scroll"
                 [rows]="10"
                 [globalFilterFields]="['name', 'capacity', 'price', 'acreage']"
                 [paginator]="true"
                 [rowsPerPageOptions]="[10, 20, 30]"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                [(selection)]="selectedProducts"
+                selectionMode="multiple"
                 [rowHover]="true"
                 dataKey="id"
             >
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-                        <h5 class="m-0">Xuất hoá đơn phòng hàng tháng</h5>
+                        <h5 class="m-0">Xuất hoá đơn</h5>
                         <span class="block mt-2 md:mt-0 p-input-icon-left">
-                            <p-calendar
-                                (onSelect)="getInvoiceByMonth()"
-                                [(ngModel)]="selectedMonth"
-                                [showIcon]="true"
-                                view="month"
-                                dateFormat="mm/yy"
-                                placeholder="Chọn tháng..."
-                            ></p-calendar>
+                            <p-calendar (onSelect)="getInvoiceByMonth()" [(ngModel)]="selectedMonth" [showIcon]="true" view="month" dateFormat="mm/yy" placeholder="Chọn tháng..."></p-calendar>
                         </span>
                         <span class="block mt-2 md:mt-0 p-input-icon-left">
                             <i class="pi pi-search"></i>
@@ -57,312 +53,139 @@
                 </ng-template>
                 <ng-template pTemplate="header">
                     <tr>
-                        <th pSortableColumn="name">Tên phòng<p-sortIcon field="name"></p-sortIcon></th>
+                        <th pSortableColumn="name">Tên phòng/Số phòng<p-sortIcon field="name"></p-sortIcon></th>
                         <th pSortableColumn="month">Tháng<p-sortIcon field="month"></p-sortIcon></th>
-                        <th pSortableColumn="representative">Người đại diện<p-sortIcon field="representative"></p-sortIcon></th>
-                        <th pSortableColumn="totalPrice">Thành tiền<p-sortIcon field="totalPrice"></p-sortIcon></th>
-                        <th pSortableColumn="totalPayment">Thanh toán<p-sortIcon field="totalPayment"></p-sortIcon></th>
-                        <th pSortableColumn="debt">Nợ<p-sortIcon field="debt"></p-sortIcon></th>
-                        <th pSortableColumn="paymentDate">Ngày thanh toán<p-sortIcon field="paymentDate"></p-sortIcon></th>
-                        <th pSortableColumn="isPay">Trạng thái<p-sortIcon field="isPay"></p-sortIcon></th>
-                        <th>Số lần gửi mail</th>
+                        <th pSortableColumn="totalPrice">Tổng tiền<p-sortIcon field="totalPrice"></p-sortIcon></th>
+                        <th pSortableColumn="status">Trạng thái<p-sortIcon field="status"></p-sortIcon></th>
+                        <th pSortableColumn="status">Đã thanh toán<p-sortIcon field="status"></p-sortIcon></th>
+                        <th pSortableColumn="createdAt">Ngày tạo<p-sortIcon field="createdAt"></p-sortIcon></th>
                         <th></th>
                         <th></th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-data>
                     <tr>
-                        <td style="width: 10%">{{ data.room.name }}</td>
-                        <td style="width: 10%">{{ selectedMonth | date : 'MM/yyyy' }}</td>
-                        <td style="width: 15%">{{ data.representative }}</td>
-                        <td style="width: 10%">{{ data.totalPayment | currency : 'VND' : 'symbol' }}</td>
-                        <td style="width: 10%">{{ data.paidMoney | currency : 'VND' : 'symbol' }}</td>
-                        <td style="width: 10%">{{ data.debt | currency : 'VND' : 'symbol' }}</td>
-                        <td style="width: 15%">{{ data.paymentDate | date : 'dd/MM/yyyy' }}</td>
-
-                        <td style="width: 10%">
-                            <ng-container *ngIf="data.id">
-                                <p-tag *ngIf="data.isPay" severity="success" value="Đã thanh toán"></p-tag>
-                                <p-tag *ngIf="!data.isPay" severity="warning" value="Chưa thanh toán"></p-tag>
-                            </ng-container>
-                            <ng-container *ngIf="!data.id">
-                                <p-tag severity="info" value="Chưa xuất hoá đơn"></p-tag>
-                            </ng-container>
-                        </td>
-                        <td style="width: 10%">{{data.quantitySent}}</td>
+                        <td>{{ data.name }}</td>
+                        <td>{{ data.billDate | date:'MM/yyyy'}}</td>
+                        <td>{{ data.totalPrice | currency: 'VND':'symbol'}}</td>
+                        <td>{{ data.isSent ? 'Đã gửi hoá đơn' : 'Chưa gửi hoá đơn'}}</td>
+                        <td>{{ data.isPay ? 'Đã thanh toán' : 'Chưa thanh toán'}}</td>
+                        <td>{{ data.createdAt | date:'dd/MM/yyyy'}}</td>
                         <td></td>
                         <td>
-                            <ng-container *ngIf="data.id">
-                                <div class="flex align-items-center" style="position: relative">
-                                    <p-menu (onShow)="onShowMenu(data)" #menu [model]="items" [popup]="true"></p-menu>
-                                    <button
-                                        pButton
-                                        type="button"
-                                        pTooltip="Tác vụ"
-                                        tooltipPosition="top"
-                                        class="p-button-rounded"
-                                        (click)="toggleMenu(menu, $event)"
-                                        icon="pi pi-bars"
-                                    ></button>
-                                </div>
-                            </ng-container>
-                            <ng-container *ngIf="!data.id">
-                                <div class="flex">
-                                    <button
-                                        pButton
-                                        pRipple
-                                        [loading]="data.loading"
-                                        icon="pi pi-file-export"
-                                        pTooltip="Xuất hoá đơn"
-                                        tooltipPosition="top"
-                                        (click)="getInvoicePreview(data)"
-                                        class="p-button-rounded"
-                                    ></button>
-                                </div>
-                            </ng-container>
+                            <div class="flex">
+                                <button
+                                    pButton
+                                    pRipple
+                                    icon="pi pi-file-export"
+                                    class="p-button-rounded p-button-success mr-2"
+                                    (click)="editProduct(data)"
+                                ></button>
+                            </div>
                         </td>
+                        
                     </tr>
                 </ng-template>
             </p-table>
         </div>
 
-        <p-dialog (onHide)="onDialogHide()" [(visible)]="invoiceDialog" [style]="{ width: '1050px' }" header="Xuất hoá đơn" [modal]="true" class="p-fluid">
+        <p-dialog [(visible)]="productDialog" [style]="{ width: '850px' }" header="Xuất hoá đơn" [modal]="true" class="p-fluid">
             <ng-template pTemplate="content">
+                <div class="field">
+                    <label for="name">Tên phòng/Số phòng</label>
+                    <input
+                        type="text"
+                        pInputText
+                        id="name"
+                        [(ngModel)]="room.name"
+                        disabled="true"
+                    />
+                </div>
+                <div class="field">
+                    <label for="price">Tháng</label>
+                    <p-calendar  [(ngModel)]="selectedMonth" dateFormat="mm/yy" disabled="true"></p-calendar>
+                </div>
                 <div class="formgrid grid">
                     <div class="field col">
-                        <label for="name">Tên phòng/Số phòng</label>
-                        <div pInputText>{{ invoice.room?.name }}</div>
+                        <label>Số điện tiêu thụ</label>
+                        <div pInputText >{{room.electricNum}}</div>
                     </div>
                     <div class="field col">
-                        <label for="name">Giá phòng</label>
-                        <div pInputText>{{ invoice.room?.price | currency : 'VND' : 'symbol' }}</div>
+                        <label>Giá</label>
+                        <div pInputText> {{selectedAccomodation.electricPrice | currency: 'VND':'symbol'}}</div>
                     </div>
                     <div class="field col">
-                        <label for="price">Tháng</label>
-                        <p-calendar [(ngModel)]="selectedMonth" dateFormat="mm/yy" disabled="true"></p-calendar>
+                        <label>Thành tiền</label>
+                        <div pInputText >{{room.electricNum * selectedAccomodation.electricPrice | currency: 'VND':'symbol'}}</div>
+                    </div>
+                </div>
+                <div class="formgrid grid">
+                    <div class="field col">
+                        <label>Số nước tiêu thụ</label>
+                        <div pInputText >{{room.waterNum}}</div>
+                    </div>
+                    <div class="field col">
+                        <label>Giá</label>
+                        <div pInputText>{{selectedAccomodation.waterPrice | currency: 'VND':'symbol'}}</div>
+                    </div>
+                    <div class="field col">
+                        <label>Thành tiền</label>
+                        <div pInputText >{{room.waterNum * selectedAccomodation.waterPrice | currency: 'VND':'symbol'}}</div>
                     </div>
                 </div>
                 <div class="field">
-                    <p-table [value]="invoice.service || []">
-                        <ng-template pTemplate="header">
+                    <p-table [columns]="cols" [value]="room.fees">
+                        <ng-template pTemplate="header" let-columns>
                             <tr>
-                                <th style="width: 20%">Tên dịch vụ</th>
-                                <th style="width: 15%">Đơn vị</th>
-                                <th style="width: 15%">Đơn giá</th>
-                                <th style="width: 30%">Số lượng</th>
-                                <th style="width: 20%">Thành tiền</th>
+                                <th *ngFor="let col of columns">
+                                    {{ col.header }}
+                                </th>
+                                <th>Thành tiền</th>
                             </tr>
                         </ng-template>
-                        <ng-template pTemplate="body" let-rowData>
+                        <ng-template pTemplate="body" let-rowData let-columns="columns">
                             <tr>
-                                <td>{{ rowData.serviceName }}</td>
-                                <td>{{ rowData.unit }}</td>
-                                <td>{{ rowData.price | currency : 'VND' : 'symbol' }}</td>
-                                <ng-container
-                                    *ngIf="
-                                        rowData.serviceName !== staticElectricPriceName && rowData.serviceName !== staticWaterPriceName;
-                                        else isCustomUnit
-                                    "
-                                >
-                                    <td>{{ rowData.quantity }}</td>
-                                </ng-container>
-                                <ng-template #isCustomUnit>
-                                    <td *ngIf="rowData.serviceName === staticElectricPriceName">
-                                        <div class="flex">
-                                            <div pInputText class="mr-3">
-                                                {{ rowData.firstElectricNum }}
-                                            </div>
-                                            <div pInputText class="mr-3">
-                                                {{ rowData.lastElectricNum }}
-                                            </div>
-                                            <div pInputText>
-                                                {{ rowData.electricNum }}
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td *ngIf="rowData.serviceName === staticWaterPriceName">
-                                        <div class="flex">
-                                            <div pInputText class="mr-3">
-                                                {{ rowData.firstWaterNum }}
-                                            </div>
-                                            <div pInputText class="mr-3">
-                                                {{ rowData.lastWaterNum }}
-                                            </div>
-                                            <div pInputText>
-                                                {{ rowData.waterNum }}
-                                            </div>
-                                        </div>
-                                    </td>
-                                </ng-template>
-                                <td>{{ rowData.totalPrice | currency : 'VND' : 'symbol' }}</td>
+                                <td *ngFor="let col of columns">
+                                    <span *ngIf="col.field == 'price'">
+                                        {{ rowData[col.field] | currency: 'VND':'symbol'}}
+                                    </span>
+                                    <span *ngIf="col.field != 'price'">
+                                        {{ rowData[col.field] }}
+                                    </span>
+                                </td>
+                                <td>{{rowData.price * rowData.quantity | currency: 'VND':'symbol'}}</td>
                             </tr>
                         </ng-template>
                     </p-table>
                 </div>
                 <p-divider></p-divider>
-                <form [formGroup]="invoiceForm">
-                    <div class="formgrid grid">
-                        <div class="field col mr-3">
-                            <div class="field">
-                                <label for="totalService">Tổng tiền dịch vụ</label>
-                                <p-inputNumber
-                                    id="totalService"
-                                    class="disabled"
-                                    [readonly]="true"
-                                    formControlName="totalService"
-                                    [ngClass]="{
-                                        'ng-invalid ng-dirty':
-                                            invoiceForm.controls['totalService'].invalid &&
-                                            (invoiceForm.controls['totalService'].dirty || invoiceForm.controls['totalService'].touched)
-                                    }"
-                                ></p-inputNumber>
-                            </div>
-                            <div class="field">
-                                <label for="debt">Nợ cũ tháng {{preMonth | date : 'MM/yyyy'}}</label>
-                                <p-inputNumber
-                                    id="debt"
-                                    class="disabled"
-                                    [readonly]="true"
-                                    formControlName="debt"
-                                    [ngClass]="{
-                                        'ng-invalid ng-dirty':
-                                            invoiceForm.controls['debt'].invalid &&
-                                            (invoiceForm.controls['debt'].dirty || invoiceForm.controls['debt'].touched)
-                                    }"
-                                ></p-inputNumber>
-                            </div>
-                            <div class="field">
-                                <label for="totalPrice">Tổng tiền</label>
-                                <p-inputNumber
-                                    id="totalPrice"
-                                    class="disabled"
-                                    [readonly]="true"
-                                    formControlName="totalPrice"
-                                    [ngClass]="{
-                                        'ng-invalid ng-dirty':
-                                            invoiceForm.controls['totalPrice'].invalid &&
-                                            (invoiceForm.controls['totalPrice'].dirty || invoiceForm.controls['totalPrice'].touched)
-                                    }"
-                                ></p-inputNumber>
-                            </div>
-                            <div class="field">
-                                <label for="discount">Giảm giá (đồng)</label>
-                                <p-inputNumber
-                                    id="discount"
-                                    formControlName="discount"
-                                    [ngClass]="{
-                                        'ng-invalid ng-dirty':
-                                            invoiceForm.controls['discount'].invalid &&
-                                            (invoiceForm.controls['discount'].dirty || invoiceForm.controls['discount'].touched)
-                                    }"
-                                ></p-inputNumber>
-                                <small
-                                    class="ng-dirty ng-invalid"
-                                    *ngIf="
-                                        invoiceForm.get('discount')?.invalid &&
-                                        (invoiceForm.controls['discount'].dirty || invoiceForm.controls['discount'].touched)
-                                    "
-                                    >Số tiền giảm giá vượt quá tổng tiền.</small
-                                >
-                            </div>
-                            <div class="field">
-                                <label for="totalPayment">Thành tiền</label>
-                                <p-inputNumber
-                                    id="totalPayment"
-                                    class="disabled"
-                                    [readonly]="true"
-                                    formControlName="totalPayment"
-                                    [ngClass]="{
-                                        'ng-invalid ng-dirty':
-                                            invoiceForm.controls['totalPayment'].invalid &&
-                                            (invoiceForm.controls['totalPayment'].dirty || invoiceForm.controls['totalPayment'].touched)
-                                    }"
-                                ></p-inputNumber>
-                            </div>
-                        </div>
-                        <div class="field col mr-3">
-                            <div class="field">
-                                <label for="paidMoney">Thanh toán</label>
-                                <p-inputNumber
-                                    id="paidMoney"
-                                    formControlName="paidMoney"
-                                    [ngClass]="{
-                                        'ng-invalid ng-dirty':
-                                            invoiceForm.controls['paidMoney'].invalid &&
-                                            (invoiceForm.controls['paidMoney'].dirty || invoiceForm.controls['paidMoney'].touched)
-                                    }"
-                                ></p-inputNumber>
-                                <small
-                                    class="ng-dirty ng-invalid"
-                                    *ngIf="
-                                        invoiceForm.get('paidMoney')?.invalid &&
-                                        (invoiceForm.controls['paidMoney'].dirty || invoiceForm.controls['paidMoney'].touched)
-                                    "
-                                    >Số tiền thanh toán vượt quá tổng thanh toán.</small
-                                >
-                            </div>
-                            <div class="field">
-                                <label for="newDebt">Nợ mới tháng {{selectedMonth | date : 'MM/yyyy'}}</label>
-                                <p-inputNumber
-                                    id="newDebt"
-                                    formControlName="newDebt"
-                                    class="disabled"
-                                    [ngClass]="{
-                                        'ng-invalid ng-dirty':
-                                            invoiceForm.controls['newDebt'].invalid &&
-                                            (invoiceForm.controls['newDebt'].dirty || invoiceForm.controls['newDebt'].touched)
-                                    }"
-                                ></p-inputNumber>
-                                <small
-                                    class="ng-dirty ng-invalid"
-                                    *ngIf="
-                                        invoiceForm.get('newDebt')?.invalid &&
-                                        (invoiceForm.controls['newDebt'].dirty || invoiceForm.controls['newDebt'].touched)
-                                    "
-                                    >Số tiền không hợp lệ.</small
-                                >
-                            </div>
-                            <div class="field">
-                                <label for="description">Mô tả</label>
-                                <textarea type="text" pInputTextarea id="description" formControlName="description"></textarea>
-                            </div> 
-                        </div>
+                <div class="field">
+                    <div>Trạng thái thanh toán: <p-tag *ngIf="room.isPay" severity="success" value="Đã thanh toán"></p-tag>
+                        <p-tag *ngIf="!room.isPay" severity="danger" value="Chưa thanh toán"></p-tag>
                     </div>
-                </form>
+                    
+                </div>
+                <p-divider></p-divider>
+                <div class="field">
+                    <div>Tổng hoá đơn: {{room.totalPrice | currency: 'VND':'symbol'}} </div>
+                </div>
             </ng-template>
 
-            <ng-template pTemplate="footer">
-                <div class="flex justify-content-between">
+            <ng-template pTemplate="footer" >
+                 <div class="flex justify-content-between">
                     <div class="">
                         <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
                     </div>
                     <div class="flex">
-                        <button
-                            *ngIf="!invoice.id"
-                            pButton
-                            pRipple
-                            label="Xuất hoá đơn"
-                            icon="pi pi-file-export"
-                            [disabled]="invoiceForm.invalid"
-                            (click)="issueInvoice()"
-                            class="p-button-text"
-                        ></button>
-                        <!-- [disabled]="invoice.isPay" -->
-                        <button
-                            *ngIf="isEdit"
-                            pButton
-                            pRipple
-                            label="Lưu"
-                            icon="pi pi-check"
-                            class="p-button-text"
-                            (click)="updateInvoice()"
-                        ></button>
+                        <button pButton pRipple label="Gửi hoá đơn" icon="pi pi-send" class="p-button-text" (click)="sendInvoice()"></button>
+                        <!-- [disabled]="room.isPay" -->
+                        <button pButton pRipple [disabled]="room.isPay" label="Xác nhận thanh toán" [loading]="dataLoading" loadingIcon="pi pi-spin pi-spinner"  icon="pi pi-check" class="p-button-text" (click)="changePaymentStatus()"></button>
                     </div>
                 </div>
             </ng-template>
         </p-dialog>
 
-        <!-- <p-dialog [(visible)]="deleteProductDialog" header="Confirm" [modal]="true" [style]="{ width: '450px' }">
+        <p-dialog [(visible)]="deleteProductDialog" header="Confirm" [modal]="true" [style]="{ width: '450px' }">
             <div class="flex align-items-center justify-content-center">
                 <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
                 <span *ngIf="room"
@@ -374,7 +197,7 @@
                 <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteProductDialog = false"></button>
                 <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDelete()"></button>
             </ng-template>
-        </p-dialog> -->
+        </p-dialog>
     </div>
 </div>
 <div class="progress-spinner" *ngIf="loading">
