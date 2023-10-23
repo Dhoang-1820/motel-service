@@ -31,6 +31,8 @@ import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { GalleriaModule } from 'primeng/galleria';
 import { MenuModule } from 'primeng/menu';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { PickListModule } from 'primeng/picklist';
+
 
 @NgModule({
   declarations: [],
@@ -69,7 +71,8 @@ import { MultiSelectModule } from 'primeng/multiselect';
     NgxPermissionsModule,
     GalleriaModule,
     MenuModule,
-    MultiSelectModule
+    MultiSelectModule,
+    PickListModule
   ],
 })
 export class SharedModuleModule { }

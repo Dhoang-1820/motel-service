@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core'
-import { OtherFee, Accomodation } from '../../model/accomodation.model'
-import { LazyLoadEvent, MessageService } from 'primeng/api'
-import { AccomodationService } from '../../service/accomodation.service'
+import { FormControl, FormGroup, Validators } from '@angular/forms'
+import { MessageService } from 'primeng/api'
 import { Table } from 'primeng/table'
 import { finalize, forkJoin } from 'rxjs'
-import { User } from 'src/app/modules/model/user.model'
 import { AuthenticationService } from 'src/app/modules/auth/service/authentication.service'
-import { OtherFeeService } from '../../service/other-fee.service'
+import { AppConstant } from 'src/app/modules/common/Constants'
+import { User } from 'src/app/modules/model/user.model'
+import { Accomodation, AccomodationUtilities } from '../../model/accomodation.model'
+import { AccomodationService } from '../../service/accomodation.service'
 import { AddressService } from '../../service/address.service'
-import { FormControl, FormGroup, Validators } from '@angular/forms'
 
 @Component({
     selector: 'app-accomodations',
@@ -36,9 +36,13 @@ export class AccomodationsComponent implements OnInit {
 
     existingProvince!: any;
     existingDistrict!: any;
-    existingWard!: any
+    existingWard: any = {}
 
     accomodationForm: FormGroup
+    accomodationUtilities!: AccomodationUtilities[]
+    accomodationUtility!: AccomodationUtilities
+    waterPrice!: Number | undefined;
+    electricPrice!: Number | undefined
 
     constructor(
         private accomodationService: AccomodationService,
@@ -52,6 +56,8 @@ export class AccomodationsComponent implements OnInit {
             district: new FormControl(this.accomodation.district, [Validators.required]),
             ward: new FormControl(this.accomodation.ward, [Validators.required]),
             addressLine: new FormControl(this.accomodation.addressLine, [Validators.required]),
+            waterPrice: new FormControl(this.waterPrice, [Validators.required]),
+            electricPrice: new FormControl(this.electricPrice, [Validators.required])
         })
     }
 
@@ -62,39 +68,45 @@ export class AccomodationsComponent implements OnInit {
             provinces: this.getProvinces(),
             accomodations: this.getAccomodationsByUser(),
         })
-            .subscribe((response) => {
+        .subscribe((response) => {
                 this.provices = response.provinces
                 this.accomodations = response.accomodations.data
             })
 
-            this.accomodationForm.get('name')?.valueChanges.subscribe(data => {
-                this.accomodation.name = data
-            })
-            this.accomodationForm.get('province')?.valueChanges.subscribe(data => {
-                if (data) {
-                    this.accomodation.province = data.name
-                    this.accomodation.provinceCode = data.code
-                    this.selectedProvince = data.code
-                }
-            })      
-            this.accomodationForm.get('district')?.valueChanges.subscribe(data => {
-                if (data) {
-                    this.accomodation.district = data.name
-                    this.accomodation.districtCode = data.code
-                    this.selectedDistrict = data.code
-                }
-            })        
-            this.accomodationForm.get('ward')?.valueChanges.subscribe(data => {
-                if (data) {
-                    this.accomodation.ward = data.name
-                    this.accomodation.wardCode = data.code
-                }
-            })       
-            this.accomodationForm.get('addressLine')?.valueChanges.subscribe(data => {
-                if (data) {
-                    this.accomodation.addressLine = data
-                }
-            })  
+        this.accomodationForm.get('name')?.valueChanges.subscribe(data => {
+            this.accomodation.name = data
+        })
+        this.accomodationForm.get('waterPrice')?.valueChanges.subscribe(data => {
+            this.waterPrice = data
+        })
+        this.accomodationForm.get('electricPrice')?.valueChanges.subscribe(data => {
+            this.electricPrice = data
+        })
+        this.accomodationForm.get('province')?.valueChanges.subscribe(data => {
+            if (data) {
+                this.accomodation.province = data.name
+                this.accomodation.provinceCode = data.code
+                this.selectedProvince = data.code
+            }
+        })      
+        this.accomodationForm.get('district')?.valueChanges.subscribe(data => {
+            if (data) {
+                this.accomodation.district = data.name
+                this.accomodation.districtCode = data.code
+                this.selectedDistrict = data.code
+            }
+        })        
+        this.accomodationForm.get('ward')?.valueChanges.subscribe(data => {
+            if (data) {
+                this.accomodation.ward = data.name
+                this.accomodation.wardCode = data.code
+            }
+        })       
+        this.accomodationForm.get('addressLine')?.valueChanges.subscribe(data => {
+            if (data) {
+                this.accomodation.addressLine = data
+            }
+        })  
     }
 
     getAccomodationsByUser() {
@@ -135,7 +147,9 @@ export class AccomodationsComponent implements OnInit {
         this.accomodationForm.get('province')?.setValue(null)        
         this.accomodationForm.get('district')?.setValue(null)        
         this.accomodationForm.get('ward')?.setValue(null)        
-        this.accomodationForm.get('addressLine')?.setValue(null)   
+        this.accomodationForm.get('addressLine')?.setValue(null)  
+        this.accomodationForm.get('waterPrice')?.setValue(null)  
+        this.accomodationForm.get('electricPrice')?.setValue(null) 
         this.addDialog = true
     }
 
@@ -148,11 +162,23 @@ export class AccomodationsComponent implements OnInit {
 
     editAccomodation(accomodation: any) {
         this.accomodation = { ...accomodation }
+        console.log(this.accomodation)
         accomodation.loading = true;
         this.existingProvince = this.findAddressByName(this.accomodation.provinceCode, this.provices)
         this.accomodationForm.get('name')?.setValue(this.accomodation.name)     
         this.accomodationForm.get('province')?.setValue(this.existingProvince )        
-        this.accomodationForm.get('addressLine')?.setValue(this.accomodation.addressLine)   
+        this.accomodationForm.get('addressLine')?.setValue(this.accomodation.addressLine) 
+        let electric = null
+        let water = null
+        this.accomodation.services?.forEach(item => {
+            if (item.name === AppConstant.ELECTRIC_PRICE_NAME) {
+                electric = item.price
+            } else if (item.name === AppConstant.WATER_PRICE_NAME) {
+                water = item.price
+            }
+        })
+        this.accomodationForm.get('electricPrice')?.setValue(electric) 
+        this.accomodationForm.get('waterPrice')?.setValue(water)  
         
         this.getFullAddress().pipe(
             finalize(() => {
@@ -188,14 +214,45 @@ export class AccomodationsComponent implements OnInit {
 
     saveAccomodation() {
         if (!this.accomodationForm.invalid) {
-            this.accomodation.userId = this.user?.id
+            let accomodationSubmit = Object.assign({}, this.accomodation)
+            console.log('this.accomodation', this.accomodation)
+            let message: string
+            if (accomodationSubmit.id) {
+                message = 'Chỉnh sửa thành công'
+                accomodationSubmit.services?.forEach(item => {
+                    if (item.name === AppConstant.ELECTRIC_PRICE_NAME) {
+                        item.price = this.electricPrice
+                    } else if (item.name === AppConstant.WATER_PRICE_NAME) {
+                        item.price = this.waterPrice
+                    }
+                })
+            } else {
+                message = 'Thêm thành công'
+                let service: AccomodationUtilities = {};
+                let services: AccomodationUtilities[] = []
+                service.name = AppConstant.ELECTRIC_PRICE_NAME
+                service.price = this.electricPrice
+                service.unit = 'Số (kWh)'
+                service.isDefault = true
+                services.push(service);
+                service = {}
+                // 
+                service.name = AppConstant.WATER_PRICE_NAME
+                service.price = this.waterPrice
+                service.unit = 'Khối (m3)'
+                service.isDefault = true
+                services.push(service)
+                accomodationSubmit.services = services
+            }
+            console.log('accomodationSubmit',accomodationSubmit)
+            accomodationSubmit.userId = this.user?.id
             this.dataLoading = true
             this.accomodationService
-                .saveAccomodation(this.accomodation)
+                .saveAccomodation(accomodationSubmit)
                 .pipe(
                     finalize(() => {
                         this.submitted = false
-                        this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Chỉnh sửa thành công', life: 3000 })
+                        this.messageService.add({ severity: 'success', summary: 'Successful', detail: message, life: 3000 })
                         this.dataLoading = false
                     }),
                 )
