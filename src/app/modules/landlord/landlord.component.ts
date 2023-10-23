@@ -1,9 +1,9 @@
 import { Component, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { Subscription, filter } from 'rxjs';
-import { SidebarComponent } from './layout/sidebar/sidebar.component';
 import { LayoutService } from './service/layout.service';
-import { HeaderComponent } from './layout/header/header.component';
 import { NavigationEnd, Router } from '@angular/router';
+import { SidebarComponent } from './layout/sidebar/sidebar.component';
+import { HeaderComponent } from './layout/header/header.component';
 
 @Component({
   selector: 'app-landlord',

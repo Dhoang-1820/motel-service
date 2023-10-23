@@ -1,0 +1,5 @@
+:host(app-deposit) ::ng-deep  {
+    .p-dialog-content {
+        overflow-y: unset !important;
+    }
+}

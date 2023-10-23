@@ -1,16 +1,56 @@
-interface InventoryStatus {
-    label: string;
-    value: string;
-}
-export interface Product {
-    id?: string;
-    code?: string;
+export interface OtherFee {
+    accomodationId?: number;
+    id?: number;
     name?: string;
+    unit?: string;
+    price?: string;
+}
+
+export interface Room {
+    id?: Number,
+    name?: string,
+    acreage?: number,
+    isRent?: boolean,
+    capacity?: number,
+    price?: number,
+    accomodationId?: number
+}
+
+export interface RoomDropdown {
+    id?: Number
+    name?: string
+    price?: any
+}
+
+export interface Accomodation {
+    id?: number;
+    name?: string;
+    addressLine?: string;
+    userId?: number;
+    isActive?: boolean;
+    district?: string;
+    districtCode?: number;
+    province?: string;
+    provinceCode?: number
+    ward?: string;
+    wardCode?: number;
+    services?: AccomodationUtilities[]
+}
+
+export interface AccomodationUtilities {
+    accomodationId?: number,
+    id?: number;
+    name?: String;
+    price?: Number;
+    unit?: string;
     description?: string;
-    price?: number;
-    quantity?: number;
-    inventoryStatus?: InventoryStatus;
-    category?: string;
-    image?: string;
-    rating?: number;
+    isDefault?: boolean
+    quantity?: Number
+}
+
+export interface Services {
+    unit?: String
+    price?: Number
+    name?: String
+    quantity?: Number
 }

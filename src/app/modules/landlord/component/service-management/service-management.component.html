@@ -1,0 +1,104 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toast></p-toast>
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button pButton pRipple label="Thêm"  loadingIcon="pi pi-spin pi-spinner" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNewService()"></button>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="right">
+                   <div class="flex justify-content-center">
+                        <p-dropdown placeholder="Chọn phòng trọ"  [options]="accomodations" (onChange)="onSelectAccomodation()" [(ngModel)]="selectedAccomodation" optionLabel="name" autoWidth="false"  [style]="{'width':'100%'}"></p-dropdown>
+                   </div>
+                </ng-template>
+            </p-toolbar>
+
+            <p-table #dt [value]="services" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['name','unit','description']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]"  selectionMode="multiple" [rowHover]="true" dataKey="id">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <h5 class="m-0">Quản lý dịch vụ</h5>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Tìm kiếm..."  class="w-full sm:w-auto"/>
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pSortableColumn="name">Tên dịch vụ<p-sortIcon field="name"></p-sortIcon></th>
+                        <th pSortableColumn="price">Đơn giá<p-sortIcon field="price"></p-sortIcon></th>
+                        <th pSortableColumn="unit">Đơn vị<p-sortIcon field="unit"></p-sortIcon></th>
+                        <th pSortableColumn="description">Mô tả<p-sortIcon field="description"></p-sortIcon></th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-data>
+                    <tr>
+                        <td style="width:25%; min-width:10rem;">{{data.name}}</td>
+                        <td style="width:25%; min-width:10rem;">{{data.price | currency: 'VND':'symbol'}}</td>
+                        <td style="width:25%; min-width:10rem;">{{data.unit}}</td>
+                        <td style="width:25%; min-width:10rem;">{{data.description}}</td>
+                        <td>
+                            <div class="flex">
+                                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editService(data)"></button>
+                                <button pButton pRipple icon="pi pi-trash" [pTooltip]="data.isDefault ? 'Không thể xoá dịch vụ mặc định' : 'Xoá'" tooltipPosition="top" [disabled]="data.isDefault" class="p-button-rounded p-button-warning" (click)="deleteService(data)"></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <p-dialog [(visible)]="addDialog" [style]="{width: '550px'}" header="Chi tiết dịch vụ" [modal]="true" class="p-fluid">
+            <ng-template pTemplate="content" >
+                <form [formGroup]="serviceForm"> 
+                    <div class="field">
+                        <label for="name">Tên dịch vụ</label>
+                        <span class="p-input-icon-right">
+                            <i class="pi pi-spin pi-spinner" *ngIf="isValidating"></i>
+                            <input type="text" pInputText id="name" formControlName="name" [ngClass]="{'ng-invalid ng-dirty' : serviceForm.controls['name'].invalid && (serviceForm.controls['name'].dirty || serviceForm.controls['name'].touched)}">
+                        </span>
+                        <small class="ng-dirty ng-invalid" *ngIf="serviceForm.get('name')?.hasError('required') && (serviceForm.controls['name'].dirty || serviceForm.controls['name'].touched)">Vui lòng nhập tên dịch vụ.</small>
+                        <small class="ng-dirty ng-invalid" *ngIf="serviceForm.get('name')?.hasError('nameExisted') && (serviceForm.controls['name'].dirty || serviceForm.controls['name'].touched)">Dịch vụ đã tồn tại.</small>
+                    </div>
+                    <div class="field">
+                        <label for="price">Đơn giá (đồng)</label>
+                        <p-inputNumber id="price" formControlName="price" [ngClass]="{'ng-invalid ng-dirty' : serviceForm.controls['price'].invalid && (serviceForm.controls['price'].dirty || serviceForm.controls['price'].touched)}"></p-inputNumber>
+                        <small class="ng-dirty ng-invalid" *ngIf="serviceForm.get('price')?.invalid && (serviceForm.controls['price'].dirty || serviceForm.controls['price'].touched)">Vui lòng nhập đơn giá.</small>
+                    </div>
+                    <div class="field">
+                        <label for="unit">Đơn vị</label>
+                        <p-dropdown  placeholder="Đơn vị" formControlName="unit" [options]="units"  [ngClass]="{'ng-invalid ng-dirty' : serviceForm.controls['unit'].invalid && (serviceForm.controls['unit'].dirty || serviceForm.controls['unit'].touched)}"></p-dropdown>
+                        <small class="ng-dirty ng-invalid" *ngIf="serviceForm.get('unit')?.invalid && (serviceForm.controls['unit'].dirty || serviceForm.controls['unit'].touched)">Vui lòng nhập đơn vị.</small>
+                    </div>
+                    <div class="field">
+                        <label for="description">Mô tả</label>
+                        <input type="text" pInputText id="description" formControlName="description" >
+                    </div>
+                </form>
+            </ng-template>
+
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+                <button pButton pRipple label="Save" icon="pi pi-check" [disabled]="isValidating || serviceForm.invalid" class="p-button-text" (click)="saveService()"></button>
+            </ng-template>
+        </p-dialog>
+
+        <p-dialog [(visible)]="deleteDialog" header="Xác nhận xoá dịch vụ" [modal]="true" [style]="{width:'450px'}">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span>Dịch vụ sẽ bị xoá vĩnh viễn?</span>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteDialog = false"></button>
+                <!-- <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDeleteRoomFee()"></button> -->
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>
+<div class="progress-spinner" *ngIf="loading">
+    <p-progressSpinner></p-progressSpinner>
+</div>

@@ -1,0 +1,63 @@
+<div class="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
+    <div class="flex flex-column align-items-center justify-content-center">
+        <div style="border-radius:56px; padding:0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%);">
+            <div class="w-full surface-card py-8 px-5 sm:px-8" style="border-radius:53px">
+                <div class="text-center mb-5">
+                    <div class="text-900 text-3xl font-medium mb-3"> 
+                        <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
+                            width="120px" height="120px" viewBox="0 0 500.000000 500.000000"
+                            preserveAspectRatio="xMidYMid meet">
+                            <g transform="translate(0.000000,500.000000) scale(0.100000,-0.100000)"
+                            fill="#000000" stroke="none">
+                            <path d="M2665 3539 c-92 -17 -863 -190 -892 -200 -19 -6 -33 -18 -37 -32 -3
+                            -12 -5 -296 -5 -632 0 -525 2 -612 14 -632 l15 -23 738 0 c561 0 741 3 750 12
+                            9 9 12 145 12 550 0 501 -1 538 -17 547 -15 7 -464 101 -486 101 -4 0 -8 66
+                            -9 146 -3 134 -5 148 -23 159 -13 8 -33 9 -60 4z m-15 -237 c0 -110 3 -131 18
+                            -145 10 -9 112 -34 255 -63 l237 -47 0 -463 0 -464 -180 0 -180 0 0 245 c0
+                            231 -1 245 -19 255 -12 6 -122 10 -287 10 -235 0 -270 -2 -286 -17 -16 -15
+                            -18 -36 -18 -255 l0 -238 -180 0 -180 0 0 565 0 565 23 5 c69 17 774 174 785
+                            174 9 1 12 -31 12 -127z m50 -977 l0 -205 -205 0 -205 0 0 198 c0 109 3 202 7
+                            205 3 4 96 7 205 7 l198 0 0 -205z"/>
+                            <path d="M2170 1873 c-53 -27 -75 -74 -74 -158 0 -117 43 -169 139 -169 96 0
+                            139 52 139 169 0 110 -39 163 -127 172 -28 3 -53 -2 -77 -14z m100 -53 c58
+                            -31 48 -200 -12 -215 -43 -11 -76 10 -88 56 -29 108 27 198 100 159z"/>
+                            <path d="M1650 1716 l0 -166 35 0 34 0 3 106 3 107 35 -64 c20 -35 43 -65 52
+                            -67 12 -2 27 12 45 44 61 102 62 102 63 -18 l0 -108 30 0 30 0 0 165 0 165
+                            -39 0 c-36 0 -40 -3 -69 -57 -56 -105 -53 -105 -97 -21 -39 72 -41 73 -83 76
+                            l-42 3 0 -165z"/>
+                            <path d="M2470 1850 c0 -29 1 -30 50 -30 l50 0 0 -135 0 -135 35 0 35 0 0 135
+                            0 135 50 0 c49 0 50 1 50 30 l0 30 -135 0 -135 0 0 -30z"/>
+                            <path d="M2840 1715 l0 -165 105 0 105 0 0 30 0 30 -70 0 -70 0 0 40 0 40 60
+                            0 60 0 0 30 0 30 -60 0 -60 0 0 35 0 35 70 0 70 0 0 30 0 30 -105 0 -105 0 0
+                            -165z"/>
+                            <path d="M3170 1715 l0 -165 105 0 105 0 0 30 0 30 -70 0 -70 0 0 135 0 135
+                            -35 0 -35 0 0 -165z"/>
+                            </g>
+                        </svg>
+                </div>
+                    <span class="text-600 font-medium">Đăng nhập để tiếp tục</span>
+                </div>
+
+                <div>
+                    <label for="username" class="block text-900 text-xl font-medium mb-2">Tên đăng nhập</label>
+                    <input id="username" type="text" [(ngModel)]="username" placeholder="Tên đăng nhập" pInputText class="w-full md:w-30rem mb-5" style="padding:1rem">
+
+                    <label for="password1" class="block text-900 font-medium text-xl mb-2">Mật khẩu</label>
+                    <p-password id="password1" [(ngModel)]="password" placeholder="Mật khẩu" [toggleMask]="true" styleClass="mb-5" inputStyleClass="w-full p-3 md:w-30rem"></p-password>
+
+                    <div class="flex align-items-center justify-content-between mb-5 gap-5">
+                        <div class="flex align-items-center">
+                            <p-checkbox id="rememberme1" [binary]="true" styleClass="mr-2"></p-checkbox>
+                            <label for="rememberme1">Ghi nhớ đăng nhập</label>
+                        </div>
+                        <a class="font-medium no-underline ml-2 text-right cursor-pointer" style="color: var(--primary-color)">Quên mật khẩu?</a>
+                    </div>
+                    <button pButton pRipple label="Sign In" class="w-full p-3 text-xl" (click)="login()"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="progress-spinner" *ngIf="loading">
+    <p-progressSpinner></p-progressSpinner>
+</div>

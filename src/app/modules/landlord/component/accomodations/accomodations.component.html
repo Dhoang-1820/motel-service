@@ -6,33 +6,24 @@
                 <ng-template pTemplate="left">
                     <div class="my-2">
                         <button pButton pRipple label="Thêm" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
-                        <button pButton pRipple label="Xoá" icon="pi pi-trash" class="p-button-danger" (click)="deleteSelectedProducts()" [disabled]="!selectedProducts || !selectedProducts.length"></button>
                     </div>
                 </ng-template>
-
-                <!-- <ng-template pTemplate="right">
-                    <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import" chooseLabel="Import" class="mr-2 inline-block"></p-fileUpload>
-                    <button pButton pRipple label="Export" icon="pi pi-upload" class="p-button-help" (click)="dt.exportCSV()"></button>
-                </ng-template> -->
             </p-toolbar>
 
-            <p-table #dt [value]="products" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['name','country.name','representative.name','status']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [(selection)]="selectedProducts" selectionMode="multiple" [rowHover]="true" dataKey="id">
+            <p-table #dt [value]="accomodations" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['name', 'addressLine', 'ward', 'district', 'province']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" selectionMode="multiple" [rowHover]="true" dataKey="id">
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                         <h5 class="m-0">Quản lý khu trọ</h5>
                         <span class="block mt-2 md:mt-0 p-input-icon-left">
                             <i class="pi pi-search"></i>
-                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..."  class="w-full sm:w-auto"/>
+                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Tìm kiếm..."  class="w-full sm:w-auto"/>
                         </span>
                     </div>
                 </ng-template>
                 <ng-template pTemplate="header">
                     <tr>
-                        <th style="width: 3rem">
-                            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-                        </th>
-                        <th pSortableColumn="code">Tên khu/Toà nhà <p-sortIcon field="code"></p-sortIcon></th>
-                        <th pSortableColumn="name">Địa chỉ<p-sortIcon field="name"></p-sortIcon></th>
+                        <th pSortableColumn="name">Tên khu/Toà nhà <p-sortIcon field="name"></p-sortIcon></th>
+                        <th pSortableColumn="addressLine">Địa chỉ<p-sortIcon field="addressLine"></p-sortIcon></th>
                         <th></th>
                         <th></th>
                         <th></th>
@@ -41,17 +32,13 @@
                         <th></th>
                     </tr>
                 </ng-template>
-                <ng-template pTemplate="body" let-product>
+                <ng-template pTemplate="body" let-item>
                     <tr>
-                        <td>
-                            <p-tableCheckbox [value]="product"></p-tableCheckbox>
-                        </td>
-                        <td style="width:50%; min-width:10rem;"><span class="p-column-title">Code</span>
-                            {{product.code || product.id}}
+                        <td style="width:50%; min-width:10rem;">
+                            {{item.name}}
                         </td>
                         <td style="width:50%; min-width:10rem;">
-                            <span class="p-column-title">Name</span>
-                            {{product.name}}
+                            {{item.addressLine + ', ' + item.ward + ', ' + item.district + ', ' + item.province}}
                         </td>
                         <td></td>
                         <td></td>
@@ -60,8 +47,8 @@
                         <td></td>
                         <td>
                             <div class="flex">
-                                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editProduct(product)"></button>
-                                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteProduct(product)"></button>
+                                <button pButton [loading]="item.loading" pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editAccomodation(item)"></button>
+                                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteAccomodation(item)"></button>
                             </div>
                         </td>
                     </tr>
@@ -69,93 +56,69 @@
             </p-table>
         </div>
 
-        <p-dialog [(visible)]="productDialog" [style]="{width: '450px'}" header="Chi tiết khu trọ" [modal]="true" class="p-fluid">
+        <p-dialog [(visible)]="addDialog" [resizable]="true" [style]="{width: '550px', height: '600px'}" header="Chi tiết khu trọ" [modal]="true" class="p-fluid">
             <ng-template pTemplate="content">
-                <img [src]="'assets/demo/images/product/' + product.image" [alt]="product.image" width="150" class="mt-0 mx-auto mb-5 block shadow-2" *ngIf="product.image">
-                <div class="field">
-                    <label for="name">Tên khu/Toà nhà</label>
-                    <input type="text" pInputText id="name" [(ngModel)]="product.name" required autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !product.name}"/>
-                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !product.name">Name is required.</small>
-                </div>
-                <div class="field">
-                    <label for="description">Địa chỉ</label>
-                    <textarea id="description" pInputTextarea [(ngModel)]="product.description" required rows="3" cols="20"></textarea>
-                </div>
-                <!-- <div class="field">
-                    <label for="status">Inventory Status</label>
-                    <p-dropdown [(ngModel)]="product.inventoryStatus" inputId="inventoryStatus" optionValue="label" [options]="statuses" placeholder="Select">
-                        <ng-template pTemplate="selectedItem">
-                            <span *ngIf="product && product.inventoryStatus" [class]="'product-badge status-' + product.inventoryStatus.toString().toLowerCase()">{{product.inventoryStatus}}</span>
-                        </ng-template>
-                        <ng-template let-option pTemplate="item">
-                            <span [class]="'product-badge status-' + option.value">{{option.label}}</span>
-                        </ng-template>
-                    </p-dropdown>
-                </div> -->
-
-                <div class="field">
-                    <label class="mb-3">Dịch vụ</label>
+                <form [formGroup]="accomodationForm">
+                    <div class="field">
+                        <label for="name">Tên khu/Toà nhà</label>
+                        <input type="text" pInputText  formControlName="name" autofocus [ngClass]="{'ng-invalid ng-dirty' : accomodationForm.controls['name'].invalid && (accomodationForm.controls['name'].dirty || accomodationForm.controls['name'].touched)}"/>
+                        <small class="ng-dirty ng-invalid" *ngIf="this.accomodationForm.get('name')?.invalid && (accomodationForm.controls['name'].dirty || accomodationForm.controls['name'].touched)">Vui lòng nhập tên khu trọ.</small>
+                    </div>
+                    <div class="field">
+                        <label for="province">Tỉnh/Thành phố</label>
+                        <p-dropdown (onChange)="getDistrictByProvince()" placeholder="Tỉnh/Thành phố" [options]="provices" formControlName="province" optionLabel="name" [ngClass]="{'ng-invalid ng-dirty' : accomodationForm.controls['province'].invalid && (accomodationForm.controls['province'].dirty || accomodationForm.controls['province'].touched)}">
+                        </p-dropdown>
+                        <small class="ng-dirty ng-invalid" *ngIf="this.accomodationForm.get('province')?.invalid && (accomodationForm.controls['province'].dirty || accomodationForm.controls['province'].touched)">Vui lòng chọn địa chỉ.</small>
+                    </div>
+                    <div class="field">
+                        <label for="district">Quận/Huyện</label>
+                        <p-dropdown (onChange)="getWardByDistrict()" placeholder="Quận/Huyện" formControlName="district" [options]="districts" optionLabel="name" [ngClass]="{'ng-invalid ng-dirty' : accomodationForm.controls['district'].invalid && (accomodationForm.controls['district'].dirty || accomodationForm.controls['district'].touched)}"></p-dropdown>
+                        <small class="ng-dirty ng-invalid" *ngIf="this.accomodationForm.get('district')?.invalid && (accomodationForm.controls['district'].dirty || accomodationForm.controls['district'].touched)">Vui lòng chọn địa chỉ.</small>
+                    </div>
+                    <div class="field">
+                        <label for="ward">Phường/Xã</label>
+                        <p-dropdown [options]="wards" formControlName="ward" placeholder="Phường/Xã" optionLabel="name" [ngClass]="{'ng-invalid ng-dirty' : accomodationForm.controls['ward'].invalid && (accomodationForm.controls['ward'].dirty || accomodationForm.controls['ward'].touched)}"></p-dropdown>
+                        <small class="ng-dirty ng-invalid" *ngIf="this.accomodationForm.get('ward')?.invalid && (accomodationForm.controls['ward'].dirty || accomodationForm.controls['ward'].touched)">Vui lòng nhập chọn địa chỉ.</small>
+                    </div>
+                    <div class="field">
+                        <label for="address_line">Số nhà, tên đường</label>
+                        <input pInputText formControlName="addressLine"  [ngClass]="{'ng-invalid ng-dirty' : accomodationForm.controls['addressLine'].invalid && (accomodationForm.controls['addressLine'].dirty || accomodationForm.controls['addressLine'].touched)}"/>
+                        <small class="ng-dirty ng-invalid" *ngIf="this.accomodationForm.get('addressLine')?.invalid && (accomodationForm.controls['addressLine'].dirty || accomodationForm.controls['addressLine'].touched)">Vui lòng nhập chọn địa chỉ.</small>
+                    </div>
                     <div class="formgrid grid">
-                        <div class="field-radiobutton col-6">
-                            <p-checkbox [binary]="true" id="category1" name="services" value="homePrice" ></p-checkbox>
-                            <label for="category1">Tiền nhà</label>
+                        <div class="field col mr-3">
+                            <label for="address_line">Giá nước (Khối)</label>
+                            <p-inputNumber id="waterPrice" formControlName="waterPrice" [ngClass]="{'ng-invalid ng-dirty' : accomodationForm.controls['waterPrice'].invalid && (accomodationForm.controls['waterPrice'].dirty || accomodationForm.controls['waterPrice'].touched)}"></p-inputNumber>
+                            <small class="ng-dirty ng-invalid" *ngIf="this.accomodationForm.get('waterPrice')?.invalid && (accomodationForm.controls['waterPrice'].dirty || accomodationForm.controls['waterPrice'].touched)">Vui lòng nhập giá nước.</small>
                         </div>
-                        <div class="field-radiobutton col-6">
-                            <p-checkbox id="category2" name="services" value="waterPrice" ></p-checkbox>
-                            <label for="category2">Tiền nước</label>
-                        </div>
-                        <div class="field-radiobutton col-6">
-                            <p-checkbox id="category3" name="services" value="electricPrice" ></p-checkbox>
-                            <label for="category3">Tiền điện</label>
-                        </div>
-                        <div class="field-radiobutton col-6">
-                            <p-checkbox id="category4" name="services" value="parkPrice" ></p-checkbox>
-                            <label for="category4">Tiền giữ xe</label>
-                        </div>
-                        <div class="field-radiobutton col-6">
-                            <p-button label="Khác" icon="pi pi-plus" ></p-button>
+                        <div class="field col">
+                            <label for="address_line">Giá điện (kWh)</label>
+                            <p-inputNumber id="electricPrice" formControlName="electricPrice" [ngClass]="{'ng-invalid ng-dirty' : accomodationForm.controls['electricPrice'].invalid && (accomodationForm.controls['electricPrice'].dirty || accomodationForm.controls['electricPrice'].touched)}"></p-inputNumber>
+                            <small class="ng-dirty ng-invalid" *ngIf="this.accomodationForm.get('electricPrice')?.invalid && (accomodationForm.controls['electricPrice'].dirty || accomodationForm.controls['electricPrice'].touched)">Vui lòng nhập giá điện.</small>
                         </div>
                     </div>
-                </div>
-
-                <div class="formgrid grid">
-                    <div class="field col">
-                        <label for="price">Giá điện</label>
-                        <p-inputNumber id="price" [(ngModel)]="product.price" mode="currency" currency="VND" locale="vi-Vi"></p-inputNumber>
-                    </div>
-                    <div class="field col">
-                        <label for="quantity">Giá nước</label>
-                        <p-inputNumber id="quantity" [(ngModel)]="product.quantity"  mode="currency" currency="VND" locale="vi-Vi"></p-inputNumber>
-                    </div>
-                </div>
+                </form>
             </ng-template>
 
             <ng-template pTemplate="footer">
                 <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-                <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveProduct()"></button>
+                <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveAccomodation()"></button>
             </ng-template>
         </p-dialog>
 
-        <p-dialog [(visible)]="deleteProductDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+        <p-dialog [(visible)]="deleteDialog" header="Xác nhận" [modal]="true" [style]="{width:'450px'}">
             <div class="flex align-items-center justify-content-center">
                 <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
-                <span *ngIf="product">Are you sure you want to delete <b>{{product.name}}</b>?</span>
+                <span *ngIf="accomodation">Bạn có chắc chắn muốn xoá <b>{{accomodation.name}}</b>?</span>
             </div>
             <ng-template pTemplate="footer">
-                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteProductDialog = false"></button>
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteDialog = false"></button>
                 <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDelete()"></button>
-            </ng-template>
-        </p-dialog>
-
-        <p-dialog [(visible)]="deleteProductsDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
-            <div class="flex align-items-center justify-content-center">
-                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
-                <span>Are you sure you want to delete selected products?</span>
-            </div>
-            <ng-template pTemplate="footer">
-                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteProductsDialog = false"></button>
-                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDeleteSelected()"></button>
             </ng-template>
         </p-dialog>
     </div>
 </div>
+<div class="progress-spinner" *ngIf="dataLoading">
+    <p-progressSpinner></p-progressSpinner>
+</div>
+
