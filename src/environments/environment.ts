@@ -4,7 +4,7 @@
 
 export const environment = {
   apiUrl: 'http://localhost:8080/motel-service/api',
-  production: false
+  production: true
 };
 
 /*
