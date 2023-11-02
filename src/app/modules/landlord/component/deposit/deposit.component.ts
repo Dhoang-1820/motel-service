@@ -6,13 +6,16 @@ import { Table } from 'primeng/table'
 import { finalize, forkJoin } from 'rxjs'
 import { AuthenticationService } from 'src/app/modules/auth/service/authentication.service'
 import { User } from 'src/app/modules/model/user.model'
-import { Room } from '../../model/accomodation.model'
+import { AccomodationUtilities, Room } from '../../model/accomodation.model'
 import { CancelDepositRequest, Deposit } from '../../model/deposit.model'
 import { Tenant } from '../../model/tenant.model'
 import { AccomodationService } from '../../service/accomodation.service'
 import { DepositService } from '../../service/deposit.service'
 import { RoomService } from '../../service/room.service'
 import { TenantService } from '../../service/tenant.service'
+import { Contract } from '../../model/contract.model'
+import { AppConstant } from 'src/app/modules/common/Constants'
+import { ContractService } from '../../service/contract.service'
 
 @Component({
     selector: 'app-deposit',
@@ -22,6 +25,7 @@ import { TenantService } from '../../service/tenant.service'
 })
 export class DepositComponent implements OnInit {
     addDialog: boolean = false
+    contractDialog: boolean = false
     deleteProductDialog: boolean = false
     cancelDepositDialog: boolean = false
     accomodations: any[] = []
@@ -46,6 +50,14 @@ export class DepositComponent implements OnInit {
     preRoom: any 
     isChooseExisted: boolean = false
     roomPresent: any
+    contractForm!: FormGroup
+    contract: Contract = {}
+    tenantsDisplayed: Tenant[] = []
+    services: AccomodationUtilities[] = []
+    servicesDisplayed: AccomodationUtilities[] = []
+    selectedServices: AccomodationUtilities[] = []
+    selectedTenants: any = []
+    contractInfoLoading: boolean = false
 
     constructor(
         private accomodationService: AccomodationService,
@@ -54,6 +66,7 @@ export class DepositComponent implements OnInit {
         private depositService: DepositService,
         private roomService: RoomService,
         private tenantService: TenantService,
+        private contractService: ContractService,
     ) {
         this.depositForm = new FormGroup({
             startDate: new FormControl(this.deposit.startDate, [Validators.required]),
@@ -67,6 +80,18 @@ export class DepositComponent implements OnInit {
             email: new FormControl(this.deposit.email, []),
             room: new FormControl(this.deposit.room, [Validators.required]),
             selectedTenant: new FormControl(this.selectedTenant, []),
+        })
+
+        this.contractForm = new FormGroup({
+            startDate: new FormControl(this.contract.startDate, [Validators.required]),
+            endDate: new FormControl(this.contract.endDate, [Validators.required]),
+            recurrent: new FormControl(this.contract.recurrent, [Validators.required]),
+            deposit: new FormControl(this.contract.deposit, [Validators.required]),
+            representative: new FormControl(this.contract.representative, [Validators.required]),
+            duration: new FormControl(this.contract.duration, [Validators.required]),
+            firstElectricNum: new FormControl(this.contract.firstElectricNum, [Validators.required]),
+            firstWaterNum: new FormControl(this.contract.firstWaterNum, [Validators.required]),
+            room: new FormControl(this.contract.room, [Validators.required]),
         })
     }
 
@@ -121,6 +146,49 @@ export class DepositComponent implements OnInit {
                 this.deposit.tenantId = data.id
             }
         })
+
+
+        this.contractForm.get('representative')?.valueChanges.subscribe((data) => {
+            this.selectedTenant = data
+            this.contract.representative = data
+        })
+        this.contractForm.get('startDate')?.valueChanges.subscribe((data) => {
+            this.contract.startDate = data
+
+            let startDate: moment.Moment = moment(this.contract.startDate)
+            if (this.contract.duration) {
+                let duration: moment.DurationInputArg1 = this.contract.duration as moment.DurationInputArg1
+                let endDate: moment.Moment = moment(startDate).add(duration, 'M');
+                this.contractForm.get('endDate')?.setValue(endDate.toDate())
+            } else {
+                this.contractForm.get('endDate')?.setValue(startDate.toDate())
+            }
+        })
+        this.contractForm.get('endDate')?.valueChanges.subscribe((data) => {
+            this.contract.endDate = data
+        })
+        this.contractForm.get('firstElectricNum')?.valueChanges.subscribe((data) => {
+            this.contract.firstElectricNum = data
+        })
+        this.contractForm.get('firstWaterNum')?.valueChanges.subscribe((data) => {
+            this.contract.firstWaterNum = data
+        })
+        this.contractForm.get('recurrent')?.valueChanges.subscribe((data) => {
+            this.contract.recurrent = data
+        })
+        this.contractForm.get('deposit')?.valueChanges.subscribe((data) => {
+            this.contract.deposit = data
+        })
+        this.contractForm.get('duration')?.valueChanges.subscribe((data) => {
+            this.contract.duration = data
+            
+            let startDate: moment.Moment = moment(this.contract.startDate)
+            let endDate: moment.Moment = moment(startDate).add(data, 'M');
+            this.contractForm.get('endDate')?.setValue(endDate.toDate())
+        })
+        this.contractForm.get('room')?.valueChanges.subscribe((data) => {
+            this.contract.room = data
+        })
     }
 
     onDialogHide() {
@@ -128,6 +196,40 @@ export class DepositComponent implements OnInit {
             this.rooms = this.rooms.filter(item => item.id !== this.roomPresent.id)
         }
         this.depositForm.reset()
+    }
+
+    getAccomdationService() {
+        return this.accomodationService.getAccomodationService(this.selectedAccomodation.id)
+    }
+
+    initContractData() {
+        return forkJoin({
+            rooms: this.getRoomByAccomodation(),
+            tenants: this.getTenantByAccomodation(),
+            services: this.getAccomdationService(),
+        })
+            .pipe(
+                finalize(() => {
+                    this.loading = false
+                    this.servicesDisplayed = JSON.parse(JSON.stringify(this.services))
+                    this.tenantsDisplayed = JSON.parse(JSON.stringify(this.tenants))
+                }),
+            )
+            
+    }
+
+
+    onMoveTenant() {
+    }
+
+    onMoveBackTenant() {
+        if (!this.selectedTenants.find((item: any) => item.id === this.selectedTenant?.id)) {
+            this.contractForm.get('representative')?.setValue(null)
+        }
+    }
+
+    onMoveBackService(value: any) {
+        value.items.forEach((service: any) => service.quantity = 1)
     }
 
     openNew() {
@@ -185,9 +287,9 @@ export class DepositComponent implements OnInit {
 
     initData() {
         forkJoin({
-            rooms: this.getRoomByAccomodation(),
+            rooms: this.getRoomNoDepositByAccomodation(),
             deposits: this.getDepositByAccomodation(),
-            tenants: this.getTenantByAccomodation()
+            tenants: this.getTenantWithoutDepositByAccomodation()
         })
             .pipe(
                 finalize(() => {
@@ -201,7 +303,7 @@ export class DepositComponent implements OnInit {
             })
     }
 
-    getRoomByAccomodation() {
+    getRoomNoDepositByAccomodation() {
         return this.roomService.getRoomNotDeposit(this.selectedAccomodation.id)
     }
 
@@ -209,8 +311,12 @@ export class DepositComponent implements OnInit {
         return this.depositService.getDepositByAccomodation(this.selectedAccomodation.id)
     }
 
-    getTenantByAccomodation() {
+    getTenantWithoutDepositByAccomodation() {
         return this.tenantService.getTenantWithoutDeposit(this.selectedAccomodation.id)
+    }
+
+    getTenantByAccomodation() {
+        return this.tenantService.getTenantWithoutContract(this.selectedAccomodation.id)
     }
 
     onSelectAccomodation() {
@@ -223,6 +329,8 @@ export class DepositComponent implements OnInit {
             )
             .subscribe((response) => (this.deposits = response.data))
     }
+
+    
 
     editDeposit(deposit: Deposit) {
         this.isAddNew = false
@@ -249,7 +357,6 @@ export class DepositComponent implements OnInit {
     }
 
     onChangeRoom() {
-        console.log('this.preRoom', this.preRoom)
         if (this.roomInvalids.includes(this.deposit.room?.id) && this.preRoom !== this.deposit.room?.id) {
             this.depositForm.get('room')?.setErrors({roomInvalid: true})
         } else {
@@ -276,6 +383,82 @@ export class DepositComponent implements OnInit {
                 this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Huỷ đặt cọc thành công', life: 3000 })
             })
         ).subscribe()
+    }
+
+    getRoomByAccomodation() {
+        return this.roomService.getRoomNotRented(this.selectedAccomodation.id)
+    }
+
+    findTenant(tenantId: any) {
+        console.log(this.tenants)
+        console.log(tenantId)
+        return this.tenants.find(item => item.id === tenantId)
+    }
+
+    createContract(deposit: Deposit) {
+        this.contractInfoLoading = true
+        this.initContractData().pipe(
+            finalize(() => {
+                this.contract = {}
+                this.contractInfoLoading = false
+                this.contractDialog = true
+                this.isAddNew = true
+                let tenant = this.findTenant(deposit.tenantId)
+                this.selectedTenants.push(tenant);
+                this.contractForm.get('startDate')?.setValue(moment(new Date).toDate())
+                this.contractForm.get('endDate')?.setValue(moment(new Date).toDate())
+                this.contractForm.get('recurrent')?.setValue(null)
+                this.contractForm.get('deposit')?.setValue(null)
+                this.contractForm.get('representative')?.setValue(null)
+                this.contractForm.get('duration')?.setValue(null)
+                this.contractForm.get('firstElectricNum')?.setValue(null)
+                this.contractForm.get('firstWaterNum')?.setValue(null)
+                this.contractForm.get('room')?.setValue(deposit.room)
+            })
+        )
+        .subscribe((response: any) => {
+            this.rooms = response.rooms.data
+            this.tenants = response.tenants.data
+            this.services = response.services.data
+        })
+    }
+
+    saveContract() {
+        let errorFlag: boolean = false
+         if (this.selectedTenants.length === 0) {
+            errorFlag = true
+            this.messageService.add({ severity: 'warn', summary: 'Cảnh báo', detail: 'Vui lòng chọn ít nhất một khách thuê', life: 3000 })
+        } else if (this.selectedServices.length === 0) {
+            errorFlag = true
+            this.messageService.add({ severity: 'warn', summary: 'Cảnh báo', detail: 'Vui lòng chọn ít nhất một dịch vụ', life: 3000 })
+        } else if (!this.contractForm.invalid) {
+            this.loading = true
+            let message: string
+            if (this.contract.id) {
+                message = 'Chỉnh sửa thành công'
+            } else {
+                message = 'Thêm thành công'
+            }
+            this.contract.tenants = this.selectedTenants
+            this.contract.services = this.selectedServices
+            this.contractService.saveContract(this.contract).pipe(
+                finalize(() => {
+                    // this.initData()
+                    this.contract = {}
+                    this.messageService.add({ severity: 'success', summary: 'Thành công', detail: message, life: 3000 })
+                })
+            ).subscribe()
+            errorFlag = false
+        } else {
+            this.contractForm.markAllAsTouched()
+        }
+        if (!errorFlag) {
+            this.addDialog = false
+        }
+    }
+
+    onDialogContractHide() {
+        this.selectedTenants = []
     }
 
     hideDialog() {
@@ -311,4 +494,13 @@ export class DepositComponent implements OnInit {
     onGlobalFilter(table: Table, event: Event) {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains')
     }
+
+    getStaticEletricName() {
+        return AppConstant.ELECTRIC_PRICE_NAME
+    }
+
+    getStaticWaterName() {
+        return AppConstant.WATER_PRICE_NAME
+    }
 }
+

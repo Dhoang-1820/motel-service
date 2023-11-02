@@ -21,7 +21,8 @@ import { EquipmentComponent } from './component/equipment/equipment.component';
 import { DepositComponent } from './component/deposit/deposit.component';
 import { ContractComponent } from './component/contract/contract.component'
 import { ElectricityWaterComponent } from './component/electricity-water/electricity-water.component';
-import { ReturnRoomComponent } from './component/return-room/return-room.component'
+import { ReturnRoomComponent } from './component/return-room/return-room.component';
+import { PostComponent } from './component/post/post.component'
 
 
 @NgModule({
@@ -44,6 +45,7 @@ import { ReturnRoomComponent } from './component/return-room/return-room.compone
         DepositComponent,
         ContractComponent,
         ReturnRoomComponent,
+        PostComponent,
     ],
     imports: [CommonModule, LandlordRoutingModule, SharedModuleModule, TagModule],
 })

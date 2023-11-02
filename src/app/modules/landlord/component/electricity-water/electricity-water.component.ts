@@ -36,7 +36,7 @@ export class ElectricityWaterComponent implements OnInit {
     billForm: FormGroup
     selectedMonth: Date | undefined
 
-    commonRequest!: { accomodationId: any; month: any }
+    commonRequest!: { id: any; month: any }
 
     constructor(
         private auth: AuthenticationService,
@@ -140,7 +140,7 @@ export class ElectricityWaterComponent implements OnInit {
     }
 
     getRoomByAccomodation() {
-        this.commonRequest = { accomodationId: this.selectedAccomodation.id, month: this.selectedMonth }
+        this.commonRequest = { id: this.selectedAccomodation.id, month: this.selectedMonth }
         return this.roomService.getRoomNoElectricWater(this.commonRequest).pipe(
             finalize(() => {
                 this.loading = false
@@ -149,7 +149,7 @@ export class ElectricityWaterComponent implements OnInit {
     }
 
     getElectricWatersByAccomodation() {
-        this.commonRequest = { accomodationId: this.selectedAccomodation.id, month: this.selectedMonth }
+        this.commonRequest = { id: this.selectedAccomodation.id, month: this.selectedMonth }
         return this.billService.getElectricWaterByAccomodation(this.commonRequest).pipe(
             finalize(() => {
                 this.loading = false
@@ -159,7 +159,7 @@ export class ElectricityWaterComponent implements OnInit {
 
     getElectricWatersByMonth() {
         this.dataLoading = true
-        this.commonRequest = { accomodationId: this.selectedAccomodation.id, month: this.selectedMonth }
+        this.commonRequest = { id: this.selectedAccomodation.id, month: this.selectedMonth }
         this.billService
             .getElectricWaterByAccomodation(this.commonRequest)
             .pipe(

@@ -1,0 +1,28 @@
+:host(app-return-room) ::ng-deep  {
+    .return-room {
+        .p-dialog-content {
+            overflow-y: unset !important;
+        }
+    }
+}
+
+:host(app-return-room) ::ng-deep {
+    .p-menu-overlay {
+        position: absolute;
+        top: 45px !important;
+        left: -60px !important;
+    }
+}
+
+::ng-deep {
+    .p-datatable {
+        .p-datatable-wrapper {
+            overflow: unset !important;
+        }
+    }
+}
+
+.disabled {
+    pointer-events: none;
+    opacity: 0.6;
+}

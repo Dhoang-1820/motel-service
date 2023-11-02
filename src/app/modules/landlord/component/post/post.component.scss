@@ -1,0 +1,37 @@
+:host(app-post) ::ng-deep {
+    .p-menu-overlay {
+        position: absolute;
+        top: 45px !important;
+        left: -60px !important;
+    }
+}
+
+::ng-deep {
+    .p-datatable {
+        .p-datatable-wrapper {
+            overflow: unset !important;
+        }
+    }
+}
+
+.disabled {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+::ng-deep {
+    .p-picklist-buttons {
+        &.p-picklist-target-controls,
+        &.p-picklist-source-controls {
+            display: none;
+        }
+    }
+}
+
+::ng-deep {
+    .p-picklist-item:not(.cdk-drag-disabled) {
+        cursor: move;
+        z-index: 10000 !important;
+    }
+}
+

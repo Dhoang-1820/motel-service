@@ -33,6 +33,7 @@ import { MenuModule } from 'primeng/menu';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { PickListModule } from 'primeng/picklist';
 import { SpeedDialModule } from 'primeng/speeddial';
+import { EditorModule } from 'primeng/editor';
 
 
 @NgModule({
@@ -41,6 +42,7 @@ import { SpeedDialModule } from 'primeng/speeddial';
     CommonModule
   ],
   exports: [
+    EditorModule,
     SpeedDialModule,
     ConfirmPopupModule,
     DataViewModule,

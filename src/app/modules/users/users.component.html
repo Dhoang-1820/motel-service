@@ -59,7 +59,7 @@
             <div class="grid">
                 <div class="col-12">
                     <div class="card">
-                        <p-dataView #dv [value]="rooms" [paginator]="true" filterBy="address, price" [rows]="9"  [sortField]="sortField" [sortOrder]="sortOrder" layout="grid">
+                        <p-dataView #dv [value]="posts" [paginator]="true" filterBy="address, price" [rows]="9"  [sortField]="sortField" [sortOrder]="sortOrder" layout="grid">
                             <ng-template pTemplate="header">
                                 <div class="flex flex-column md:flex-row md:justify-content-between gap-2">
                                     <p-dropdown [options]="sortOptions" placeholder="Sắp xếp" (onChange)="onSortChange($event)"></p-dropdown>
@@ -69,24 +69,24 @@
                                     </span>	
                                 </div>
                             </ng-template>
-                            <ng-template let-product pTemplate="gridItem">
+                            <ng-template let-data pTemplate="gridItem">
                                 <div class="col-12 md:col-4" >
                                     <div class="card m-3 border-1 surface-border">
                                         <div class="flex flex-column align-items-center text-center mb-3">
-                                            <p-galleria [value]="product.images" [showIndicators]="true" [showThumbnails]="false" [containerStyle]="{ 'max-width': '640px' }">
+                                            <p-galleria [value]="data.images" [showIndicators]="true" [showThumbnails]="false" [containerStyle]="{ 'max-width': '640px' }">
                                                 <ng-template pTemplate="item" let-item>
                                                     <img [src]="item.imgUrl" style="width: 100%; display: block; max-height: 200px; overflow: hidden; object-fit: contain;" />
                                                 </ng-template>
                                             </p-galleria>
-                                            <div class="text-2xl font-bold">{{product.name}}</div>
-                                            <div class="mb-3 text-left">{{product.address}}</div>
-                                            <div class="mb-3 text-left">Giá nước: {{product.waterPrice | currency: 'VND':'symbol'}}</div>
-                                            <div class="mb-3 text-left">Giá điện: {{product.electricPrice | currency: 'VND':'symbol'}}</div>
+                                            <div class="text-2xl font-bold">{{data.name}}</div>
+                                            <div class="mb-3 text-left">{{data.address}}</div>
+                                            <div class="mb-3 text-left">Giá nước: {{data.waterPrice | currency: 'VND':'symbol'}}</div>
+                                            <div class="mb-3 text-left">Giá điện: {{data.electricPrice | currency: 'VND':'symbol'}}</div>
                                         </div>
                                         <div class="flex align-items-center justify-content-between">
-                                            <span class="text-2xl font-semibold">{{product.price | currency: 'VND':'symbol'}}</span>
-                                            <button pButton pRipple icon="pi pi-external-link" class="p-button-text" (click)="onShowDialog(product)" label="Xem chi tiết" ></button>
-                                            <button pButton pRipple (click)="openBooking(product)">Đặt phòng</button>
+                                            <span class="text-2xl font-semibold">{{data.price | currency: 'VND':'symbol'}}</span>
+                                            <button pButton pRipple icon="pi pi-external-link" class="p-button-text" (click)="onShowDialog(data)" label="Xem chi tiết" ></button>
+                                            <button pButton pRipple (click)="openBooking(data)">Đặt phòng</button>
                                         </div>
                                         
                                     </div>

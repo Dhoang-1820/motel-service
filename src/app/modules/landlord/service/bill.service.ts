@@ -25,6 +25,28 @@ export class BillService {
         return this.http.post<any>(`${environment.apiUrl}/invoice/send/${invoiceId}`, null).pipe(retry(1), delay(1000))
     }
 
+
+    checkRoomIsInputWaterElectric(request: any): Observable<any> {
+        return this.http.post<any>(`${environment.apiUrl}/invoice/room/electric-water`, request).pipe(
+            retry(1),
+            delay(1000),
+        )
+    }
+
+    checkIsRoomReturnValid(request: any): Observable<any> {
+        return this.http.post<any>(`${environment.apiUrl}/invoice/room`, request).pipe(
+            retry(1),
+            delay(1000),
+        )
+    }
+
+    returnRoom(request: any): Observable<any> {
+        return this.http.post<any>(`${environment.apiUrl}/invoice/return`, request).pipe(
+            retry(1),
+            delay(1000),
+        )
+    }
+
     getElectricWaterByAccomodation(request: any): Observable<any> {
         return this.http.post<any>(`${environment.apiUrl}/invoice/electric-water`, request).pipe(retry(1), delay(1000))
     }
@@ -33,8 +55,16 @@ export class BillService {
         return this.http.post<any>(`${environment.apiUrl}/invoice/issue`, request).pipe(retry(1), delay(1000))
     }
 
+    issueReturnInvoice(request: any): Observable<any> {
+        return this.http.post<any>(`${environment.apiUrl}/invoice/return/issue`, request).pipe(retry(1), delay(1000))
+    }
+
     getInvoiceDetail(invoiceId: number): Observable<any> {
         return this.http.get<any>(`${environment.apiUrl}/invoice/${invoiceId}`).pipe(retry(1), delay(1000))
+    }
+
+    getReturnInvoiceDetail(invoiceId: number): Observable<any> {
+        return this.http.get<any>(`${environment.apiUrl}/invoice/return/${invoiceId}`).pipe(retry(1), delay(1000))
     }
 
     getPreviewInvoice(request: any): Observable<any> {

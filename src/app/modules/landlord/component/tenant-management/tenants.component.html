@@ -46,10 +46,16 @@
                             <td *ngSwitchCase="'FEMALE'">Nữ</td>
                             <td  *ngSwitchDefault>Chưa biết</td>
                         </ng-container>
-                        <td *ngIf="tenant.isStayed; else isStayed">Đang ở</td>
+                        <td *ngIf="tenant.isStayed; else isStayed">
+                            <p-tag severity="success" value=" Đang ở"></p-tag>
+                        </td>
                         <ng-template #isStayed>
-                            <td *ngIf="tenant.endDate">Đã chuyển đi</td>
-                            <td *ngIf="!tenant.endDate">Chưa ở</td>
+                            <td *ngIf="tenant.endDate">
+                                <p-tag severity="warning" value="Đã chuyển đi"></p-tag>
+                            </td>
+                            <td *ngIf="!tenant.endDate">
+                                <p-tag severity="info" value="Chưa ở"></p-tag>
+                            </td>
                         </ng-template>
                         <td>{{tenant.startDate | date:'dd/MM/yyyy'}}</td>
                         <td>{{tenant.identifyNum}}</td>

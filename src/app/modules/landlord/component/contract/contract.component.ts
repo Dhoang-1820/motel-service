@@ -313,7 +313,7 @@ export class ContractComponent implements OnInit {
         this.contractForm.reset()
     }
 
-    saveDeposit() {
+    saveContract() {
         let errorFlag: boolean = false
          if (this.selectedTenants.length === 0) {
             errorFlag = true

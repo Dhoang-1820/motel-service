@@ -3,3 +3,19 @@
         overflow-y: unset !important;
     }
 }
+
+::ng-deep {
+    .p-picklist-buttons {
+        &.p-picklist-target-controls,
+        &.p-picklist-source-controls {
+            display: none;
+        }
+    }
+}
+
+::ng-deep {
+    .p-picklist-item:not(.cdk-drag-disabled) {
+        cursor: move;
+        z-index: 10000 !important;
+    }
+}

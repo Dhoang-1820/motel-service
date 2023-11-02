@@ -15,6 +15,7 @@ import { DepositComponent } from './component/deposit/deposit.component'
 import { ContractComponent } from './component/contract/contract.component'
 import { ElectricityWaterComponent } from './component/electricity-water/electricity-water.component'
 import { ReturnRoomComponent } from './component/return-room/return-room.component'
+import { PostComponent } from './component/post/post.component'
 
 const routes: Routes = [
     {
@@ -35,6 +36,7 @@ const routes: Routes = [
             { path: 'deposit', component: DepositComponent},
             { path: 'room-image', component: RoomImagesComponent},
             { path: 'contract', component: ContractComponent},
+            { path: 'post', component: PostComponent},
             { path: 'checkout', component: ReturnRoomComponent}
         ],
     },
