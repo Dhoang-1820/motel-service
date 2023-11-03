@@ -66,18 +66,18 @@
                     </div>
                     <div class="field">
                         <label for="province">Tỉnh/Thành phố</label>
-                        <p-dropdown (onChange)="getDistrictByProvince()" placeholder="Tỉnh/Thành phố" [options]="provices" formControlName="province" optionLabel="name" [ngClass]="{'ng-invalid ng-dirty' : accomodationForm.controls['province'].invalid && (accomodationForm.controls['province'].dirty || accomodationForm.controls['province'].touched)}">
+                        <p-dropdown appendTo="body" (onChange)="getDistrictByProvince()" placeholder="Tỉnh/Thành phố" [options]="provices" formControlName="province" optionLabel="name" [ngClass]="{'ng-invalid ng-dirty' : accomodationForm.controls['province'].invalid && (accomodationForm.controls['province'].dirty || accomodationForm.controls['province'].touched)}">
                         </p-dropdown>
                         <small class="ng-dirty ng-invalid" *ngIf="this.accomodationForm.get('province')?.invalid && (accomodationForm.controls['province'].dirty || accomodationForm.controls['province'].touched)">Vui lòng chọn địa chỉ.</small>
                     </div>
                     <div class="field">
                         <label for="district">Quận/Huyện</label>
-                        <p-dropdown (onChange)="getWardByDistrict()" placeholder="Quận/Huyện" formControlName="district" [options]="districts" optionLabel="name" [ngClass]="{'ng-invalid ng-dirty' : accomodationForm.controls['district'].invalid && (accomodationForm.controls['district'].dirty || accomodationForm.controls['district'].touched)}"></p-dropdown>
+                        <p-dropdown appendTo="body" (onChange)="getWardByDistrict()" placeholder="Quận/Huyện" formControlName="district" [options]="districts" optionLabel="name" [ngClass]="{'ng-invalid ng-dirty' : accomodationForm.controls['district'].invalid && (accomodationForm.controls['district'].dirty || accomodationForm.controls['district'].touched)}"></p-dropdown>
                         <small class="ng-dirty ng-invalid" *ngIf="this.accomodationForm.get('district')?.invalid && (accomodationForm.controls['district'].dirty || accomodationForm.controls['district'].touched)">Vui lòng chọn địa chỉ.</small>
                     </div>
                     <div class="field">
                         <label for="ward">Phường/Xã</label>
-                        <p-dropdown [options]="wards" formControlName="ward" placeholder="Phường/Xã" optionLabel="name" [ngClass]="{'ng-invalid ng-dirty' : accomodationForm.controls['ward'].invalid && (accomodationForm.controls['ward'].dirty || accomodationForm.controls['ward'].touched)}"></p-dropdown>
+                        <p-dropdown appendTo="body" [options]="wards" formControlName="ward" placeholder="Phường/Xã" optionLabel="name" [ngClass]="{'ng-invalid ng-dirty' : accomodationForm.controls['ward'].invalid && (accomodationForm.controls['ward'].dirty || accomodationForm.controls['ward'].touched)}"></p-dropdown>
                         <small class="ng-dirty ng-invalid" *ngIf="this.accomodationForm.get('ward')?.invalid && (accomodationForm.controls['ward'].dirty || accomodationForm.controls['ward'].touched)">Vui lòng nhập chọn địa chỉ.</small>
                     </div>
                     <div class="field">

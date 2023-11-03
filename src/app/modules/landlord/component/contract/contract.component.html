@@ -58,7 +58,7 @@
                     <div class="formgrid grid">
                         <div class="field col">
                             <label for="room">Phòng</label>
-                            <p-dropdown id="room" formControlName="room" (onChange)="onChangeRoom()" optionLabel="name" [options]="rooms" placeholder="Chọn theo phòng" [ngClass]="{'ng-invalid ng-dirty' : contractForm.controls['room'].invalid && (contractForm.controls['room'].dirty || contractForm.controls['room'].touched)}"> </p-dropdown>
+                            <p-dropdown appendTo="body" id="room" formControlName="room" (onChange)="onChangeRoom()" optionLabel="name" [options]="rooms" placeholder="Chọn theo phòng" [ngClass]="{'ng-invalid ng-dirty' : contractForm.controls['room'].invalid && (contractForm.controls['room'].dirty || contractForm.controls['room'].touched)}"> </p-dropdown>
                             <small class="ng-dirty ng-invalid" *ngIf="contractForm.get('room')?.hasError('required') && (contractForm.controls['room'].dirty || contractForm.controls['room'].touched)">Vui lòng chọn phòng.</small>
                             <small class="ng-dirty ng-invalid" *ngIf="contractForm.get('room')?.hasError('roomBooked') && (contractForm.controls['room'].dirty || contractForm.controls['room'].touched)">Phòng đã được đặt cọc, khách thuê đã đặt cọc cần trong mục khách thuê được chọn.</small>
                         </div> 
@@ -111,7 +111,7 @@
                         <div class="field col mr-3">
                             <div class="field">
                                 <label for="description">Người đại diện</label>
-                                <p-dropdown id="description" formControlName="representative" [options]="selectedTenants" placeholder="Chọn người đại diện" [ngClass]="{'ng-invalid ng-dirty' : contractForm.controls['representative'].invalid && (contractForm.controls['representative'].dirty || contractForm.controls['representative'].touched)}"> 
+                                <p-dropdown appendTo="body" id="description" formControlName="representative" [options]="selectedTenants" placeholder="Chọn người đại diện" [ngClass]="{'ng-invalid ng-dirty' : contractForm.controls['representative'].invalid && (contractForm.controls['representative'].dirty || contractForm.controls['representative'].touched)}"> 
                                     <ng-template let-item pTemplate="selectedItem">
                                         {{item.firstName}} {{item.lastName}}
                                     </ng-template>
@@ -158,12 +158,12 @@
                                 <div class="formgrid grid">
                                     <div class="field col"> 
                                         <label  for="startDate">Ngày bắt đầu</label>
-                                        <p-calendar id="startDate" formControlName="startDate" dateFormat="dd/mm/yy" [ngClass]="{'ng-invalid ng-dirty' : contractForm.controls['startDate'].invalid && (contractForm.controls['startDate'].dirty || contractForm.controls['startDate'].touched)}"></p-calendar>
+                                        <p-calendar appendTo="body" id="startDate" formControlName="startDate" dateFormat="dd/mm/yy" [ngClass]="{'ng-invalid ng-dirty' : contractForm.controls['startDate'].invalid && (contractForm.controls['startDate'].dirty || contractForm.controls['startDate'].touched)}"></p-calendar>
                                         <small class="ng-dirty ng-invalid" *ngIf="contractForm.get('startDate')?.invalid && (contractForm.controls['startDate'].dirty || contractForm.controls['startDate'].touched)">Vui lòng chọn ngày bắt đầu hợp đồng.</small>
                                     </div>
                                     <div class="field col">
                                         <label for="endDate">đến ngày</label>
-                                        <p-calendar id="endDate" formControlName="endDate" dateFormat="dd/mm/yy"></p-calendar>
+                                        <p-calendar appendTo="body" id="endDate" formControlName="endDate" dateFormat="dd/mm/yy"></p-calendar>
                                     </div>
                                 </div>
                             </div> 

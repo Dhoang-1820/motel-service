@@ -1,9 +1,3 @@
-:host(app-deposit) ::ng-deep  {
-    .p-dialog-content {
-        overflow-y: unset !important;
-    }
-}
-
 ::ng-deep {
     .p-picklist-buttons {
         &.p-picklist-target-controls,

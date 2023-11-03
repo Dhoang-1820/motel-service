@@ -46,6 +46,9 @@ export class PostComponent implements OnInit {
     items: MenuItem[] = []
     linkUpload: string = "http://localhost:8080/motel-service/api/post/image/"
     responsiveOptions: any[];
+    deleteImageDialog: boolean = false
+    selectedImage: any;
+    deleteLoading: boolean = false;
 
     constructor(
         private accomodationService: AccomodationService,
@@ -296,17 +299,32 @@ export class PostComponent implements OnInit {
         this.postForm.reset()
     }
 
-    getImagesByRoom() {
-        // this.loading = true;
-        // this.roomService.getImageByRoom(this.selectedRoom.id).pipe(
-        //     finalize(() => {
-        //         this.loading = false
-        //     }),
-        // ).subscribe(res => this.roomImages = res.data.images)
+    getImagesByPost() {
+        this.loading = true;
+        this.postService.getImageByPost(this.post.id).pipe(
+            finalize(() => {
+                this.loading = false
+                this.deleteLoading = false
+            }),
+        ).subscribe(res => this.post.images = res.data)
     }
 
-    onUpload() {
-        // this.getImagesByRoom()
+    removeImageByPost(imgId: any) {
+        this.post.images = this.post.images?.filter(item => item.imageId !== imgId)
+    }
+
+    onDeleteImage(imgId: any) {
+        this.deleteLoading = true
+        this.postService.removeImage(imgId).pipe(
+            finalize(() => {
+                this.removeImageByPost(imgId)
+            }),
+        ).subscribe()
+    }
+
+    onUpload(e: any) {
+        console.log(e)
+        this.getImagesByPost()
     }
 
     onGlobalFilter(table: Table, event: Event) {

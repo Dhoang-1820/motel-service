@@ -28,6 +28,14 @@ export class PostService {
     }
 
     getPostForLanding(): Observable<any> {
-      return this.http.get<any>(`${environment.apiUrl}/post`)
-  }
+        return this.http.get<any>(`${environment.apiUrl}/post`)
+    }
+
+    getImageByPost(postId: any): Observable<any> {
+        return this.http.get<any>(`${environment.apiUrl}/post/image/${postId}`)
+    }
+
+    removeImage(imgId: number) : Observable<any> {
+        return this.http.delete<any>(`${environment.apiUrl}/post/image/${imgId}`)
+    }
 }

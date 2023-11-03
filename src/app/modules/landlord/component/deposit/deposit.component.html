@@ -69,18 +69,18 @@
                             </div>
                             <div class="field">
                                 <label for="description">Phòng</label>
-                                <p-dropdown id="description" formControlName="room" (onChange)="onChangeRoom()" optionLabel="name" [options]="rooms" placeholder="Chọn theo phòng" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['room'].invalid && (depositForm.controls['room'].dirty || depositForm.controls['room'].touched)}"> </p-dropdown>
+                                <p-dropdown appendTo="body" id="description" formControlName="room" (onChange)="onChangeRoom()" optionLabel="name" [options]="rooms" placeholder="Chọn theo phòng" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['room'].invalid && (depositForm.controls['room'].dirty || depositForm.controls['room'].touched)}"> </p-dropdown>
                                 <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('room')?.hasError('required') && (depositForm.controls['room'].dirty || depositForm.controls['room'].touched)">Vui lòng chọn phòng.</small>
                                 <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('room')?.hasError('roomInvalid') && (depositForm.controls['room'].dirty || depositForm.controls['room'].touched)">Phòng đã được đặt cọc.</small>
                             </div> 
                             <div class="field">
-                                <label  for="startDate">Ngày đặt cọc</label>
-                                <p-calendar id="startDate" formControlName="startDate" dateFormat="dd/mm/yy" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['startDate'].invalid && (depositForm.controls['startDate'].dirty || depositForm.controls['startDate'].touched)}"></p-calendar>
+                                <label for="startDate">Ngày đặt cọc</label>
+                                <p-calendar appendTo="body" id="startDate" formControlName="startDate" dateFormat="dd/mm/yy" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['startDate'].invalid && (depositForm.controls['startDate'].dirty || depositForm.controls['startDate'].touched)}"></p-calendar>
                                 <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('startDate')?.invalid && (depositForm.controls['startDate'].dirty || depositForm.controls['startDate'].touched)">Vui lòng chọn ngày đặt cọc.</small>
                             </div> 
                             <div class="field">
                                 <label for="dueDate">Ngày hết hạn</label>
-                                <p-calendar id="dueDate" formControlName="dueDate" dateFormat="dd/mm/yy" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['dueDate'].invalid && (depositForm.controls['dueDate'].dirty || depositForm.controls['dueDate'].touched)}"></p-calendar>
+                                <p-calendar appendTo="body" id="dueDate" formControlName="dueDate" dateFormat="dd/mm/yy" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['dueDate'].invalid && (depositForm.controls['dueDate'].dirty || depositForm.controls['dueDate'].touched)}"></p-calendar>
                                 <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('dueDate')?.hasError('required') && (depositForm.controls['dueDate'].dirty || depositForm.controls['dueDate'].touched)">Vui lòng chọn ngày hết hạn.</small>
                                 <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('dueDate')?.hasError('dateInvalid') && (depositForm.controls['dueDate'].dirty || depositForm.controls['dueDate'].touched)">Ngày hết hạn cần sau ngày đặt cọc.</small>
                             </div> 

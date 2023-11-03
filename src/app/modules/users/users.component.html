@@ -62,7 +62,9 @@
                         <p-dataView #dv [value]="posts" [paginator]="true" filterBy="address, price" [rows]="9"  [sortField]="sortField" [sortOrder]="sortOrder" layout="grid">
                             <ng-template pTemplate="header">
                                 <div class="flex flex-column md:flex-row md:justify-content-between gap-2">
-                                    <p-dropdown [options]="sortOptions" placeholder="Sắp xếp" (onChange)="onSortChange($event)"></p-dropdown>
+                                    <div>
+                                        <p-dropdown [options]="sortOptions" placeholder="Sắp xếp" (onChange)="onSortChange($event)"></p-dropdown>
+                                    </div>
                                     <span class="p-input-icon-left">
                                         <i class="pi pi-search"></i>
                                         <input type="search" pInputText placeholder="Tìm kiếm theo địa chỉ..."(input)="onFilter(dv, $event)" >
@@ -78,13 +80,16 @@
                                                     <img [src]="item.imgUrl" style="width: 100%; display: block; max-height: 200px; overflow: hidden; object-fit: contain;" />
                                                 </ng-template>
                                             </p-galleria>
+                                            <div class="text-2xl mb-3">
+                                                <span class="font-bold">{{data.title}}</span>
+                                            </div>
                                             <div class="text-2xl font-bold">{{data.name}}</div>
                                             <div class="mb-3 text-left">{{data.address}}</div>
-                                            <div class="mb-3 text-left">Giá nước: {{data.waterPrice | currency: 'VND':'symbol'}}</div>
-                                            <div class="mb-3 text-left">Giá điện: {{data.electricPrice | currency: 'VND':'symbol'}}</div>
+                                            <div class="mb-3 text-left">Diện tích: {{data.acreage}} m²</div>
                                         </div>
+                                        
                                         <div class="flex align-items-center justify-content-between">
-                                            <span class="text-2xl font-semibold">{{data.price | currency: 'VND':'symbol'}}</span>
+                                            <span class="text-2xl font-semibold">{{data.price | currency: 'VND':'symbol'}}/tháng</span>
                                             <button pButton pRipple icon="pi pi-external-link" class="p-button-text" (click)="onShowDialog(data)" label="Xem chi tiết" ></button>
                                             <button pButton pRipple (click)="openBooking(data)">Đặt phòng</button>
                                         </div>
@@ -98,37 +103,50 @@
                 </div>
             </div>
         </div>
-        <p-dialog [(visible)]="detailDialog" [style]="{width: '650px'}" header="Chi tiết phòng trọ" [modal]="true" class="p-fluid">
+        <p-dialog [(visible)]="detailDialog" [style]="{width: '850px'}" header="Chi tiết phòng trọ" [modal]="true" class="p-fluid">
             <ng-template pTemplate="content">
-                <h3 class="text-900 text-center my-5"></h3>
-                <p-galleria [value]="roomSelected.images" [showIndicators]="true" [showThumbnails]="false" [containerStyle]="{ 'max-width': '640px' }">
-                    <ng-template pTemplate="item" let-item>
-                        <img [src]="item.imgUrl" style="width: 100%; display: block; max-height: 300px; overflow: hidden; object-fit: contain;" />
-                    </ng-template>
-                </p-galleria>
+                <div class="flex justify-content-center">
+                    <p-galleria [value]="roomSelected.images" [showIndicators]="true" [showThumbnails]="false" [containerStyle]="{ 'max-width': '640px' }">
+                        <ng-template pTemplate="item" let-item>
+                            <img [src]="item.imgUrl" style="width: 100%; display: block; max-height: 300px; overflow: hidden; object-fit: contain;" />
+                        </ng-template>
+                    </p-galleria>
+                </div>
+                <h3 class="text-900 text-center my-5">{{roomSelected.title}}</h3>
                 <div class="my-5">
                     <span class="text-3xl font-bold mr-2 text-900">{{roomSelected.price | currency: 'VND':'symbol'}}</span>
                     <button pButton pRipple label="Đặt phòng" (click)="openBooking(roomSelected)" class="block mx-auto mt-4 p-button-rounded border-none ml-3 font-light line-height-2 bg-blue-500 text-white"></button>
                 </div>
                 <p-divider class="w-full bg-surface-200"></p-divider>
-                <div class="text-xl">Địa chỉ: {{roomSelected.address}}</div>
+                <div class="text-xl mb-3">Địa chỉ: <span class="font-bold">{{roomSelected.address}}</span></div>
+                <div class="text-xl mb-3">Diện tích: <span class="font-bold">{{roomSelected.acreage}} m²</span></div>
+                <div class="text-xl">Liên hệ: <span class="font-bold">{{roomSelected.phone}}</span></div>
                 <p-divider class="w-full bg-surface-200"></p-divider>
-                <ul class="my-5 list-none p-0 flex text-900 flex-column">
-                    <li class="py-2">
-                        <span class="text-xl line-height-3">Giá nước: {{roomSelected.waterPrice | currency: 'VND':'symbol'}}</span>
-                    </li>
-                    <li class="py-2">
-                        <span class="text-xl line-height-3">Giá điện: {{roomSelected.electricPrice | currency: 'VND':'symbol'}}</span>
-                    </li>
-                </ul>
-                <p-divider class="w-full bg-surface-200"></p-divider>
-                <div class="text-xl">Dịch vụ</div>
-                <ul class="my-5 list-none p-0 flex text-900 flex-column">
-                    <li class="py-2" *ngFor="let fee of roomSelected.fees">
-                        <i class="pi pi-fw pi-check text-xl text-cyan-500 mr-2"></i>
-                        <span class="text-xl line-height-3">{{fee.feeName}}</span>
-                    </li>
-                </ul>
+                <p-card header="Thông tin mô tả">
+                    <div [innerHTML]="roomSelected.content">
+                    </div>
+                </p-card>
+                <br>
+                <p-fieldset class="mb-4" legend="Dịch vụ" [toggleable]="true" [collapsed]="true">
+                    <ul class="my-5 list-none p-0 flex text-900 flex-column">
+                        <li class="py-2" *ngFor="let service of roomSelected.services">
+                            <i class="pi pi-fw pi-check text-xl text-cyan-500 mr-2"></i>
+                            <span class="text-xl line-height-3">{{service.name}}</span>
+                        </li>
+                    </ul>
+                </p-fieldset>
+                <br>
+                <p-fieldset legend="Thiết bị sẵn có (có thể tuỳ chọn thêm)" [toggleable]="true" [collapsed]="true">
+                    <ul class="my-5 list-none p-0 flex text-900 flex-column">
+                        <li class="py-2" *ngFor="let equip of roomSelected.equipments">
+                            <i class="pi pi-fw pi-check text-xl text-cyan-500 mr-2"></i>
+                            <span class="text-xl line-height-3">{{equip.name}}</span>
+                        </li>
+                    </ul>
+                </p-fieldset>
+                <p-card>
+                    <!-- <google-map [options]="options"></google-map> -->
+                </p-card>
             </ng-template>
         </p-dialog>
 
@@ -138,29 +156,35 @@
                     <div class="field">
                         <label for="fullname">Họ và tên</label>
                         <input formControlName="fullname" pInputText id="fullname" [ngClass]="{'ng-invalid ng-dirty' : bookingForm.controls['fullname'].invalid && (bookingForm.controls['fullname'].dirty || bookingForm.controls['fullname'].touched)}"/>
-                        <small class="ng-dirty ng-invalid" *ngIf="this.bookingForm.get('fullname')?.getError('invalid') && (bookingForm.controls['fullname'].dirty || bookingForm.controls['fullname'].touched)">Vui lòng nhập họ.</small>
+                        <small class="ng-dirty ng-invalid" *ngIf="bookingForm.get('fullname')?.getError('invalid') && (bookingForm.controls['fullname'].dirty || bookingForm.controls['fullname'].touched)">Vui lòng nhập họ.</small>
                     </div>
                     <div class="field">
                         <label for="email">Email</label>
                         <input formControlName="email" pInputText id="email" [ngClass]="{'ng-invalid ng-dirty' : bookingForm.controls['email'].invalid && (bookingForm.controls['email'].dirty || bookingForm.controls['email'].touched)}"/>
-                        <small class="ng-dirty ng-invalid" *ngIf="this.bookingForm.get('email')?.getError('invalid') && (bookingForm.controls['email'].dirty || bookingForm.controls['email'].touched)">Vui lòng nhập mật tên.</small>
+                        <small class="ng-dirty ng-invalid" *ngIf="bookingForm.get('email')?.getError('invalid') && (bookingForm.controls['email'].dirty || bookingForm.controls['email'].touched)">Vui lòng nhập mật tên.</small>
                     </div>
                     <div class="field">
                         <label for="phone">Số điện thoại</label>
                         <input formControlName="phone" pInputText id="phone" [ngClass]="{'ng-invalid ng-dirty' : bookingForm.controls['phone'].invalid && (bookingForm.controls['phone'].dirty || bookingForm.controls['phone'].touched)}"/>
-                        <small class="ng-dirty ng-invalid" *ngIf="this.bookingForm.get('phone')?.getError('invalid') && (bookingForm.controls['phone'].dirty || bookingForm.controls['phone'].touched)">Vui lòng nhập mật tên.</small>
+                        <small class="ng-dirty ng-invalid" *ngIf="bookingForm.get('phone')?.getError('invalid') && (bookingForm.controls['phone'].dirty || bookingForm.controls['phone'].touched)">Vui lòng nhập mật tên.</small>
+                    </div>
+                    <div lass="field">
+                        <div class="field col flex align-items-center">
+                            <label for="description" class="mr-3">Chọn ngày xem phòng</label>
+                            <p-inputSwitch [(ngModel)]="isAddReviewDate" [ngModelOptions]="{standalone: true}"></p-inputSwitch>
+                        </div> 
+                    </div>
+                    <div class="field" *ngIf="isAddReviewDate">
+                        <p-calendar appendTo="body" position="bottom" id="reviewDate" [minDate]="minDate"  formControlName="reviewDate" dateFormat="dd/mm/yy" [readonlyInput]="true"></p-calendar>
                     </div>
                 </form>
             </ng-template>
 
             <ng-template pTemplate="footer">
                 <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideBookingDialog()"></button>
-                <button pButton pRipple label="Save" [loading]="submitLoading" loadingIcon="pi pi-spin pi-spinner" icon="pi pi-check" class="p-button-text" (click)="saveBooking()"></button>
+                <button pButton pRipple label="Save" [disabled]="bookingForm.invalid" [loading]="submitLoading" loadingIcon="pi pi-spin pi-spinner" icon="pi pi-check" class="p-button-text" (click)="saveBooking()"></button>
             </ng-template>
         </p-dialog>
-    
-        
-        
     
         <div class="py-4 px-4 mx-0 mt-8 lg:mx-8">
             <div class="grid justify-content-between">    

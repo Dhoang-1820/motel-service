@@ -108,13 +108,13 @@
                 <form [formGroup]="returnRoomForm">
                     <div class="field">
                         <label for="room">Phòng</label>
-                        <p-dropdown formControlName="room" optionLabel="name" [options]="rooms" placeholder="Chọn phòng" [ngClass]="{'ng-invalid ng-dirty' : returnRoomForm.controls['room'].invalid && (returnRoomForm.controls['room'].dirty || returnRoomForm.controls['room'].touched)}">
+                        <p-dropdown appendTo="body" formControlName="room" optionLabel="name" [options]="rooms" placeholder="Chọn phòng" [ngClass]="{'ng-invalid ng-dirty' : returnRoomForm.controls['room'].invalid && (returnRoomForm.controls['room'].dirty || returnRoomForm.controls['room'].touched)}">
                         </p-dropdown>
                         <small class="ng-dirty ng-invalid" *ngIf="this.returnRoomForm.get('room')?.invalid && (returnRoomForm.controls['room'].dirty || returnRoomForm.controls['room'].touched)">Vui lòng chọn phòng.</small>
                     </div>
                     <div class="field">
                         <label for="returnDate">Ngày trả phòng</label>
-                        <p-calendar formControlName="returnDate" ></p-calendar>
+                        <p-calendar appendTo="body" formControlName="returnDate" ></p-calendar>
                     </div>
                 </form>
             </ng-template>

@@ -1,7 +1,6 @@
 import { RoomDropdown, Services } from "./accomodation.model";
 
 export class Post {
-
     id?: number;
 	title?: string;
 	content?: string;
@@ -11,5 +10,5 @@ export class Post {
 	userId?: number;
 	room?: RoomDropdown[];
 	services?: Services[];
-    images?: string[] = []
+    images?: any[] = []
 }

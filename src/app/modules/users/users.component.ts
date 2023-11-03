@@ -1,16 +1,17 @@
 /** @format */
 
-import { Component, OnInit, ɵɵsetComponentScope } from '@angular/core'
-import { LayoutService } from '../landlord/service/layout.service'
-import { Router } from '@angular/router'
-import { AccomodationService } from '../landlord/service/accomodation.service'
-import { finalize } from 'rxjs'
-import { DataView } from 'primeng/dataview'
+import { Component, OnInit } from '@angular/core'
 import { FormControl, FormGroup, Validators } from '@angular/forms'
-import { BookingService } from './services/booking.service'
+import { Router } from '@angular/router'
+import * as moment from 'moment'
 import { MessageService } from 'primeng/api'
-import { PostService } from '../landlord/service/post.service'
+import { DataView } from 'primeng/dataview'
+import { finalize } from 'rxjs'
 import { Post } from '../landlord/model/post.model'
+import { LayoutService } from '../landlord/service/layout.service'
+import { PostService } from '../landlord/service/post.service'
+import { BookingService } from './services/booking.service'
+import { AddressService } from '../landlord/service/address.service'
 
 @Component({
     selector: 'app-users',
@@ -29,22 +30,28 @@ export class UsersComponent implements OnInit {
     roomSelected: any
     bookingDialog: boolean = false
     bookingForm: FormGroup
-    submitForm: { name?: string; email?: string; phone?: string; roomId?: string } = {}
+    submitForm: { name?: string; email?: string; phone?: string; roomId?: string, reviewDate?: Date } = {}
+    isAddReviewDate: boolean = false;
+    today: Date = new Date();
+    minDate!: Date 
 
     constructor(
         private messageService: MessageService,
         public bookingService: BookingService,
         public layoutService: LayoutService,
         public router: Router,
-        private accomodationService: AccomodationService,
-        private postService: PostService
+        private postService: PostService,
+        private addressService: AddressService,
     ) {
+        this.minDate =  moment(this.today, "DD-MM-YYYY").add(1, 'd').toDate();
         this.bookingForm = new FormGroup({
             fullname: new FormControl(this.submitForm.name, [Validators.required]),
             email: new FormControl(this.submitForm.email, [Validators.required]),
             phone: new FormControl(this.submitForm.phone, [Validators.required]),
             roomId: new FormControl(this.submitForm.roomId, [Validators.required]),
+            reviewDate: new FormControl(this.submitForm.reviewDate, []),
         })
+
     }
 
     ngOnInit(): void {
@@ -67,19 +74,23 @@ export class UsersComponent implements OnInit {
         this.bookingForm.get('roomId')?.valueChanges.subscribe((data) => {
             this.submitForm.roomId = data
         })
+        this.bookingForm.get('reviewDate')?.valueChanges.subscribe((data) => {
+            this.submitForm.reviewDate = data
+        })
     }
+
 
     openBooking(room: any) {
         this.bookingDialog = true
         this.roomSelected = room
-        this.bookingForm.get('fullname')?.setValue('')
-        this.bookingForm.get('email')?.setValue('')
-        this.bookingForm.get('phone')?.setValue('')
-        this.bookingForm.get('roomId')?.setValue(this.roomSelected.id)
+        this.bookingForm.get('fullname')?.setValue(null)
+        this.bookingForm.get('email')?.setValue(null)
+        this.bookingForm.get('phone')?.setValue(null)
+        this.bookingForm.get('reviewDate')?.setValue(null)
+        this.bookingForm.get('roomId')?.setValue(this.roomSelected.room.id)
     }
 
     saveBooking() {
-        console.log(this.submitForm)
         this.submitLoading = true
         this.bookingService
             .saveBooking(this.submitForm)
@@ -88,6 +99,8 @@ export class UsersComponent implements OnInit {
                     this.submitLoading = false
                     this.bookingDialog = false
                     this.detailDialog = false
+                    this.isAddReviewDate =false
+                    this.roomSelected = {}
                     this.messageService.add({
                         severity: 'success',
                         summary: 'Successful',
@@ -101,7 +114,6 @@ export class UsersComponent implements OnInit {
 
     hideBookingDialog() {
         this.bookingDialog = false
-        this.roomSelected = {}
     }
 
     getAllRoom() {

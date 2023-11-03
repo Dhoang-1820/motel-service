@@ -135,24 +135,30 @@
                             <p-editor formControlName="content" [style]="{ height: '320px' }"></p-editor>
                         </div>
                     </div>
-                    <div class="formgrid grid">
+                    <div class="formgrid grid" *ngIf="post.images && post.images.length > 0">
                        <div class="field col">
                         <div class="card">
-                            <p-galleria [value]="post.images || []" [responsiveOptions]="responsiveOptions" [containerStyle]="{ 'max-width': '640px' }" [numVisible]="5">
-                                <ng-template pTemplate="item" let-item>
-                                    <img [src]="item.imgUrl" style="width: 25px;" />
-                                </ng-template>
-                                <ng-template pTemplate="thumbnail" let-item>
-                                    <div class="grid grid-nogutter justify-content-center">
-                                        <img [src]="item.imgUrl" style="width: 25px;" />
+                            <div class="card m-3 border-1 surface-border" *ngFor="let img of post.images">
+                                <div class="flex flex-column align-items-center text-center mb-3">
+                                    <img [src]="img.imgUrl" [alt]="img.imgName" class="w-4 shadow-2 my-3 mx-0"/>
+                                </div>
+                                <p-divider></p-divider>
+                                <div class="flex justify-content-center">
+                                    <div class="flex">
+                                        <div>
+                                            <button pButton pRipple label="Xoá" (click)="onDeleteImage(img.imageId)" [loading]="deleteLoading" loadingIcon="pi pi-spin pi-spinner"  icon="pi pi-delete-left" class="p-button-text" ></button>
+                                        </div>
+                                        <div style="width: 115px;">
+                                            <p-fileUpload (onBeforeUpload)="loading = true" (onUpload)="onUpload($event)" mode="basic" chooseLabel="Thay đổi" name="file" method="put" [auto]="true" [url]="linkUpload + img.imageId" accept="image/*" [maxFileSize]="1000000" ></p-fileUpload>
+                                        </div>
                                     </div>
-                                </ng-template>
-                            </p-galleria>
+                                </div>
+                            </div>
                            </div>
                        </div>
                     </div>
                     <div class="field">
-                        <p-fileUpload (onBeforeUpload)="loading = true" mode="basic" chooseLabel="Thêm" [multiple]="true" name="file" method="post" [auto]="true" [url]="linkUpload + post.id" accept="image/*" [maxFileSize]="1000000" (onUpload)="onUpload()"></p-fileUpload>
+                        <p-fileUpload (onBeforeUpload)="loading = true" (onUpload)="onUpload($event)" mode="basic" chooseLabel="Thêm ảnh" [multiple]="true" name="file" method="post" [auto]="true" [url]="linkUpload + post.id" accept="image/*" [maxFileSize]="1000000"></p-fileUpload>
                     </div>
                 </form>            
             </ng-template>
