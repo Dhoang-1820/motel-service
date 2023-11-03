@@ -119,12 +119,12 @@
                     <div class="formgrid grid">
                         <div class="field col">
                             <label for="unit">Đơn vị</label>
-                            <p-dropdown  placeholder="Đơn vị" formControlName="unit" [options]="units"  [ngClass]="{'ng-invalid ng-dirty' : equipmentForm.controls['unit'].invalid && (equipmentForm.controls['unit'].dirty || equipmentForm.controls['unit'].touched)}"></p-dropdown>
+                            <p-dropdown appendTo="body" placeholder="Đơn vị" formControlName="unit" [options]="units"  [ngClass]="{'ng-invalid ng-dirty' : equipmentForm.controls['unit'].invalid && (equipmentForm.controls['unit'].dirty || equipmentForm.controls['unit'].touched)}"></p-dropdown>
                             <small class="ng-dirty ng-invalid" *ngIf="equipmentForm.get('unit')?.invalid && (equipmentForm.controls['unit'].dirty || equipmentForm.controls['unit'].touched)">Vui lòng nhập đơn vị.</small>
                         </div>
                         <div class="field col">
                             <label for="status">Trạng thái</label>
-                            <p-dropdown  placeholder="Trạng thái" formControlName="status" [options]="status"  [ngClass]="{'ng-invalid ng-dirty' : equipmentForm.controls['status'].invalid && (equipmentForm.controls['status'].dirty || equipmentForm.controls['status'].touched)}"></p-dropdown>
+                            <p-dropdown appendTo="body" placeholder="Trạng thái" formControlName="status" [options]="status"  [ngClass]="{'ng-invalid ng-dirty' : equipmentForm.controls['status'].invalid && (equipmentForm.controls['status'].dirty || equipmentForm.controls['status'].touched)}"></p-dropdown>
                             <small class="ng-dirty ng-invalid" *ngIf="equipmentForm.get('status')?.invalid && (equipmentForm.controls['status'].dirty || equipmentForm.controls['status'].touched)">Vui lòng chọn trạng thái.</small>
                         </div>
                     </div>
@@ -138,7 +138,7 @@
                     </div> 
                     <div class="formgrid grid" *ngIf="!isNew">
                         <div class="field col" style="max-width: 50%;">
-                            <p-dropdown [filter]="true" filterBy="name" [showClear]="true" (onClear)="onClearRoom()" formControlName="room" optionLabel="name" [options]="rooms" placeholder="Lọc theo phòng" > </p-dropdown>
+                            <p-dropdown appendTo="body" [filter]="true" filterBy="name" [showClear]="true" (onClear)="onClearRoom()" formControlName="room" optionLabel="name" [options]="rooms" placeholder="Lọc theo phòng" > </p-dropdown>
                         </div>
                     </div>
                     <div class="formgrid grid" *ngIf="isNew">
@@ -152,7 +152,7 @@
                                 <small class="ng-dirty ng-invalid" *ngIf="equipmentForm.get('quantity')?.invalid && (equipmentForm.controls['quantity'].dirty || equipmentForm.controls['quantity'].touched)">Vui lòng nhập số lượng.</small>
                             </div> 
                             <div>
-                                <p-multiSelect placeholder="Chọn phòng"  [options]="rooms" formControlName="selectedRoom" optionLabel="name" optionValue="id" display="chip" [ngClass]="{'ng-invalid ng-dirty' : equipmentForm.controls['selectedRoom'].invalid && (equipmentForm.controls['selectedRoom'].dirty || equipmentForm.controls['selectedRoom'].touched)}"></p-multiSelect>
+                                <p-multiSelect appendTo="body" placeholder="Chọn phòng"  [options]="rooms" formControlName="selectedRoom" optionLabel="name" optionValue="id" display="chip" [ngClass]="{'ng-invalid ng-dirty' : equipmentForm.controls['selectedRoom'].invalid && (equipmentForm.controls['selectedRoom'].dirty || equipmentForm.controls['selectedRoom'].touched)}"></p-multiSelect>
                                 <small class="ng-dirty ng-invalid" *ngIf="equipmentForm.get('selectedRoom')?.invalid && (equipmentForm.controls['selectedRoom'].dirty || equipmentForm.controls['selectedRoom'].touched)">Vui lòng chọn phòng.</small>
                             </div> 
                         </div>

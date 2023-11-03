@@ -19,6 +19,8 @@ export class Invoice {
     service?: InvoiceServiceDto[]
     loading?: boolean
     description?: string
+    returnDate?: Date
+    isReturnBill?: boolean
 }
 
 export class InvoiceServiceDto {

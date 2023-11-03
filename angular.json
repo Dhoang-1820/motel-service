@@ -18,7 +18,8 @@
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
             "allowedCommonJsDependencies": [
-              "moment"
+              "moment",
+              "quill"
             ],
             "outputPath": "dist/motel-service",
             "index": "src/index.html",
@@ -35,6 +36,7 @@
               "src/app/font.scss",
               "node_modules/primeicons/primeicons.css",
               "node_modules/primeng/resources/themes/lara-light-blue/theme.css",
+              "node_modules/quill/dist/quill.snow.css",
               "node_modules/primeng/resources/primeng.min.css"
             ],
             "scripts": []

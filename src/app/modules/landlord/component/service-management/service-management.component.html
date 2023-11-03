@@ -71,7 +71,7 @@
                     </div>
                     <div class="field">
                         <label for="unit">Đơn vị</label>
-                        <p-dropdown  placeholder="Đơn vị" formControlName="unit" [options]="units"  [ngClass]="{'ng-invalid ng-dirty' : serviceForm.controls['unit'].invalid && (serviceForm.controls['unit'].dirty || serviceForm.controls['unit'].touched)}"></p-dropdown>
+                        <p-dropdown appendTo="body" placeholder="Đơn vị" formControlName="unit" [options]="units"  [ngClass]="{'ng-invalid ng-dirty' : serviceForm.controls['unit'].invalid && (serviceForm.controls['unit'].dirty || serviceForm.controls['unit'].touched)}"></p-dropdown>
                         <small class="ng-dirty ng-invalid" *ngIf="serviceForm.get('unit')?.invalid && (serviceForm.controls['unit'].dirty || serviceForm.controls['unit'].touched)">Vui lòng nhập đơn vị.</small>
                     </div>
                     <div class="field">

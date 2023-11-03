@@ -1,3 +1,5 @@
+/** @format */
+
 import { Component, OnInit } from '@angular/core'
 import { FormControl, FormGroup, Validators } from '@angular/forms'
 import * as moment from 'moment'
@@ -32,12 +34,12 @@ export class InvoiceComponent implements OnInit {
     selectedMonth: Date | undefined
     invoiceForm: FormGroup
     issueRequest!: { roomId: any; month?: Date }
-    getInvoiceRequest!: { accomodationId: any; month: any }
+    getInvoiceRequest!: { id: any; month: any }
     isEdit: boolean = false
     preMonth: Date
 
     items: MenuItem[] = []
-    
+
     constructor(
         private accomodationService: AccomodationService,
         private auth: AuthenticationService,
@@ -45,7 +47,7 @@ export class InvoiceComponent implements OnInit {
         private messageService: MessageService,
     ) {
         this.selectedMonth = moment().toDate()
-        this.preMonth = moment(this.selectedMonth).subtract(1,'months').endOf('month').toDate();
+        this.preMonth = moment(this.selectedMonth).subtract(1, 'months').endOf('month').toDate()
 
         this.invoiceForm = new FormGroup({
             totalService: new FormControl(this.invoice.totalService, []),
@@ -69,12 +71,12 @@ export class InvoiceComponent implements OnInit {
         this.invoiceForm.get('discount')?.valueChanges.subscribe((data) => {
             this.invoice.discount = data
             if (this.invoice.totalPrice && this.invoice.discount != undefined) {
-                let remain = this.invoice.totalPrice - this.invoice.discount;
+                let remain = this.invoice.totalPrice - this.invoice.discount
                 this.invoiceForm.get('totalPayment')?.setValue(remain)
             }
             if (this.invoiceForm.get('newDebt')?.value < 0) {
                 console.log(this.invoiceForm.get('newDebt'))
-                this.invoiceForm.setErrors({incorrect: true})
+                this.invoiceForm.setErrors({ incorrect: true })
                 this.invoiceForm.get('newDebt')?.markAsTouched()
             } else {
                 this.invoiceForm.setErrors(null)
@@ -107,7 +109,6 @@ export class InvoiceComponent implements OnInit {
         this.invoiceForm.get('description')?.valueChanges.subscribe((data) => {
             this.invoice.description = data
         })
-
     }
 
     openNew() {
@@ -125,7 +126,6 @@ export class InvoiceComponent implements OnInit {
                 icon: 'pi pi-pencil',
                 label: 'Sửa hoá đơn',
                 command: (e: any) => {
-                    console.log(e)
                     this.isEdit = true
                     this.getInvoiceDetail(e.item.data.id)
                 },
@@ -158,7 +158,7 @@ export class InvoiceComponent implements OnInit {
         this.items.forEach((menuItem: any) => {
             menuItem.data = invoice
         })
-        return this.items;
+        return this.items
     }
 
     toggleMenu(menu: any, event: any) {
@@ -185,23 +185,20 @@ export class InvoiceComponent implements OnInit {
 
     getInvoiceByAccomodation() {
         this.loading = true
-        this.getInvoiceRequest = { accomodationId: this.selectedAccomodation.id, month: this.selectedMonth }
-        return this.billService
-            .getMonthInvoiceByAccomodation(this.getInvoiceRequest )
-            .pipe(
-                finalize(() => {
-                    this.loading = false
-                }),
-            )
-            
+        this.getInvoiceRequest = { id: this.selectedAccomodation.id, month: this.selectedMonth }
+        return this.billService.getMonthInvoiceByAccomodation(this.getInvoiceRequest).pipe(
+            finalize(() => {
+                this.loading = false
+            }),
+        )
     }
 
     getInvoiceByMonth() {
         this.loading = true
-        this.getInvoiceRequest = { accomodationId: this.selectedAccomodation.id, month: this.selectedMonth }
-        this.preMonth = moment(this.selectedMonth).subtract(1,'months').endOf('month').toDate();
+        this.getInvoiceRequest = { id: this.selectedAccomodation.id, month: this.selectedMonth }
+        this.preMonth = moment(this.selectedMonth).subtract(1, 'months').endOf('month').toDate()
         this.billService
-            .getMonthInvoiceByAccomodation(this.getInvoiceRequest )
+            .getMonthInvoiceByAccomodation(this.getInvoiceRequest)
             .pipe(
                 finalize(() => {
                     this.loading = false
@@ -225,7 +222,7 @@ export class InvoiceComponent implements OnInit {
                     this.editInvoice()
                 }),
             )
-            .subscribe((response) => this.invoice = response.data)
+            .subscribe((response) => (this.invoice = response.data))
     }
 
     issueInvoice() {
@@ -236,22 +233,27 @@ export class InvoiceComponent implements OnInit {
             .pipe(
                 finalize(() => {
                     this.hideDialog()
-                    this.getInvoiceByAccomodation().pipe(
-                        finalize(() => {
-                            this.messageService.add({ severity: 'success', summary: 'Thành công', detail: 'Xuất hoá đơn thành công' })
-                        })
-                    ).subscribe((response) => (this.invoices = response.data))
+                    this.getInvoiceByAccomodation()
+                        .pipe(
+                            finalize(() => {
+                                this.messageService.add({ severity: 'success', summary: 'Thành công', detail: 'Xuất hoá đơn thành công' })
+                            }),
+                        )
+                        .subscribe((response) => (this.invoices = response.data))
                 }),
             )
             .subscribe((response) => console.log(response))
     }
 
     sendInvoiceMail(invoiceId: number) {
-        this.billService.sendInvoice(invoiceId).pipe(
-            finalize(() => {
-                this.messageService.add({ severity: 'success', summary: 'Thành công', detail: 'Mail đã gửi thành công' })
-            })
-        ).subscribe(response => console.log(response))
+        this.billService
+            .sendInvoice(invoiceId)
+            .pipe(
+                finalize(() => {
+                    this.messageService.add({ severity: 'success', summary: 'Thành công', detail: 'Mail đã gửi thành công' })
+                }),
+            )
+            .subscribe((response) => console.log(response))
     }
 
     editInvoice() {
@@ -283,7 +285,7 @@ export class InvoiceComponent implements OnInit {
                     this.editInvoice()
                 }),
             )
-            .subscribe((response) => this.invoice = response.data)
+            .subscribe((response) => (this.invoice = response.data))
     }
 
     removeInvoice(invoiceId: number) {
@@ -303,19 +305,23 @@ export class InvoiceComponent implements OnInit {
     }
 
     confirmPayment(invoice: Invoice) {
-        console.log(this.invoice)
         this.loading = true
         this.invoice.isPay = true
-        this.billService.confirmPayment(invoice.id).pipe(
-            finalize(() => {
-                this.hideDialog()
-                this.getInvoiceByAccomodation().pipe(
-                    finalize(() => {
-                        this.messageService.add({ severity: 'success', summary: 'Thành công', detail: 'Xuất hoá đơn thành công' })
-                    })
-                ).subscribe((response) => (this.invoices = response.data))
-            })
-        ).subscribe(response => console.log(response))
+        this.billService
+            .confirmPayment(invoice.id)
+            .pipe(
+                finalize(() => {
+                    this.hideDialog()
+                    this.getInvoiceByAccomodation()
+                        .pipe(
+                            finalize(() => {
+                                this.messageService.add({ severity: 'success', summary: 'Thành công', detail: 'Xuất hoá đơn thành công' })
+                            }),
+                        )
+                        .subscribe((response) => (this.invoices = response.data))
+                }),
+            )
+            .subscribe((response) => console.log(response))
     }
 
     // sendInvoice() {
@@ -334,21 +340,23 @@ export class InvoiceComponent implements OnInit {
     // }
 
     updateInvoice() {
-        console.log(this.invoiceForm)
         if (!this.invoiceForm.invalid) {
             this.loading = true
-            console.log('invoice',this.invoice)
-            this.billService.updateInvoice(this.invoice).pipe(
-                finalize(() => {
-                    this.hideDialog()
-                    this.getInvoiceByAccomodation().pipe(
-                        finalize(() => {
-                            this.messageService.add({ severity: 'success', summary: 'Thành công', detail: 'Xuất hoá đơn thành công' })
-                        })
-                    ).subscribe((response) => (this.invoices = response.data))
-                })
-            ).subscribe(response => console.log(response))
-
+            this.billService
+                .updateInvoice(this.invoice)
+                .pipe(
+                    finalize(() => {
+                        this.hideDialog()
+                        this.getInvoiceByAccomodation()
+                            .pipe(
+                                finalize(() => {
+                                    this.messageService.add({ severity: 'success', summary: 'Thành công', detail: 'Xuất hoá đơn thành công' })
+                                }),
+                            )
+                            .subscribe((response) => (this.invoices = response.data))
+                    }),
+                )
+                .subscribe((response) => console.log(response))
         } else {
             this.invoiceForm.markAllAsTouched()
         }

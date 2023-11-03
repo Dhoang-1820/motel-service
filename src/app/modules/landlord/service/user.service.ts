@@ -20,4 +20,12 @@ export class UserService {
     changePassword(request: any): Observable<any> {
         return this.http.put<any>(`${environment.apiUrl}/user/changePassword`, request).pipe(retry(1), delay(1000))
     }
+
+    saveBank(request: any): Observable<any> {
+        return this.http.post<any>(`${environment.apiUrl}/user/bank`, request).pipe(retry(1), delay(1000))
+    }
+
+    deleteBank(id: any): Observable<any> {
+        return this.http.delete<any>(`${environment.apiUrl}/user/bank/${id}`).pipe(retry(1), delay(1000))
+    }
 }

@@ -33,8 +33,9 @@ import { NgxPermissionsModule } from 'ngx-permissions';
 import { DataViewModule } from 'primeng/dataview';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { GalleriaModule } from 'primeng/galleria';
-
-
+import { FieldsetModule } from 'primeng/fieldset';
+import { GoogleMapsModule } from '@angular/google-maps';
+import { CascadeSelectModule } from 'primeng/cascadeselect';
 
 @NgModule({
   declarations: [
@@ -45,7 +46,7 @@ import { GalleriaModule } from 'primeng/galleria';
     UsersRoutingModule,
     SharedModule,
     GalleriaModule,
-    
+    FieldsetModule,
     ConfirmPopupModule,
     DataViewModule,
     InputTextModule,
@@ -75,6 +76,8 @@ import { GalleriaModule } from 'primeng/galleria';
     CalendarModule,
     DividerModule,
     NgxPermissionsModule,
+    GoogleMapsModule,
+    CascadeSelectModule
   ]
 })
 export class UsersModule { }
