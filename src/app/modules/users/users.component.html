@@ -1,83 +1,128 @@
 <div class="surface-0 flex justify-content-center">
     <p-toast></p-toast>
     <div id="home" class="landing-wrapper overflow-hidden" style="width: 100%;">
-        <div class="py-4 px-4 mx-0 md:mx-6 lg:mx-8 lg:px-8 flex align-items-center justify-content-between relative lg:static mb-3">
-            <a class="flex align-items-center" href="#" style="height: 50px;">
-                <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
-                width="90px" height="90px" viewBox="0 0 500.000000 500.000000"
-                preserveAspectRatio="xMidYMid meet">
-                <metadata>
-                Created by potrace 1.16, written by Peter Selinger 2001-2019
-                </metadata>
-                <g transform="translate(0.000000,500.000000) scale(0.100000,-0.100000)"
-                fill="#000000" stroke="none">
-                <path d="M2665 3539 c-92 -17 -863 -190 -892 -200 -19 -6 -33 -18 -37 -32 -3
-                -12 -5 -296 -5 -632 0 -525 2 -612 14 -632 l15 -23 738 0 c561 0 741 3 750 12
-                9 9 12 145 12 550 0 501 -1 538 -17 547 -15 7 -464 101 -486 101 -4 0 -8 66
-                -9 146 -3 134 -5 148 -23 159 -13 8 -33 9 -60 4z m-15 -237 c0 -110 3 -131 18
-                -145 10 -9 112 -34 255 -63 l237 -47 0 -463 0 -464 -180 0 -180 0 0 245 c0
-                231 -1 245 -19 255 -12 6 -122 10 -287 10 -235 0 -270 -2 -286 -17 -16 -15
-                -18 -36 -18 -255 l0 -238 -180 0 -180 0 0 565 0 565 23 5 c69 17 774 174 785
-                174 9 1 12 -31 12 -127z m50 -977 l0 -205 -205 0 -205 0 0 198 c0 109 3 202 7
-                205 3 4 96 7 205 7 l198 0 0 -205z"/>
-                <path d="M2170 1873 c-53 -27 -75 -74 -74 -158 0 -117 43 -169 139 -169 96 0
-                139 52 139 169 0 110 -39 163 -127 172 -28 3 -53 -2 -77 -14z m100 -53 c58
-                -31 48 -200 -12 -215 -43 -11 -76 10 -88 56 -29 108 27 198 100 159z"/>
-                <path d="M1650 1716 l0 -166 35 0 34 0 3 106 3 107 35 -64 c20 -35 43 -65 52
-                -67 12 -2 27 12 45 44 61 102 62 102 63 -18 l0 -108 30 0 30 0 0 165 0 165
-                -39 0 c-36 0 -40 -3 -69 -57 -56 -105 -53 -105 -97 -21 -39 72 -41 73 -83 76
-                l-42 3 0 -165z"/>
-                <path d="M2470 1850 c0 -29 1 -30 50 -30 l50 0 0 -135 0 -135 35 0 35 0 0 135
-                0 135 50 0 c49 0 50 1 50 30 l0 30 -135 0 -135 0 0 -30z"/>
-                <path d="M2840 1715 l0 -165 105 0 105 0 0 30 0 30 -70 0 -70 0 0 40 0 40 60
-                0 60 0 0 30 0 30 -60 0 -60 0 0 35 0 35 70 0 70 0 0 30 0 30 -105 0 -105 0 0
-                -165z"/>
-                <path d="M3170 1715 l0 -165 105 0 105 0 0 30 0 30 -70 0 -70 0 0 135 0 135
-                -35 0 -35 0 0 -165z"/>
-                </g>
-            </svg>
-            </a>
-            <a pRipple class="cursor-pointer block lg:hidden text-700" pStyleClass="@next" enterClass="hidden" leaveToClass="hidden" >
-                <i class="pi pi-bars text-4xl"></i>
-            </a>
-            <div class="align-items-center surface-0 flex-grow-1 justify-content-between hidden lg:flex absolute lg:static w-full left-0 px-6 lg:px-0 z-2" style="top:120px">
-                <ul class="list-none p-0 m-0 flex lg:align-items-center select-none flex-column lg:flex-row cursor-pointer">
-                    <li>
-                        <a (click)="router.navigate(['/landing'], {fragment: 'home'})" pRipple class="flex m-0 md:ml-5 px-0 py-3 text-900 font-medium line-height-3">
-                           <span>Trang chủ</span>
-                        </a>
-                    </li>
-                </ul>
-                <div class="flex justify-content-between lg:block border-top-1 lg:border-top-none surface-border py-3 lg:py-0 mt-3 lg:mt-0">
-                    <!-- <button pButton pRipple label="Login" class="p-button-text p-button-rounded border-none font-light line-height-2 text-blue-500"></button> -->
-                    <!-- <button pButton pRipple label="Register" class="p-button-rounded border-none ml-5 font-light line-height-2 bg-blue-500 text-white"></button> -->
+        <div #header class="w-full" style="filter: drop-shadow(0 1px 4px rgba(70,75,80,.2));
+            background: #fff;
+            z-index: 100;"
+        >
+            <div
+                class="pt-4 px-4 mx-0 md:mx-6 lg:mx-8 lg:px-8 flex align-items-center justify-content-between relative lg:static">
+                <a class="flex align-items-center" href="#" style="height: 50px;">
+                    <svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="90px" height="90px"
+                        viewBox="0 0 500.000000 500.000000" preserveAspectRatio="xMidYMid meet">
+                        <g transform="translate(0.000000,500.000000) scale(0.100000,-0.100000)" fill="#000000"
+                            stroke="none">
+                            <path d="M2665 3539 c-92 -17 -863 -190 -892 -200 -19 -6 -33 -18 -37 -32 -3
+                    -12 -5 -296 -5 -632 0 -525 2 -612 14 -632 l15 -23 738 0 c561 0 741 3 750 12
+                    9 9 12 145 12 550 0 501 -1 538 -17 547 -15 7 -464 101 -486 101 -4 0 -8 66
+                    -9 146 -3 134 -5 148 -23 159 -13 8 -33 9 -60 4z m-15 -237 c0 -110 3 -131 18
+                    -145 10 -9 112 -34 255 -63 l237 -47 0 -463 0 -464 -180 0 -180 0 0 245 c0
+                    231 -1 245 -19 255 -12 6 -122 10 -287 10 -235 0 -270 -2 -286 -17 -16 -15
+                    -18 -36 -18 -255 l0 -238 -180 0 -180 0 0 565 0 565 23 5 c69 17 774 174 785
+                    174 9 1 12 -31 12 -127z m50 -977 l0 -205 -205 0 -205 0 0 198 c0 109 3 202 7
+                    205 3 4 96 7 205 7 l198 0 0 -205z" />
+                            <path d="M2170 1873 c-53 -27 -75 -74 -74 -158 0 -117 43 -169 139 -169 96 0
+                    139 52 139 169 0 110 -39 163 -127 172 -28 3 -53 -2 -77 -14z m100 -53 c58
+                    -31 48 -200 -12 -215 -43 -11 -76 10 -88 56 -29 108 27 198 100 159z" />
+                            <path d="M1650 1716 l0 -166 35 0 34 0 3 106 3 107 35 -64 c20 -35 43 -65 52
+                    -67 12 -2 27 12 45 44 61 102 62 102 63 -18 l0 -108 30 0 30 0 0 165 0 165
+                    -39 0 c-36 0 -40 -3 -69 -57 -56 -105 -53 -105 -97 -21 -39 72 -41 73 -83 76
+                    l-42 3 0 -165z" />
+                            <path d="M2470 1850 c0 -29 1 -30 50 -30 l50 0 0 -135 0 -135 35 0 35 0 0 135
+                    0 135 50 0 c49 0 50 1 50 30 l0 30 -135 0 -135 0 0 -30z" />
+                            <path d="M2840 1715 l0 -165 105 0 105 0 0 30 0 30 -70 0 -70 0 0 40 0 40 60
+                    0 60 0 0 30 0 30 -60 0 -60 0 0 35 0 35 70 0 70 0 0 30 0 30 -105 0 -105 0 0
+                    -165z" />
+                            <path d="M3170 1715 l0 -165 105 0 105 0 0 30 0 30 -70 0 -70 0 0 135 0 135
+                    -35 0 -35 0 0 -165z" />
+                        </g>
+                    </svg>
+                </a>
+                <a pRipple class="cursor-pointer block lg:hidden text-700" pStyleClass="@next" enterClass="hidden"
+                    leaveToClass="hidden">
+                    <i class="pi pi-bars text-4xl"></i>
+                </a>
+                <div class="align-items-center surface-0 flex-grow-1 justify-content-between hidden lg:flex absolute lg:static w-full left-0 px-6 lg:px-0 z-2"
+                    style="top:120px">
+                    <ul
+                        class="list-none p-0 m-0 flex lg:align-items-center select-none flex-column lg:flex-row cursor-pointer">
+                        <li>
+                            <a (click)="router.navigate(['/landing'], {fragment: 'home'})" pRipple
+                                class="flex m-0 md:ml-5 px-0 py-3 text-900 font-medium line-height-3">
+                                <span>Trang chủ</span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div
+                        class="flex justify-content-between lg:block border-top-1 lg:border-top-none surface-border py-3 lg:py-0 mt-3 lg:mt-0">
+                        <!-- <button pButton pRipple label="Login" class="p-button-text p-button-rounded border-none font-light line-height-2 text-blue-500"></button> -->
+                        <!-- <button pButton pRipple label="Register" class="p-button-rounded border-none ml-5 font-light line-height-2 bg-blue-500 text-white"></button> -->
+                    </div>
                 </div>
             </div>
-        </div>   
-        
-        <div id="features" class="py-4 px-4 lg:px-8 mt-5 mx-0 lg:mx-8">
+        </div>
+
+        <div id="features" class="py-4 px-4 lg:px-8 mx-0 lg:mx-8">
             <div class="grid">
-                <div class="col-12">
+                <!-- <div class="text-center w-full font-semibold text-2xl">Cho thuê phòng trọ giá rẻ, mới nhất T11/2023</div> -->
+                <div class="col-10">
                     <div class="card">
-                        <p-dataView #dv [value]="posts" [paginator]="true" filterBy="address, price" [rows]="9"  [sortField]="sortField" [sortOrder]="sortOrder" layout="grid">
+                        <div class="mb-4">
+                            <p-breadcrumb class="max-w-full" [model]="items" [home]="home"></p-breadcrumb>
+                        </div>
+                        <p-dataView #dv [value]="posts" [paginator]="true" filterBy="address, price" [rows]="9"
+                            [sortField]="sortField" [sortOrder]="sortOrder" layout="grid">
                             <ng-template pTemplate="header">
                                 <div class="flex flex-column md:flex-row md:justify-content-between gap-2">
                                     <div>
-                                        <p-dropdown [options]="sortOptions" placeholder="Sắp xếp" (onChange)="onSortChange($event)"></p-dropdown>
+                                        <p-dropdown [options]="sortOptions" placeholder="Sắp xếp"
+                                            (onChange)="onSortChange($event)"></p-dropdown>
                                     </div>
-                                    <span class="p-input-icon-left">
-                                        <i class="pi pi-search"></i>
-                                        <input type="search" pInputText placeholder="Tìm kiếm theo địa chỉ..."(input)="onFilter(dv, $event)" >
-                                    </span>	
+                                    <div class="flex justify-content-center">
+                                        <form [formGroup]="searchForm">
+                                            <p-cascadeSelect formControlName="address" [options]="provinces"
+                                                optionLabel="name" optionGroupLabel="name"
+                                                [optionGroupChildren]="['districts', 'wards']"
+                                                [style]="{ minWidth: '14rem' }"
+                                                placeholder="Toàn quốc"></p-cascadeSelect>
+                                        </form>
+                                    </div>
+                                    <div class="flex justify-content-center">
+                                        <div class="p-inputgroup">
+                                            <span class="p-inputgroup-addon">
+                                                <i class="pi pi-dollar"></i>
+                                            </span>
+                                            <input (focus)="searchPriceDialog = true" pInputText placeholder="Chọn giá"
+                                                [value]="rangePrice.length > 0 ? rangePrice[0] + '-' + rangePrice[1] + ' triệu' : ''" />
+                                            <button [disabled]="rangePrice.length === 0" (click)="clearPrice()"
+                                                pTooltip="Xoá" type="button" pButton icon="pi pi-eraser"
+                                                styleClass="p-button-warn"></button>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-content-center">
+                                        <div class="p-inputgroup">
+                                            <span class="p-inputgroup-addon">
+                                                <i class="pi pi-stop"></i>
+                                            </span>
+                                            <input (focus)="searhAreageDialog = true" pInputText
+                                                placeholder="Chọn diện tích"
+                                                [value]="rangeAreage.length > 0 ? rangeAreage[0] + '-' + rangeAreage[1] + ' m²' : ''" />
+                                            <button [disabled]="rangeAreage.length === 0" (click)="clearAreage()"
+                                                pTooltip="Xoá" type="button" pButton icon="pi pi-eraser"
+                                                styleClass="p-button-warn"></button>
+                                        </div>
+                                    </div>
                                 </div>
                             </ng-template>
                             <ng-template let-data pTemplate="gridItem">
-                                <div class="col-12 md:col-4" >
+                                <div class="col-12 md:col-4">
                                     <div class="card m-3 border-1 surface-border">
                                         <div class="flex flex-column align-items-center text-center mb-3">
-                                            <p-galleria [value]="data.images" [showIndicators]="true" [showThumbnails]="false" [containerStyle]="{ 'max-width': '640px' }">
+                                            <p-galleria [value]="data.images" [showIndicators]="true"
+                                                [showThumbnails]="false" [containerStyle]="{ 'max-width': '640px' }">
                                                 <ng-template pTemplate="item" let-item>
-                                                    <img [src]="item.imgUrl" style="width: 100%; display: block; max-height: 200px; overflow: hidden; object-fit: contain;" />
+                                                    <img [src]="item.imgUrl"
+                                                        style="width: 100%; display: block; max-height: 200px; overflow: hidden; object-fit: contain;" />
                                                 </ng-template>
                                             </p-galleria>
                                             <div class="text-2xl mb-3">
@@ -87,35 +132,74 @@
                                             <div class="mb-3 text-left">{{data.address}}</div>
                                             <div class="mb-3 text-left">Diện tích: {{data.acreage}} m²</div>
                                         </div>
-                                        
+
+                                        <div class="flex align-items-center justify-content-between mb-4">
+                                            <span class="text-2xl font-semibold">{{data.price | currency:
+                                                'VND':'symbol'}}/tháng
+                                            </span>
+                                        </div>
                                         <div class="flex align-items-center justify-content-between">
-                                            <span class="text-2xl font-semibold">{{data.price | currency: 'VND':'symbol'}}/tháng</span>
-                                            <button pButton pRipple icon="pi pi-external-link" class="p-button-text" (click)="onShowDialog(data)" label="Xem chi tiết" ></button>
+                                            <button pButton pRipple icon="pi pi-external-link" class="p-button-text"
+                                                (click)="onShowDialog(data)" label="Xem chi tiết">
+                                            </button>
                                             <button pButton pRipple (click)="openBooking(data)">Đặt phòng</button>
                                         </div>
-                                        
                                     </div>
-                                    
                                 </div>
                             </ng-template>
                         </p-dataView>
                     </div>
                 </div>
+                <div class="col-2">
+                    <div class="mb-6">
+                        <p-card header="Xem theo giá">
+                            <div *ngIf="rangePrice.length > 0" class="flex justify-content-center font-semibold mb-4">
+                                <span>Đang xem {{rangePrice[0]}} - {{rangePrice[1]}} triệu</span>
+                            </div>
+                            <div class="flex flex-wrap">
+                                <div (click)="quickSelectPrice(range, true)" style="cursor: pointer;" class="mr-3 mb-4"
+                                    *ngFor="let range of quickRangePrice">
+                                    <p-chip styleClass="chip">
+                                        <div class="p-2">{{range.name}}</div>
+                                    </p-chip>
+                                </div>
+                            </div>
+                        </p-card>
+                    </div>
+                    <p-card header="Xem theo diện tích">
+                        <div *ngIf="rangeAreage.length > 0" class="flex justify-content-center font-semibold mb-4">
+                            <span>Đang xem {{rangeAreage[0]}} - {{rangeAreage[1]}} m²</span>
+                        </div>
+                        <div class="flex flex-wrap">
+                            <div (click)="quickSelectAreage(range, true)" style="cursor: pointer;" class="mr-3 mb-4"
+                                *ngFor="let range of quickRangeAreage">
+                                <p-chip>
+                                    <div class="p-2">{{range.name}}</div>
+                                </p-chip>
+                            </div>
+                        </div>
+                    </p-card>
+                </div>
             </div>
         </div>
-        <p-dialog [(visible)]="detailDialog" [style]="{width: '850px'}" header="Chi tiết phòng trọ" [modal]="true" class="p-fluid">
+        <p-dialog [(visible)]="detailDialog" [style]="{width: '850px'}" header="Chi tiết phòng trọ" [modal]="true"
+            class="p-fluid">
             <ng-template pTemplate="content">
                 <div class="flex justify-content-center">
-                    <p-galleria [value]="roomSelected.images" [showIndicators]="true" [showThumbnails]="false" [containerStyle]="{ 'max-width': '640px' }">
+                    <p-galleria [value]="roomSelected.images" [showIndicators]="true" [showThumbnails]="false"
+                        [containerStyle]="{ 'max-width': '640px' }">
                         <ng-template pTemplate="item" let-item>
-                            <img [src]="item.imgUrl" style="width: 100%; display: block; max-height: 300px; overflow: hidden; object-fit: contain;" />
+                            <img [src]="item.imgUrl"
+                                style="width: 100%; display: block; max-height: 300px; overflow: hidden; object-fit: contain;" />
                         </ng-template>
                     </p-galleria>
                 </div>
                 <h3 class="text-900 text-center my-5">{{roomSelected.title}}</h3>
                 <div class="my-5">
-                    <span class="text-3xl font-bold mr-2 text-900">{{roomSelected.price | currency: 'VND':'symbol'}}</span>
-                    <button pButton pRipple label="Đặt phòng" (click)="openBooking(roomSelected)" class="block mx-auto mt-4 p-button-rounded border-none ml-3 font-light line-height-2 bg-blue-500 text-white"></button>
+                    <span class="text-3xl font-bold mr-2 text-900">{{roomSelected.price | currency:
+                        'VND':'symbol'}}</span>
+                    <button pButton pRipple label="Đặt phòng" (click)="openBooking(roomSelected)"
+                        class="block mx-auto mt-4 p-button-rounded border-none ml-3 font-light line-height-2 bg-blue-500 text-white"></button>
                 </div>
                 <p-divider class="w-full bg-surface-200"></p-divider>
                 <div class="text-xl mb-3">Địa chỉ: <span class="font-bold">{{roomSelected.address}}</span></div>
@@ -150,44 +234,119 @@
             </ng-template>
         </p-dialog>
 
-        <p-dialog [(visible)]="bookingDialog" [style]="{width: '450px'}" header="Thông tin" [modal]="true" class="p-fluid">
+        <p-dialog [(visible)]="bookingDialog" [style]="{width: '450px'}" header="Thông tin" [modal]="true"
+            class="p-fluid">
             <ng-template pTemplate="content">
                 <form [formGroup]="bookingForm">
                     <div class="field">
                         <label for="fullname">Họ và tên</label>
-                        <input formControlName="fullname" pInputText id="fullname" [ngClass]="{'ng-invalid ng-dirty' : bookingForm.controls['fullname'].invalid && (bookingForm.controls['fullname'].dirty || bookingForm.controls['fullname'].touched)}"/>
-                        <small class="ng-dirty ng-invalid" *ngIf="bookingForm.get('fullname')?.getError('invalid') && (bookingForm.controls['fullname'].dirty || bookingForm.controls['fullname'].touched)">Vui lòng nhập họ.</small>
+                        <input formControlName="fullname" pInputText id="fullname"
+                            [ngClass]="{'ng-invalid ng-dirty' : bookingForm.controls['fullname'].invalid && (bookingForm.controls['fullname'].dirty || bookingForm.controls['fullname'].touched)}" />
+                        <small class="ng-dirty ng-invalid"
+                            *ngIf="bookingForm.get('fullname')?.getError('invalid') && (bookingForm.controls['fullname'].dirty || bookingForm.controls['fullname'].touched)">Vui
+                            lòng nhập họ.</small>
                     </div>
                     <div class="field">
                         <label for="email">Email</label>
-                        <input formControlName="email" pInputText id="email" [ngClass]="{'ng-invalid ng-dirty' : bookingForm.controls['email'].invalid && (bookingForm.controls['email'].dirty || bookingForm.controls['email'].touched)}"/>
-                        <small class="ng-dirty ng-invalid" *ngIf="bookingForm.get('email')?.getError('invalid') && (bookingForm.controls['email'].dirty || bookingForm.controls['email'].touched)">Vui lòng nhập mật tên.</small>
+                        <input formControlName="email" pInputText id="email"
+                            [ngClass]="{'ng-invalid ng-dirty' : bookingForm.controls['email'].invalid && (bookingForm.controls['email'].dirty || bookingForm.controls['email'].touched)}" />
+                        <small class="ng-dirty ng-invalid"
+                            *ngIf="bookingForm.get('email')?.getError('invalid') && (bookingForm.controls['email'].dirty || bookingForm.controls['email'].touched)">Vui
+                            lòng nhập mật tên.</small>
                     </div>
                     <div class="field">
                         <label for="phone">Số điện thoại</label>
-                        <input formControlName="phone" pInputText id="phone" [ngClass]="{'ng-invalid ng-dirty' : bookingForm.controls['phone'].invalid && (bookingForm.controls['phone'].dirty || bookingForm.controls['phone'].touched)}"/>
-                        <small class="ng-dirty ng-invalid" *ngIf="bookingForm.get('phone')?.getError('invalid') && (bookingForm.controls['phone'].dirty || bookingForm.controls['phone'].touched)">Vui lòng nhập mật tên.</small>
+                        <input formControlName="phone" pInputText id="phone"
+                            [ngClass]="{'ng-invalid ng-dirty' : bookingForm.controls['phone'].invalid && (bookingForm.controls['phone'].dirty || bookingForm.controls['phone'].touched)}" />
+                        <small class="ng-dirty ng-invalid"
+                            *ngIf="bookingForm.get('phone')?.getError('invalid') && (bookingForm.controls['phone'].dirty || bookingForm.controls['phone'].touched)">Vui
+                            lòng nhập mật tên.</small>
                     </div>
                     <div lass="field">
                         <div class="field col flex align-items-center">
                             <label for="description" class="mr-3">Chọn ngày xem phòng</label>
-                            <p-inputSwitch [(ngModel)]="isAddReviewDate" [ngModelOptions]="{standalone: true}"></p-inputSwitch>
-                        </div> 
+                            <p-inputSwitch [(ngModel)]="isAddReviewDate"
+                                [ngModelOptions]="{standalone: true}"></p-inputSwitch>
+                        </div>
                     </div>
                     <div class="field" *ngIf="isAddReviewDate">
-                        <p-calendar appendTo="body" position="bottom" id="reviewDate" [minDate]="minDate"  formControlName="reviewDate" dateFormat="dd/mm/yy" [readonlyInput]="true"></p-calendar>
+                        <p-calendar appendTo="body" position="bottom" id="reviewDate" [minDate]="minDate"
+                            formControlName="reviewDate" dateFormat="dd/mm/yy" [readonlyInput]="true"></p-calendar>
                     </div>
                 </form>
             </ng-template>
 
             <ng-template pTemplate="footer">
-                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideBookingDialog()"></button>
-                <button pButton pRipple label="Save" [disabled]="bookingForm.invalid" [loading]="submitLoading" loadingIcon="pi pi-spin pi-spinner" icon="pi pi-check" class="p-button-text" (click)="saveBooking()"></button>
+                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text"
+                    (click)="hideBookingDialog()"></button>
+                <button pButton pRipple label="Save" [disabled]="bookingForm.invalid" [loading]="submitLoading"
+                    loadingIcon="pi pi-spin pi-spinner" icon="pi pi-check" class="p-button-text"
+                    (click)="saveBooking()"></button>
             </ng-template>
         </p-dialog>
-    
+
+        <p-dialog (onShow)="rangePrice = [3,5]" [(visible)]="searchPriceDialog" [style]="{width: '450px'}"
+            header="Chọn giá" [modal]="true" class="p-fluid">
+            <ng-template pTemplate="content">
+                <div class="field mt-6 mb-6 ml-2 mr-2">
+                    <div class="flex justify-content-center mb-4">
+                        <div class="font-bold">
+                            {{rangePrice[0]}} - {{rangePrice[1]}} triệu
+                        </div>
+                    </div>
+                    <p-slider [step]=".5" [min]="0" [max]="10" [animate]="true" [(ngModel)]="rangePrice"
+                        [range]="true"></p-slider>
+                </div>
+                <div class="field">
+                    <p-card header="Chọn nhanh">
+                        <div class="flex flex-wrap">
+                            <div (click)="quickSelectPrice(range, false)" style="cursor: pointer;" class="mr-3 mb-4"
+                                *ngFor="let range of quickRangePrice">
+                                <p-chip>
+                                    <div class="p-2">{{range.name}}</div>
+                                </p-chip>
+                            </div>
+                        </div>
+                    </p-card>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Áp dụng" class="p-button-text" (click)="searchPost()"></button>
+            </ng-template>
+        </p-dialog>
+
+        <p-dialog (onShow)="rangeAreage = [20, 30]" [(visible)]="searhAreageDialog" [style]="{width: '450px'}"
+            header="Chọn diện tích" [modal]="true" class="p-fluid">
+            <ng-template pTemplate="content">
+                <div class="field mt-6 mb-6">
+                    <div class="flex justify-content-center mb-4">
+                        <div class="font-bold">
+                            {{rangeAreage[0]}} - {{rangeAreage[1]}} m²
+                        </div>
+                    </div>
+                    <p-slider [step]="5" [min]="0" [max]="60" [animate]="true" [(ngModel)]="rangeAreage"
+                        [range]="true"></p-slider>
+                </div>
+                <div class="field">
+                    <p-card header="Chọn nhanh">
+                        <div class="flex flex-wrap">
+                            <div (click)="quickSelectAreage(range, false)" style="cursor: pointer;" class="mr-3 mb-4"
+                                *ngFor="let range of quickRangeAreage">
+                                <p-chip>
+                                    <div class="p-2">{{range.name}}</div>
+                                </p-chip>
+                            </div>
+                        </div>
+                    </p-card>
+                </div>
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Áp dụng" class="p-button-text" (click)="searchPost()"></button>
+            </ng-template>
+        </p-dialog>
+
         <div class="py-4 px-4 mx-0 mt-8 lg:mx-8">
-            <div class="grid justify-content-between">    
+            <div class="grid w-full justify-content-center flex">
                 <div class="col-12 md:col-10 lg:col-7">
                     <div class="grid text-center md:text-left">
                         <div class="col-12 md:col-3">
@@ -198,22 +357,23 @@
                             <a class="line-height-3 text-xl block cursor-pointer mb-2 text-700">Careers</a>
                             <a class="line-height-3 text-xl block cursor-pointer text-700">Media Kit</a>
                         </div>
-                        
+
                         <div class="col-12 md:col-3 mt-4 md:mt-0">
                             <h4 class="font-medium text-2xl line-height-3 mb-3 text-900">Resources</h4>
                             <a class="line-height-3 text-xl block cursor-pointer mb-2 text-700">Get Started</a>
                             <a class="line-height-3 text-xl block cursor-pointer mb-2 text-700">Learn</a>
                             <a class="line-height-3 text-xl block cursor-pointer text-700">Case Studies</a>
                         </div>
-        
+
                         <div class="col-12 md:col-3 mt-4 md:mt-0">
                             <h4 class="font-medium text-2xl line-height-3 mb-3 text-900">Community</h4>
                             <a class="line-height-3 text-xl block cursor-pointer mb-2 text-700">Discord</a>
-                            <a class="line-height-3 text-xl block cursor-pointer mb-2 text-700">Events<img src="../../../assets/images/landing/new-badge.svg" class="ml-2"/></a>
+                            <a class="line-height-3 text-xl block cursor-pointer mb-2 text-700">Events<img
+                                    src="../../../assets/images/landing/new-badge.svg" class="ml-2" /></a>
                             <a class="line-height-3 text-xl block cursor-pointer mb-2 text-700">FAQ</a>
                             <a class="line-height-3 text-xl block cursor-pointer text-700">Blog</a>
                         </div>
-        
+
                         <div class="col-12 md:col-3 mt-4 md:mt-0">
                             <h4 class="font-medium text-2xl line-height-3 mb-3 text-900">Legal</h4>
                             <a class="line-height-3 text-xl block cursor-pointer mb-2 text-700">Brand Policy</a>

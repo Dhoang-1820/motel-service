@@ -80,6 +80,17 @@ export class SidebarComponent implements OnInit {
                     },
                 ],
             },
+            {
+                label: 'Đặt phòng',
+                icon: 'pi pi-fw pi-briefcase',
+                items: [
+                    {
+                        label: 'Thông báo đặt phòng',
+                        icon: 'pi pi-envelope',
+                        routerLink: ['/motel-management/booking'],
+                    },
+                ],
+            },
         ]
     }
 }

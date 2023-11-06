@@ -14,4 +14,8 @@ export class BookingService {
     saveBooking(request: any): Observable<any> {
         return this.http.post<any>(`${environment.apiUrl}/booking`, request).pipe(retry(1), delay(1000))
     }
+
+    getBookingByUserId(userId: any): Observable<any> {
+        return this.http.get<any>(`${environment.apiUrl}/booking/${userId}`).pipe(retry(1), delay(1000))
+    }
 }
