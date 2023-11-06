@@ -10,4 +10,5 @@ export class Tenant {
     phone?: any;
     email?: string;
     gender?: string;
+    accomodationId?: number;
 }

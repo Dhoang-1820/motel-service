@@ -36,6 +36,10 @@ import { GalleriaModule } from 'primeng/galleria';
 import { FieldsetModule } from 'primeng/fieldset';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { CascadeSelectModule } from 'primeng/cascadeselect';
+import { SliderModule } from 'primeng/slider';
+import { ChipModule } from 'primeng/chip';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
 
 @NgModule({
   declarations: [
@@ -45,6 +49,10 @@ import { CascadeSelectModule } from 'primeng/cascadeselect';
     CommonModule,
     UsersRoutingModule,
     SharedModule,
+    SliderModule,
+    SelectButtonModule,
+    BreadcrumbModule,
+    ChipModule,
     GalleriaModule,
     FieldsetModule,
     ConfirmPopupModule,

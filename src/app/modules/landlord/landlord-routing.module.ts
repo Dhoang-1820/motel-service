@@ -16,6 +16,7 @@ import { ContractComponent } from './component/contract/contract.component'
 import { ElectricityWaterComponent } from './component/electricity-water/electricity-water.component'
 import { ReturnRoomComponent } from './component/return-room/return-room.component'
 import { PostComponent } from './component/post/post.component'
+import { BookingComponent } from './component/booking/booking.component'
 
 const routes: Routes = [
     {
@@ -37,7 +38,8 @@ const routes: Routes = [
             { path: 'room-image', component: RoomImagesComponent},
             { path: 'contract', component: ContractComponent},
             { path: 'post', component: PostComponent},
-            { path: 'checkout', component: ReturnRoomComponent}
+            { path: 'checkout', component: ReturnRoomComponent},
+            { path: 'booking', component: BookingComponent},
         ],
     },
 ]

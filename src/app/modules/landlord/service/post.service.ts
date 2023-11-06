@@ -35,7 +35,27 @@ export class PostService {
         return this.http.get<any>(`${environment.apiUrl}/post/image/${postId}`)
     }
 
-    removeImage(imgId: number) : Observable<any> {
+    removeImage(imgId: number): Observable<any> {
         return this.http.delete<any>(`${environment.apiUrl}/post/image/${imgId}`)
+    }
+
+    getAllPostAddress(): Observable<any> {
+        return this.http.get<any>(`${environment.apiUrl}/post/address/all`)
+    }
+
+    getPostByAddress(request: any): Observable<any> {
+        return this.http.post<any>(`${environment.apiUrl}/post/address`, request)
+    }
+
+    getPostByPrice(request: any): Observable<any> {
+        return this.http.post<any>(`${environment.apiUrl}/post/price`, request)
+    }
+
+    getPostByAreage(request: any): Observable<any> {
+        return this.http.post<any>(`${environment.apiUrl}/post/areage`, request)
+    }
+
+    searchPost(request: any): Observable<any> {
+        return this.http.post<any>(`${environment.apiUrl}/post/search`, request)
     }
 }

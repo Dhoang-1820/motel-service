@@ -179,7 +179,7 @@ export class PostComponent implements OnInit {
 
     initData() {
         forkJoin({
-            rooms: this.getRoomByAccomodation(),
+            rooms: this.getRoomNoPostAndDeposit(),
             posts: this.getPostByAccomodation(),
             services: this.getAccomdationService(),
         })
@@ -200,8 +200,8 @@ export class PostComponent implements OnInit {
         return this.accomodationService.getAccomodationService(this.selectedAccomodation.id)
     }
 
-    getRoomByAccomodation() {
-        return this.roomService.getRoomNoPost(this.selectedAccomodation.id)
+    getRoomNoPostAndDeposit() {
+        return this.roomService.getRoomNoPostAndDeposit(this.selectedAccomodation.id)
     }
 
     getPostByAccomodation() {
@@ -209,7 +209,7 @@ export class PostComponent implements OnInit {
     }
 
     onSelectAccomodation() {
-        this.getPostByAccomodation().subscribe((response) => (this.posts = response.data))
+        this.initData()
     }
 
     hideDialog() {
