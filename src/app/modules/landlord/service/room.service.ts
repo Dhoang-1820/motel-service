@@ -65,6 +65,13 @@ export class RoomService {
         )
     }
 
+    getRoomNoPostAndDeposit(accomodationId: any): Observable<any> {
+        return this.http.get<any>(`${environment.apiUrl}/room/utility/no-post/no-deposit/${accomodationId}`).pipe(
+            retry(1),
+            delay(1000),
+        )
+    }
+
     getRoomRented(accomodationId: any): Observable<any> {
         return this.http.get<any>(`${environment.apiUrl}/room/utility/rented/${accomodationId}`).pipe(
             retry(1),

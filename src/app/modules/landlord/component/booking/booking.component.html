@@ -1,0 +1,310 @@
+
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toast></p-toast>
+            <p-table
+                #dt
+                [value]="bookedList"
+                responsiveLayout="scroll"
+                [rows]="10"
+                [globalFilterFields]="['name', 'capacity', 'price', 'acreage']"
+                [paginator]="true"
+                [rowsPerPageOptions]="[10, 20, 30]"
+                [rowHover]="true"
+                dataKey="id"
+            >
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <h5 class="m-0">Thông báo đặt phòng</h5>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Tìm kiếm..." class="w-full sm:w-auto" />
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pSortableColumn="accomodation">Khu trọ<p-sortIcon field="accomodation"></p-sortIcon></th>
+                        <th pSortableColumn="name">Tên phòng<p-sortIcon field="name"></p-sortIcon></th>
+                        <th pSortableColumn="month">Người đặt<p-sortIcon field="month"></p-sortIcon></th>
+                        <th pSortableColumn="representative">Email<p-sortIcon field="representative"></p-sortIcon></th>
+                        <th pSortableColumn="isPay">Số điện thoại<p-sortIcon field="isPay"></p-sortIcon></th>
+                        <th pSortableColumn="isPay">Ngày xem phòng<p-sortIcon field="isPay"></p-sortIcon></th>
+                        <th pSortableColumn="isPay">Ngày đặt<p-sortIcon field="isPay"></p-sortIcon></th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-data>
+                    <tr>
+                        <td>{{ data.accomodation }}</td>
+                        <td>{{ data.room }}</td>
+                        <td>{{ data.name }}</td>
+                        <td>{{ data.email }}</td>
+                        <td>{{ data.phone }}</td>
+                        <td>{{ data.reviewDate | date : 'dd/MM/yyyy' }}</td>
+                        <td>{{ data.createdDate | date : 'dd/MM/yyyy, HH:mm' }}</td>
+
+                        <td>
+                            <ng-container *ngIf="data.id">
+                                <div class="flex align-items-center" style="position: relative">
+                                    <p-menu appendTo="body" (onShow)="onShowMenu(data)" #menu [model]="items" [popup]="true"></p-menu>
+                                    <button
+                                        pButton
+                                        type="button"
+                                        pTooltip="Tác vụ"
+                                        tooltipPosition="top"
+                                        class="p-button-rounded"
+                                        (click)="toggleMenu(menu, $event)"
+                                        icon="pi pi-bars"
+                                    ></button>
+                                </div>
+                            </ng-container>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <p-dialog [(visible)]="tenantDialog" [style]="{width: '450px'}" header="Chi tiết khách thuê trọ" [modal]="true" class="p-fluid">
+            <ng-template pTemplate="content">
+                <form [formGroup]="tenantForm">
+                    <div class="formgrid grid">
+                        <div class="field">
+                            <label for="firstName">Họ</label>
+                            <input formControlName="firstName" type="text" pInputText id="firstName" [ngClass]="{'ng-invalid ng-dirty' : tenantForm.controls['firstName'].invalid && (tenantForm.controls['firstName'].dirty || tenantForm.controls['firstName'].touched)}"/>
+                            <small class="ng-dirty ng-invalid" *ngIf="this.tenantForm.get('firstName')?.getError('invalid') && (tenantForm.controls['firstName'].dirty || tenantForm.controls['firstName'].touched)">Vui lòng nhập họ.</small>
+                        </div>
+                        <div class="field">
+                            <label for="lastName">Tên</label>
+                            <input formControlName="lastName" pInputText type="text" id="lastName" [ngClass]="{'ng-invalid ng-dirty' : tenantForm.controls['lastName'].invalid && (tenantForm.controls['lastName'].dirty || tenantForm.controls['lastName'].touched)}"/>
+                            <small class="ng-dirty ng-invalid" *ngIf="this.tenantForm.get('lastName')?.getError('invalid') && (tenantForm.controls['lastName'].dirty || tenantForm.controls['lastName'].touched)">Vui lòng nhập mật tên.</small>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="identifyNum">Số định danh</label>
+                        <input formControlName="identifyNum" type="text" pInputText id="identifyNum" [ngClass]="{'ng-invalid ng-dirty' : tenantForm.controls['identifyNum'].invalid && (tenantForm.controls['identifyNum'].dirty || tenantForm.controls['identifyNum'].touched)}"/>
+                        <small class="ng-dirty ng-invalid" *ngIf="this.tenantForm.get('identifyNum')?.getError('invalid') && (tenantForm.controls['identifyNum'].dirty || tenantForm.controls['identifyNum'].touched)">Vui lòng nhập mật tên.</small>
+                    </div>
+                    <div class="field">
+                        <label for="gender">Giới tính</label>
+                        <p-dropdown id="gender" formControlName="gender" optionLabel="value" [options]="gender" placeholder="Chọn giới tính" [ngClass]="{'ng-invalid ng-dirty' : tenantForm.controls['gender'].invalid && (tenantForm.controls['gender'].dirty || tenantForm.controls['gender'].touched)}"> </p-dropdown>
+                        <small class="ng-dirty ng-invalid" *ngIf="this.tenantForm.get('gender')?.getError('invalid') && (tenantForm.controls['gender'].dirty || tenantForm.controls['gender'].touched)">Vui lòng nhập mật tên.</small>
+                    </div>
+                    <div class="field">
+                        <label for="email">Email</label>
+                        <input formControlName="email" type="text" pInputText id="email" [ngClass]="{'ng-invalid ng-dirty' : tenantForm.controls['email'].invalid && (tenantForm.controls['email'].dirty || tenantForm.controls['email'].touched)}"/>
+                        <small class="ng-dirty ng-invalid" *ngIf="this.tenantForm.get('email')?.getError('invalid') && (tenantForm.controls['email'].dirty || tenantForm.controls['email'].touched)">Vui lòng nhập mật tên.</small>
+                    </div>
+                    <div class="field">
+                        <label for="phone">Số điện thoại</label>
+                        <input formControlName="phone" type="text" pInputText id="phone" [ngClass]="{'ng-invalid ng-dirty' : tenantForm.controls['phone'].invalid && (tenantForm.controls['phone'].dirty || tenantForm.controls['phone'].touched)}"/>
+                        <small class="ng-dirty ng-invalid" *ngIf="this.tenantForm.get('phone')?.getError('invalid') && (tenantForm.controls['phone'].dirty || tenantForm.controls['phone'].touched)">Vui lòng nhập mật tên.</small>
+                    </div>
+                    <div class="field">
+                        <label for="name">Ngày bắt đầu ở</label>
+                        <p-calendar formControlName="startDate" dateFormat="dd/mm/yy" [touchUI]="true" [ngClass]="{'ng-invalid ng-dirty' : tenantForm.controls['startDate'].invalid && (tenantForm.controls['startDate'].dirty || tenantForm.controls['startDate'].touched)}"></p-calendar>
+                        <small class="ng-dirty ng-invalid" *ngIf="this.tenantForm.get('startDate')?.getError('invalid') && (tenantForm.controls['startDate'].dirty || tenantForm.controls['startDate'].touched)">Vui lòng nhập mật tên.</small>
+                    </div>
+                </form>
+            </ng-template>
+
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="tenantDialog = false"></button>
+                <button pButton pRipple label="Save" icon="pi pi-check"  class="p-button-text" (click)="saveTenant()"></button>
+            </ng-template>
+        </p-dialog>
+
+        <p-dialog (onHide)="onDialogHide()" [(visible)]="addDepositDialog" [style]="{width: '650px'}" header="Chi tiết thông tin đặt cọc phòng" [modal]="true" class="p-fluid">
+            <ng-template pTemplate="content">
+                <form [formGroup]="depositForm">
+                    <div class="formgrid grid">
+                        <div class="field col mr-3">
+                            <div class="field">
+                                <label for="name">Khu/Toà nhà</label>
+                                <input type="text" pInputText readonly [value]="booking.accomodation">
+                            </div>
+                            <div class="field">
+                                <label for="description">Phòng</label>
+                                <input type="text" pInputText readonly [value]="booking.room">
+                            </div> 
+                            <div class="field">
+                                <label for="startDate">Ngày đặt cọc</label>
+                                <p-calendar appendTo="body" id="startDate" formControlName="startDate" dateFormat="dd/mm/yy" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['startDate'].invalid && (depositForm.controls['startDate'].dirty || depositForm.controls['startDate'].touched)}"></p-calendar>
+                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('startDate')?.invalid && (depositForm.controls['startDate'].dirty || depositForm.controls['startDate'].touched)">Vui lòng chọn ngày đặt cọc.</small>
+                            </div> 
+                            <div class="field">
+                                <label for="dueDate">Ngày hết hạn</label>
+                                <p-calendar appendTo="body" id="dueDate" formControlName="dueDate" dateFormat="dd/mm/yy" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['dueDate'].invalid && (depositForm.controls['dueDate'].dirty || depositForm.controls['dueDate'].touched)}"></p-calendar>
+                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('dueDate')?.hasError('required') && (depositForm.controls['dueDate'].dirty || depositForm.controls['dueDate'].touched)">Vui lòng chọn ngày hết hạn.</small>
+                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('dueDate')?.hasError('dateInvalid') && (depositForm.controls['dueDate'].dirty || depositForm.controls['dueDate'].touched)">Ngày hết hạn cần sau ngày đặt cọc.</small>
+                            </div> 
+                            <div class="field">
+                                <label for="deposit">Tiền đặt cọc (đồng)</label>
+                                <p-inputNumber id="deposit" formControlName="deposit" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['deposit'].invalid && (depositForm.controls['deposit'].dirty || depositForm.controls['deposit'].touched)}"></p-inputNumber>
+                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('deposit')?.invalid && (depositForm.controls['deposit'].dirty || depositForm.controls['deposit'].touched)">Vui lòng nhập tiền đặt cọc.</small>
+                            </div>   
+                            <div class="field">
+                                <label for="note">Ghi chú</label>
+                                <input type="text" pInputText id="note" formControlName="note" />
+                            </div> 
+                        </div>
+                        <div class="field col">
+                            <div class="formgrid grid">
+                                <div class="field col">
+                                    <label class="ml-2" for="name">Khách thuê</label>
+                                </div>
+                            </div>  
+                            <div class="field">
+                                <label for="identifyNum">Số CMND/CCCD</label>
+                                <input type="text" pInputText id="identifyNum" formControlName="identifyNum" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['identifyNum'].invalid && (depositForm.controls['identifyNum'].dirty || depositForm.controls['identifyNum'].touched)}"/>
+                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('identifyNum')?.invalid && (depositForm.controls['identifyNum'].dirty || depositForm.controls['identifyNum'].touched)">Vui lòng nhập số CCCD/CMND.</small>
+                            </div> 
+                            <div class="field">
+                                <label for="phone">Số điện thoại</label>
+                                <input type="text" pInputText id="phone" formControlName="phone" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['phone'].invalid && (depositForm.controls['phone'].dirty || depositForm.controls['phone'].touched)}"/>
+                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('phone')?.invalid && (depositForm.controls['phone'].dirty || depositForm.controls['phone'].touched)">Vui lòng nhập số điện thoại.</small>
+                            </div> 
+                            <div class="field">
+                                <label for="email">Email</label>
+                                <input type="text" pInputText id="email" formControlName="email"/>
+                            </div> 
+                        </div>
+                    </div>
+                </form>            
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text"></button>
+                <button pButton pRipple label="Save" icon="pi pi-check" [disabled]="depositForm.invalid" class="p-button-text" (click)="saveDeposit()"></button>
+            </ng-template>
+        </p-dialog>
+
+        <p-dialog (onHide)="onDialogContractHide()" [(visible)]="contractDialog" [style]="{width: '1150px'}" header="Chi tiết hợp đồng" [modal]="true" position="top" class="p-fluid">
+            <ng-template pTemplate="content">
+                <form [formGroup]="contractForm">
+                    <div class="formgrid grid">
+                        <div class="field col">
+                            <label for="room">Phòng</label>
+                            <p-dropdown id="room" formControlName="room" (onChange)="onChangeRoom()" optionLabel="name" [options]="rooms" placeholder="Chọn theo phòng" [ngClass]="{'ng-invalid ng-dirty' : contractForm.controls['room'].invalid && (contractForm.controls['room'].dirty || contractForm.controls['room'].touched)}"> </p-dropdown>
+                            <small class="ng-dirty ng-invalid" *ngIf="contractForm.get('room')?.hasError('required') && (contractForm.controls['room'].dirty || contractForm.controls['room'].touched)">Vui lòng chọn phòng.</small>
+                            <small class="ng-dirty ng-invalid" *ngIf="contractForm.get('room')?.hasError('roomBooked') && (contractForm.controls['room'].dirty || contractForm.controls['room'].touched)">Phòng đã được đặt cọc, khách thuê đã đặt cọc cần trong mục khách thuê được chọn.</small>
+                        </div> 
+                        <div class="field col">
+                            <ng-container *ngIf="contract.room && contract.room.price">
+                                <label>Giá</label>
+                                <p-inputNumber [disabled]="true" [(ngModel)]="contract.room.price" [ngModelOptions]="{standalone: true}"></p-inputNumber>
+                            </ng-container>
+                        </div>
+                    </div>
+                    
+                    <p-tabView>
+                        <p-tabPanel header="Chọn khách thuê">
+                            <p-pickList [source]="tenantsDisplayed" (onMoveToTarget)="onMoveTenant()" (onMoveAllToTarget)="onMoveTenant()" [target]="selectedTenants" (onMoveToSource)="onMoveBackTenant()" (onMoveAllToSource)="onMoveBackTenant()" sourceHeader="Khách thuê" targetHeader="Khách thuê đã chọn" [dragdrop]="true" [responsive]="true" 
+                                [sourceStyle]="{ height: '15rem' }" [targetStyle]="{ height: '15rem' }" filterBy="firstName,lastName" sourceFilterPlaceholder="Tìm kiếm..." targetFilterPlaceholder="Tìm kiếm..."  breakpoint="1400px">
+                                <ng-template let-tenant pTemplate="item">
+                                    <div class="flex flex-wrap p-2 align-items-center gap-3">
+                                        <div class="flex-1 flex flex-column gap-2">
+                                            <span class="font-bold">{{ tenant.firstName }} {{ tenant.lastName }}</span>
+                                        </div>
+                                        <div></div>
+                                    </div>
+                                </ng-template>
+                            </p-pickList>
+                        </p-tabPanel>
+                        <p-tabPanel header="Chọn dịch vụ">
+                            <p-pickList [source]="servicesDisplayed" (onMoveAllToSource)="onMoveBackService($event)" (onMoveToSource)="onMoveBackService($event)" [target]="selectedServices" sourceHeader="Dịch vụ" targetHeader="Dịch vụ đã chọn" [dragdrop]="true" [responsive]="true" 
+                                [sourceStyle]="{ height: '15rem' }" [targetStyle]="{ height: '15rem' }" filterBy="name" sourceFilterPlaceholder="Tìm kiếm..." targetFilterPlaceholder="Tìm kiếm..."  breakpoint="1400px">
+                                <ng-template let-service pTemplate="item">
+                                    <div class="flex flex-wrap p-2 align-items-center gap-3">
+                                        <div class="flex-1 flex flex-column gap-2">
+                                            <span>{{service.name}}</span>
+                                        </div>
+                                        <div class="flex-1 flex flex-column gap-2">
+                                            <span>{{service.price | currency: 'VND':'symbol'}}</span>
+                                        </div>
+                                        <div class="flex-1 flex flex-column gap-2">
+                                            <span>{{service.unit}}</span>
+                                        </div>
+                                        <div class="flex-1 flex flex-column gap-2" *ngIf="selectedServices.includes(service)">
+                                            <span>Số lượng</span>
+                                            <p-inputNumber [disabled]="service.name === getStaticEletricName() || service.name === getStaticWaterName()" [(ngModel)]="service.quantity" [ngModelOptions]="{standalone: true}"></p-inputNumber>
+                                        </div>
+                                    </div>
+                                </ng-template>
+                            </p-pickList>
+                        </p-tabPanel>
+                    </p-tabView>
+                    <div class="formgrid grid">
+                        <div class="field col mr-3">
+                            <div class="field">
+                                <label for="description">Người đại diện</label>
+                                <p-dropdown id="description" formControlName="representative" [options]="selectedTenants" placeholder="Chọn người đại diện" [ngClass]="{'ng-invalid ng-dirty' : contractForm.controls['representative'].invalid && (contractForm.controls['representative'].dirty || contractForm.controls['representative'].touched)}"> 
+                                    <ng-template let-item pTemplate="selectedItem">
+                                        {{item.firstName}} {{item.lastName}}
+                                    </ng-template>
+                                    <ng-template let-tenant pTemplate="item">
+                                        <div class="flex align-items-center gap-2">
+                                            <div>{{ tenant.firstName }} {{ tenant.lastName }}</div>
+                                        </div>
+                                    </ng-template>
+                                </p-dropdown>
+                                <small class="ng-dirty ng-invalid" *ngIf="contractForm.get('room')?.hasError('required') && (contractForm.controls['room'].dirty || contractForm.controls['room'].touched)">Vui lòng chọn người đại diện.</small>
+                            </div> 
+                            <div class="field">
+                                <label for="duration">Kì hạn hợp đồng (tháng)</label>
+                                <p-inputNumber id="duration" formControlName="duration" [ngClass]="{'ng-invalid ng-dirty' : contractForm.controls['duration'].invalid && (contractForm.controls['duration'].dirty || contractForm.controls['duration'].touched)}"></p-inputNumber>
+                                <small class="ng-dirty ng-invalid" *ngIf="contractForm.get('duration')?.invalid && (contractForm.controls['duration'].dirty || contractForm.controls['duration'].touched)">Vui lòng nhập kì hạn hợp đồng.</small>
+                            </div> 
+                            <div class="field">
+                                <label for="recurrent">Kì thanh toán (tháng/lần)</label>
+                                <p-inputNumber id="recurrent" formControlName="recurrent" [ngClass]="{'ng-invalid ng-dirty' : contractForm.controls['recurrent'].invalid && (contractForm.controls['recurrent'].dirty || contractForm.controls['recurrent'].touched)}"></p-inputNumber>
+                                <small class="ng-dirty ng-invalid" *ngIf="contractForm.get('recurrent')?.invalid && (contractForm.controls['recurrent'].dirty || contractForm.controls['recurrent'].touched)">Vui lòng nhập kì thanh toán.</small>
+                            </div>     
+                        </div>
+                        <div class="field col mr-3">
+                            <div class="field">
+                                <label for="deposit">Tiền đặt cọc (đồng)</label>
+                                <p-inputNumber id="deposit" formControlName="deposit" [ngClass]="{'ng-invalid ng-dirty' : contractForm.controls['deposit'].invalid && (contractForm.controls['deposit'].dirty || contractForm.controls['deposit'].touched)}"></p-inputNumber>
+                                <small class="ng-dirty ng-invalid" *ngIf="contractForm.get('deposit')?.invalid && (contractForm.controls['deposit'].dirty || contractForm.controls['deposit'].touched)">Vui lòng nhập tiền đặt cọc.</small>
+                            </div>   
+                            <div class="field">
+                                <div class="formgrid grid">
+                                    <div class="field col"> 
+                                        <label  for="firstElectricNum">Số điện đầu</label>
+                                        <p-inputNumber id="firstElectricNum" formControlName="firstElectricNum" [ngClass]="{'ng-invalid ng-dirty' : contractForm.controls['firstElectricNum'].invalid && (contractForm.controls['firstElectricNum'].dirty || contractForm.controls['firstElectricNum'].touched)}"></p-inputNumber>
+                                        <small class="ng-dirty ng-invalid" *ngIf="contractForm.get('firstElectricNum')?.invalid && (contractForm.controls['firstElectricNum'].dirty || contractForm.controls['firstElectricNum'].touched)">Vui lòng nhập số điện đầu.</small>
+                                    </div>
+                                    <div class="field col">
+                                        <label for="firstWaterNum">Số nước đầu</label>
+                                        <p-inputNumber id="firstWaterNum" formControlName="firstWaterNum" [ngClass]="{'ng-invalid ng-dirty' : contractForm.controls['firstWaterNum'].invalid && (contractForm.controls['firstWaterNum'].dirty || contractForm.controls['firstWaterNum'].touched)}"></p-inputNumber>
+                                        <small class="ng-dirty ng-invalid" *ngIf="contractForm.get('firstWaterNum')?.invalid && (contractForm.controls['firstWaterNum'].dirty || contractForm.controls['firstWaterNum'].touched)">Vui lòng nhập số điện cuối.</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="formgrid grid">
+                                    <div class="field col"> 
+                                        <label  for="startDate">Ngày bắt đầu</label>
+                                        <p-calendar id="startDate" formControlName="startDate" dateFormat="dd/mm/yy" [ngClass]="{'ng-invalid ng-dirty' : contractForm.controls['startDate'].invalid && (contractForm.controls['startDate'].dirty || contractForm.controls['startDate'].touched)}"></p-calendar>
+                                        <small class="ng-dirty ng-invalid" *ngIf="contractForm.get('startDate')?.invalid && (contractForm.controls['startDate'].dirty || contractForm.controls['startDate'].touched)">Vui lòng chọn ngày bắt đầu hợp đồng.</small>
+                                    </div>
+                                    <div class="field col">
+                                        <label for="endDate">đến ngày</label>
+                                        <p-calendar id="endDate" formControlName="endDate" dateFormat="dd/mm/yy"></p-calendar>
+                                    </div>
+                                </div>
+                            </div> 
+                        </div>
+                    </div>
+                </form>            
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="contractInfoLoading"></button>
+                <button pButton pRipple label="Save" icon="pi pi-check" [disabled]="contractForm.invalid" class="p-button-text" (click)="saveContract()"></button>
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>
+<div class="progress-spinner" *ngIf="loading">
+    <p-progressSpinner></p-progressSpinner>
+</div>
