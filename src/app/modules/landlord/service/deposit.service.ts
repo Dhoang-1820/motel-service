@@ -10,7 +10,7 @@ import { CancelDepositRequest } from '../model/deposit.model'
 export class DepositService {
     constructor(private http: HttpClient) {}
 
-    getDepositByAccomodation(accomodationId: number): Observable<any> {
+    getDepositByAccomodation(accomodationId: any): Observable<any> {
         return this.http.get<any>(`${environment.apiUrl}/deposit/${accomodationId}`).pipe(retry(1), delay(1000))
     }
 

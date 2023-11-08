@@ -1,10 +1,9 @@
-import { Injectable } from '@angular/core'
-import { BehaviorSubject, Observable, map } from 'rxjs'
-import { User } from '../../model/user.model'
-import { Router } from '@angular/router'
 import { HttpClient } from '@angular/common/http'
+import { Injectable } from '@angular/core'
+import { Router } from '@angular/router'
+import { BehaviorSubject, Observable, map } from 'rxjs'
 import { environment } from 'src/environments/environment'
-import { JsonPipe } from '@angular/common'
+import { User } from '../../model/user.model'
 
 @Injectable({
     providedIn: 'root',

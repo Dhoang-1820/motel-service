@@ -390,9 +390,17 @@ export class DepositComponent implements OnInit {
     }
 
     findTenant(tenantId: any) {
-        console.log(this.tenants)
-        console.log(tenantId)
         return this.tenants.find(item => item.id === tenantId)
+    }
+
+    defaultService() {
+        this.services.forEach((item: any) => {
+            if (item.isDefault) {
+                item.disabled = true
+                this.selectedServices.push(item);
+                this.servicesDisplayed = this.servicesDisplayed.filter(service => service.id !== item.id)
+            }
+        })
     }
 
     createContract(deposit: Deposit) {
@@ -403,6 +411,7 @@ export class DepositComponent implements OnInit {
                 this.contractInfoLoading = false
                 this.contractDialog = true
                 this.isAddNew = true
+                this.defaultService()
                 let tenant = this.findTenant(deposit.tenantId)
                 this.selectedTenants.push(tenant);
                 this.contractForm.get('startDate')?.setValue(moment(new Date).toDate())

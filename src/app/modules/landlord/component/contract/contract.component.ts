@@ -51,6 +51,10 @@ export class ContractComponent implements OnInit {
     roomPresent: any
     preRoom: Room = {};
     depositor: Tenant = {}
+    tentant: Tenant = {}
+    tenantForm: FormGroup
+    tenantDialog: boolean = false
+    gender: any = AppConstant.GENDER
 
     constructor(
         private accomodationService: AccomodationService,
@@ -72,11 +76,29 @@ export class ContractComponent implements OnInit {
             room: new FormControl(this.contract.room, [Validators.required]),
         })
         this.contractForm.controls['endDate'].disable();
+
+        this.tenantForm = new FormGroup({
+            firstName: new FormControl(this.tentant.firstName, [Validators.required]),
+            lastName: new FormControl(this.tentant.lastName, [Validators.required]),
+            startDate: new FormControl(this.tentant.startDate, [Validators.required]),
+            gender: new FormControl(this.tentant.gender, [Validators.required]),
+            identifyNum: new FormControl(this.tentant.identifyNum, [Validators.required]),
+            phone: new FormControl(this.tentant.phone, [Validators.required]),
+            email: new FormControl(this.tentant.email, []),
+        })
     }
 
     ngOnInit(): void {
         this.user = this.auth.userValue
         this.getDropdownAccomodation().subscribe((response) => (this.accomodations = response.data))
+
+        this.tenantForm.get('firstName')?.valueChanges.subscribe((data) => (this.tentant.firstName = data))
+        this.tenantForm.get('lastName')?.valueChanges.subscribe((data) => (this.tentant.lastName = data))
+        this.tenantForm.get('startDate')?.valueChanges.subscribe((data) => (this.tentant.startDate = data))
+        this.tenantForm.get('identifyNum')?.valueChanges.subscribe((data) => (this.tentant.identifyNum = data))
+        this.tenantForm.get('phone')?.valueChanges.subscribe((data) => (this.tentant.phone = data))
+        this.tenantForm.get('email')?.valueChanges.subscribe((data) => (this.tentant.email = data))
+        this.tenantForm.get('gender')?.valueChanges.subscribe((data) => (this.tentant.gender = data.key))
 
         this.contractForm.get('representative')?.valueChanges.subscribe((data) => {
             this.selectedTenant = data
@@ -156,6 +178,45 @@ export class ContractComponent implements OnInit {
         this.checkTenantDeposit()
     }
 
+    newTenant() {
+        this.tentant = {}
+        this.tenantForm.get('firstName')?.setValue(null)
+        this.tenantForm.get('lastName')?.setValue(null)
+        this.tenantForm.get('startDate')?.setValue(null)
+        this.tenantForm.get('identifyNum')?.setValue(null)
+        this.tenantForm.get('phone')?.setValue(null)
+        this.tenantForm.get('email')?.setValue(null)
+        this.tenantForm.get('gender')?.setValue({key: 'UNKNOWN', value: 'Chưa biết'})
+        this.tentant.accomodationId = this.selectedAccomodation.id;
+        this.tenantDialog = true
+    }
+
+    saveTenant() {
+        this.loading = true
+        let message: string
+        if (this.tentant.id) {
+            message = 'Chỉnh sửa thành công'
+        } else {
+            message = 'Thêm thành công'
+        }
+        this.tenantService
+            .saveTenant(this.tentant)
+            .pipe(
+                finalize(() => {
+                    this.getTenantByAccomodation().pipe(
+                        finalize(() => {
+                            this.messageService.add({ severity: 'success', summary: 'Successful', detail: message, life: 3000 })
+                            this.loading = false
+                            this.tenantsDisplayed = JSON.parse(JSON.stringify(this.tenants))
+                        })
+                    ).subscribe(response => this.tenants = response.data)
+                }),
+            )
+            .subscribe((data) => console.log(data))
+        this.tenantDialog = false
+    }
+
+    
     onMoveBackTenant() {
         if (!this.selectedTenants.find((item: any) => item.id === this.selectedTenant?.id)) {
             this.contractForm.get('representative')?.setValue(null)
@@ -180,8 +241,19 @@ export class ContractComponent implements OnInit {
         this.contractForm.get('firstElectricNum')?.setValue(null)
         this.contractForm.get('firstWaterNum')?.setValue(null)
         this.contractForm.get('room')?.setValue(null)
+        this.defaultService();
     }
 
+    defaultService() {
+        this.services.forEach((item: any) => {
+            if (item.isDefault) {
+                item.disabled = true
+                this.selectedServices.push(item);
+                this.servicesDisplayed = this.servicesDisplayed.filter(service => service.id !== item.id)
+            }
+        })
+    }
+    
     initData() {
         forkJoin({
             rooms: this.getRoomByAccomodation(),
@@ -194,6 +266,7 @@ export class ContractComponent implements OnInit {
                     this.loading = false
                     this.servicesDisplayed = JSON.parse(JSON.stringify(this.services))
                     this.tenantsDisplayed = JSON.parse(JSON.stringify(this.tenants))
+                   
                 }),
             )
             .subscribe((response) => {
@@ -259,6 +332,8 @@ export class ContractComponent implements OnInit {
             }
         }
     }
+
+    
 
     filterService() {
         let service;

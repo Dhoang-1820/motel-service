@@ -1,0 +1,31 @@
+::ng-deep {
+    .p-picklist-buttons {
+        &.p-picklist-target-controls,
+        &.p-picklist-source-controls {
+            display: none;
+        }
+    }
+}
+
+::ng-deep {
+    .p-picklist-item:not(.cdk-drag-disabled) {
+        cursor: move;
+        z-index: 10000 !important;
+    }
+}
+
+.disabled {
+    opacity: .5;
+    user-select: none;
+    cursor: default;
+    pointer-events: none;
+}
+
+::ng-deep {
+    li:has(.disabled) {
+        user-select: none;
+        cursor: default;
+        pointer-events: none;
+    }
+}
+

@@ -18,4 +18,8 @@ export class BookingService {
     getBookingByUserId(userId: any): Observable<any> {
         return this.http.get<any>(`${environment.apiUrl}/booking/${userId}`).pipe(retry(1), delay(1000))
     }
+
+    deactivateBooking(bookingId: any): Observable<any> {
+        return this.http.put<any>(`${environment.apiUrl}/booking/${bookingId}`, null).pipe(retry(1), delay(1000))
+    }
 }

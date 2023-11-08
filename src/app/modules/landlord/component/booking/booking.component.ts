@@ -62,7 +62,9 @@ export class BookingComponent implements OnInit {
 
     depositForm: FormGroup
     deposit: Deposit = {}
+    deposits: Deposit[] = []
     addDepositDialog: boolean = false
+    depositInfoLoading: boolean = false
     roomInvalids: unknown[] = [];
 
     contractForm!: FormGroup
@@ -71,6 +73,8 @@ export class BookingComponent implements OnInit {
     selectedTenants: any = []
     contractDialog: boolean = false
     selectedTenant: Tenant = {}
+    tenants: Tenant[] = []
+   
 
     constructor(
         private accomodationService: AccomodationService,
@@ -291,7 +295,7 @@ export class BookingComponent implements OnInit {
                 label: 'Tạo hợp đồng',
                 command: (e: any) => {
                     this.booking = {...e.item.data}
-                    // this.changeStatusPost(true)
+                    this.createContract()
                 },
             },
             {
@@ -309,19 +313,122 @@ export class BookingComponent implements OnInit {
         return this.items
     }
 
+    findDeposit(roomId: any) {
+        let result = false
+        if (this.deposits.length > 0) {
+            let deposit = this.deposits.find(deposit => deposit.room?.id === roomId)
+            result = !!deposit
+        } else {
+            result = true
+        }
+       return result
+    }
+
     newDeposit() {
-        this.addDepositDialog = true
-        let fullName = this.splitName(this.booking.name || '')
-        this.depositForm.get('startDate')?.setValue(null)
-        this.depositForm.get('dueDate')?.setValue(null)
-        this.depositForm.get('note')?.setValue(null)
-        this.depositForm.get('deposit')?.setValue(null)
-        this.depositForm.get('firstName')?.setValue(fullName.firstName?.trim())
-        this.depositForm.get('lastName')?.setValue(fullName.lastName?.trim())
-        this.depositForm.get('identifyNum')?.setValue(null)
-        this.depositForm.get('phone')?.setValue(this.booking.phone)
-        this.depositForm.get('email')?.setValue(this.booking.email)
-        this.depositForm.get('room')?.setValue({id: this.booking.roomId, name: this.booking.room, price: null})
+        this.depositInfoLoading = true
+        this.getDepositByAccomodation().pipe(
+            finalize(() => {
+                this.depositInfoLoading = false
+                let isValidDeposit = this.findDeposit(this.booking.roomId)
+                if (isValidDeposit) {
+                    this.addDepositDialog = true
+                    let fullName = this.splitName(this.booking.name || '')
+                    this.depositForm.get('startDate')?.setValue(null)
+                    this.depositForm.get('dueDate')?.setValue(null)
+                    this.depositForm.get('note')?.setValue(null)
+                    this.depositForm.get('deposit')?.setValue(null)
+                    this.depositForm.get('firstName')?.setValue(fullName.firstName?.trim())
+                    this.depositForm.get('lastName')?.setValue(fullName.lastName?.trim())
+                    this.depositForm.get('identifyNum')?.setValue(null)
+                    this.depositForm.get('phone')?.setValue(this.booking.phone)
+                    this.depositForm.get('email')?.setValue(this.booking.email)
+                    this.depositForm.get('room')?.setValue({id: this.booking.roomId, name: this.booking.room, price: null})
+                } else {
+                    this.messageService.add({ severity: 'error', summary: 'Thất bại', detail: 'Phòng đã được đặt cọc trước đó', life: 5000 })
+                }
+            })
+        ).subscribe(response => this.deposits = response.data)
+        
+    }
+
+    getTenantByAccomodation() {
+        return this.tenantService.getTenantWithoutContract(this.booking.accomodationId)
+    }
+
+    initContractData() {
+        return forkJoin({
+            rooms: this.getRoomByAccomodation(),
+            tenants: this.getTenantByAccomodation(),
+            services: this.getAccomdationService(),
+        })
+            .pipe(
+                finalize(() => {
+                    this.loading = false
+                    this.servicesDisplayed = JSON.parse(JSON.stringify(this.services))
+                    this.tenantsDisplayed = JSON.parse(JSON.stringify(this.tenants))
+                }),
+            )
+            
+    }
+
+    findRoom(roomId: any) {
+        let result = false
+        if (this.rooms.length > 0) {
+            let room = this.rooms.find(room => room.id === roomId)
+            result = !!room
+        } else {
+            result = true
+        }
+        return result
+    }
+
+    defaultService() {
+        this.services.forEach((item: any) => {
+            if (item.isDefault) {
+                item.disabled = true
+                this.selectedServices.push(item);
+                this.servicesDisplayed = this.servicesDisplayed.filter(service => service.id !== item.id)
+            }
+        })
+    }
+
+    deativateBooking() {
+        return this.bookingService.deactivateBooking(this.booking.id)
+    }
+
+    createContract() {
+        this.contractInfoLoading = true
+        this.initContractData().pipe(
+            finalize(() => {
+                let isValidRoom = this.findRoom(this.booking.roomId)
+                if (isValidRoom) {
+                    this.contract = {}
+                    this.contractInfoLoading = false
+                    this.contractDialog = true
+                    this.defaultService()
+                    this.contractForm.get('startDate')?.setValue(moment(new Date()).toDate())
+                    this.contractForm.get('endDate')?.setValue(moment(new Date()).toDate())
+                    this.contractForm.get('recurrent')?.setValue(null)
+                    this.contractForm.get('deposit')?.setValue(null)
+                    this.contractForm.get('representative')?.setValue(null)
+                    this.contractForm.get('duration')?.setValue(null)
+                    this.contractForm.get('firstElectricNum')?.setValue(null)
+                    this.contractForm.get('firstWaterNum')?.setValue(null)
+                    this.contractForm.get('room')?.setValue({id: this.booking.roomId, name: this.booking.room, price: null})
+                } else {
+                    this.messageService.add({ severity: 'error', summary: 'Thất bại', detail: 'Phòng đã được tạo hợp đồng hoặc đặt cọc', life: 5000 })
+                }
+            })
+        )
+        .subscribe((response: any) => {
+            this.rooms = response.rooms.data
+            this.tenants = response.tenants.data
+            this.services = response.services.data
+        })
+    }
+
+    onDialogContractHide() {
+        this.selectedTenants = []
     }
 
     onChangeRoom() {
@@ -334,6 +441,10 @@ export class BookingComponent implements OnInit {
         }
     }
 
+    getDepositByAccomodation() {
+        return this.depositService.getDepositByAccomodation(this.booking.accomodationId)
+    }
+
     saveDeposit() {
         if (!this.depositForm.invalid) {
             this.loading = true
@@ -343,7 +454,11 @@ export class BookingComponent implements OnInit {
                 .pipe(
                     finalize(() => {
                         this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Thêm thành công', life: 3000 })
-                        this.getAllBookedRoomByUserId()
+                        this.deativateBooking().pipe(
+                            finalize(() => {
+                                this.getAllBookedRoomByUserId()
+                            })
+                        ).subscribe()
                     }),
                 )
                 .subscribe()
@@ -365,8 +480,13 @@ export class BookingComponent implements OnInit {
             .saveTenant(this.tentant)
             .pipe(
                 finalize(() => {
-                    this.loading = false
-                    this.messageService.add({ severity: 'success', summary: 'Successful', detail: message, life: 3000 })
+                    this.getTenantByAccomodation().pipe(
+                        finalize(() => {
+                            this.loading = false
+                            this.messageService.add({ severity: 'success', summary: 'Successful', detail: message, life: 3000 })
+                            this.tenantsDisplayed = JSON.parse(JSON.stringify(this.tenants))
+                        })
+                    ).subscribe(response => this.tenants = response.data)
                 }),
             )
             .subscribe((data) => console.log(data))
@@ -385,8 +505,6 @@ export class BookingComponent implements OnInit {
     onMoveBackService(value: any) {
         value.items.forEach((service: any) => (service.quantity = 1))
     }
-
-    
 
     toggleMenu(menu: any, event: any) {
         menu.toggle(event)
@@ -428,20 +546,16 @@ export class BookingComponent implements OnInit {
             })
     }
 
-    onDialogContractHide() {
-        this.selectedTenants = []
-    }
-
     getAccomdationService() {
-        return this.accomodationService.getAccomodationService(this.selectedAccomodation.id)
+        return this.accomodationService.getAccomodationService(this.booking.accomodationId)
     }
 
     getRoomByAccomodation() {
-        return this.roomService.getRoomNoPost(this.selectedAccomodation.id)
+        return this.roomService.getRoomNotRented(this.booking.accomodationId)
     }
 
     getPostByAccomodation() {
-        return this.postService.getByUserIdAndAccomodation(this.user?.id, this.selectedAccomodation.id)
+        return this.postService.getByUserIdAndAccomodation(this.user?.id, this.booking.accomodationId)
     }
 
     onSelectAccomodation() {
@@ -476,11 +590,17 @@ export class BookingComponent implements OnInit {
             }
             this.contract.tenants = this.selectedTenants
             this.contract.services = this.selectedServices
+            
             this.contractService.saveContract(this.contract).pipe(
                 finalize(() => {
-                    // this.initData()
-                    this.contract = {}
-                    this.messageService.add({ severity: 'success', summary: 'Thành công', detail: message, life: 3000 })
+                    this.deativateBooking().pipe(
+                        finalize(() => {
+                            this.loading = false
+                            this.contract = {}
+                            this.messageService.add({ severity: 'success', summary: 'Thành công', detail: message, life: 3000 })
+                            this.getAllBookedRoomByUserId()
+                        })
+                    ).subscribe()
                 })
             ).subscribe()
             errorFlag = false

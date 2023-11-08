@@ -50,7 +50,7 @@ export class AccomodationService {
         )
     }
 
-    getAccomodationService(accomodationId: number): Observable<any> {
+    getAccomodationService(accomodationId: any): Observable<any> {
         return this.http.get<any>(`${environment.apiUrl}/accomodation/services/${accomodationId}`).pipe(
             retry(1),
             delay(1000)
