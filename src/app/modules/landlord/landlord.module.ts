@@ -23,7 +23,8 @@ import { ContractComponent } from './component/contract/contract.component'
 import { ElectricityWaterComponent } from './component/electricity-water/electricity-water.component';
 import { ReturnRoomComponent } from './component/return-room/return-room.component';
 import { PostComponent } from './component/post/post.component';
-import { BookingComponent } from './component/booking/booking.component'
+import { BookingComponent } from './component/booking/booking.component';
+import { DashboardComponent } from './component/dashboard/dashboard.component'
 
 
 @NgModule({
@@ -48,6 +49,7 @@ import { BookingComponent } from './component/booking/booking.component'
         ReturnRoomComponent,
         PostComponent,
         BookingComponent,
+        DashboardComponent,
     ],
     imports: [CommonModule, LandlordRoutingModule, SharedModuleModule, TagModule],
 })

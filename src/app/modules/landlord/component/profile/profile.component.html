@@ -64,7 +64,7 @@
                 </div>
                 <div class="col-12 md:col-6">
                     <div class="card p-fluid">
-                        <p-table [value]="this.userResult.bankAccounts" dataKey="id" editMode="row" [tableStyle]="{'min-width': '40rem'}">
+                        <p-table [value]="userResult.bankAccounts" dataKey="id" editMode="row" [tableStyle]="{'min-width': '40rem'}">
                             <ng-template pTemplate="header">
                                 <tr>
                                     <th style="width:20%">Chủ tài khoản</th>
@@ -119,7 +119,7 @@
                     </div>
                     <div class="flex justify-content-center" >
                         <div>
-                            <button pButton type="button" label="Thêm ngân hàng" icon="pi pi-credit-card" class="p-button"  (click)="onAddNewBank()"></button>
+                            <button [disabled]="userResult.bankAccounts.length >= 2" pButton type="button" label="Thêm ngân hàng" icon="pi pi-credit-card" class="p-button"  (click)="onAddNewBank()"></button>
                         </div>
                     </div>
                 </div>

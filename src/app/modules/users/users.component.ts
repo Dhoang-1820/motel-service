@@ -203,6 +203,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
 
     saveBooking() {
         this.submitLoading = true
+        this.submitForm.reviewDate = moment(this.submitForm.reviewDate).toDate()
         this.bookingService
             .saveBooking(this.submitForm)
             .pipe(

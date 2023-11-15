@@ -141,6 +141,11 @@ export class AccomodationsComponent implements OnInit {
         this.otherFeesDialog = false
         this.submitted = false
     }
+
+    onHideDialog() {
+        this.accomodationForm.reset()
+    }
+
     openNew() {
         this.accomodation = {}
         this.accomodationForm.get('name')?.setValue(null)        
@@ -162,7 +167,6 @@ export class AccomodationsComponent implements OnInit {
 
     editAccomodation(accomodation: any) {
         this.accomodation = { ...accomodation }
-        console.log(this.accomodation)
         accomodation.loading = true;
         this.existingProvince = this.findAddressByName(this.accomodation.provinceCode, this.provices)
         this.accomodationForm.get('name')?.setValue(this.accomodation.name)     
@@ -244,7 +248,6 @@ export class AccomodationsComponent implements OnInit {
                 services.push(service)
                 accomodationSubmit.services = services
             }
-            console.log('accomodationSubmit',accomodationSubmit)
             accomodationSubmit.userId = this.user?.id
             this.dataLoading = true
             this.accomodationService

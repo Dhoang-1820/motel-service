@@ -17,6 +17,7 @@ export class Deposit {
     identifyNum?: String
     email?: String
     accomodationId?: Number
+    loading?: boolean
 }
 
 export class CancelDepositRequest {

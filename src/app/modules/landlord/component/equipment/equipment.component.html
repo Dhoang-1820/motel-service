@@ -5,7 +5,7 @@
             <p-toolbar styleClass="mb-4">
                 <ng-template pTemplate="left">
                     <div class="my-2">
-                        <button pButton pRipple label="Thêm" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
+                        <button pButton pRipple label="Thêm thiết bị" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
                     </div>
                 </ng-template>
 
@@ -16,7 +16,7 @@
                 </ng-template>
             </p-toolbar>
 
-            <p-table #dt [value]="equipments" [columns]="cols" [expandedRowKeys]="expandedRows" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['name','capacity','price','acreage', 'isRent']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]"  selectionMode="multiple" [rowHover]="true" dataKey="id">
+            <p-table #dt [value]="equipments" [columns]="cols" [expandedRowKeys]="expandedRows" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['name','capacity','price','acreage', 'isRent']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]"  dataKey="id">
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                         <h5 class="m-0">Quản lý thiết bị</h5>
@@ -45,13 +45,13 @@
                                 <button type="button" pButton pRipple [pRowToggler]="data" (click)="onExpand(data)" class="p-button-text p-button-rounded" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
                             </div>
 						</td>
-                        <td style="width:15%; min-width:10rem;">{{data.name}}</td>
-                        <td style="width:15%; min-width:10rem;">{{data.unit}}</td>
-                        <td style="width:15%; min-width:10rem;">{{data.price | currency: 'VND':'symbol'}}</td>
-                        <td style="width:15%; min-width:10rem;">{{data.status}}</td>
-                        <td style="width:15%; min-width:10rem;">{{data.description}}</td>
-                        <td style="width:15%; min-width:10rem;">{{data.quantity}}</td>
-                        <td style="width:15%; min-width:10rem;">
+                        <td style="width:15%;">{{data.name}}</td>
+                        <td style="width:15%;">{{data.unit}}</td>
+                        <td style="width:15%;">{{data.price | currency: 'VND':'symbol'}}</td>
+                        <td style="width:15%;">{{data.status}}</td>
+                        <td style="width:15%;">{{data.description}}</td>
+                        <td style="width:15%;">{{data.quantity}}</td>
+                        <td style="width:15%;">
                             <div class="flex">
                                 <button *ngIf="filterRoom" pButton pRipple pTooltip="Chỉnh sửa" icon="pi pi-pencil" tooltipPosition="top" class="p-button-rounded p-button-success mr-2" (click)="editEquipment(data)"></button>
                                 <button pButton pRipple pTooltip="Xoá" icon="pi pi-trash" tooltipPosition="top" class="p-button-rounded p-button-warning mr-2" (click)="deleteRoom(data)"></button>
@@ -63,30 +63,32 @@
 					<tr>
 						<td colspan="7">
 							<div class="p-3">
-								<p-table [value]="item.child" dataKey="id" responsiveLayout="scroll">
-									<ng-template pTemplate="header">
-										<tr>
+								<p-table styleClass="p-datatable-sm" [value]="item.child" dataKey="id" responsiveLayout="scroll">
+                                    <ng-template pTemplate="header">
+                                        <tr>
                                             <th></th>
-											<th>Tên thiết bị</th>
+                                            <th>Tên thiết bị</th>
                                             <th>Đơn vị</th>
                                             <th>Giá</th>
                                             <th>Trạng thái</th>
                                             <th>Mô tả</th>
                                             <th>Phòng</th>
-											<th style="width: 4rem"></th>
-										</tr>
-									</ng-template>
+                                            <th style="width: 4rem"></th>
+                                        </tr>
+                                    </ng-template>
 									<ng-template pTemplate="body" let-itemChild>
 										<tr>
                                             <td></td>
-											<td style="width:15%; min-width:10rem;">{{itemChild.name}}</td>
-                                            <td style="width:15%; min-width:10rem;">{{itemChild.unit}}</td>
-                                            <td style="width:15%; min-width:10rem;">{{itemChild.price | currency: 'VND':'symbol'}}</td>
-                                            <td style="width:15%; min-width:10rem;">{{itemChild.status}}</td>
-                                            <td style="width:15%; min-width:10rem;">{{itemChild.description}}</td>
-                                            <td style="width:15%; min-width:10rem;" *ngIf="itemChild.room.name; else isExistRoom">{{itemChild.room.name}}</td>
-                                            <ng-template style="width:15%; min-width:10rem;" #isExistRoom>Trống</ng-template>
-                                            <td style="width:15%; min-width:10rem;">
+											<td style="width:15%;">{{itemChild.name}}</td>
+                                            <td style="width:15%;">{{itemChild.unit}}</td>
+                                            <td style="width:15%;">{{itemChild.price | currency: 'VND':'symbol'}}</td>
+                                            <td style="width:15%;">{{itemChild.status}}</td>
+                                            <td style="width:15%;">{{itemChild.description}}</td>
+                                            <td style="width:15%;" *ngIf="itemChild.room.name; else isExistRoom">{{itemChild.room.name}}</td>
+                                            <ng-template style="width:15%;" #isExistRoom>
+                                                <td>Trống</td>
+                                            </ng-template>
+                                            <td style="width:15%;">
                                                 <div class="flex">
                                                     <button pButton pRipple pTooltip="Chỉnh sửa" icon="pi pi-pencil" tooltipPosition="top" class="p-button-rounded p-button-success mr-2" (click)="editEquipment(itemChild)"></button>
                                                     <button pButton pRipple pTooltip="Xoá" icon="pi pi-trash" tooltipPosition="top" class="p-button-rounded p-button-warning mr-2" (click)="deleteRoom(itemChild)"></button>
@@ -108,29 +110,37 @@
             </p-table>
         </div>
 
-        <p-dialog [(visible)]="addDialog" [style]="{width: '550px'}" header="Chi tiết thiết bị" [modal]="true" class="p-fluid">
+        <p-dialog (onHide)="onHideDialog()" [(visible)]="addDialog" [style]="{width: '550px'}" header="Chi tiết thiết bị" [modal]="true" class="p-fluid">
             <ng-template pTemplate="content">
                 <form [formGroup]="equipmentForm">
                     <div class="field">
-                        <label for="name">Tên thiết bị</label>
-                        <input type="text" pInputText id="name" formControlName="name" required autofocus [ngClass]="{'ng-invalid ng-dirty' : equipmentForm.controls['name'].invalid && (equipmentForm.controls['name'].dirty || equipmentForm.controls['name'].touched)}"/>
+                        <label for="name">Tên thiết bị <span class="mandatory-sign">*</span></label>
+                        <div class="input-box">
+                            <input type="text" pInputText id="name" formControlName="name" required autofocus [ngClass]="{'ng-invalid ng-dirty' : equipmentForm.controls['name'].invalid && (equipmentForm.controls['name'].dirty || equipmentForm.controls['name'].touched)}"/>
+                        </div>
                         <small class="ng-dirty ng-invalid" *ngIf="equipmentForm.get('name')?.invalid && (equipmentForm.controls['name'].dirty || equipmentForm.controls['name'].touched)">Vui lòng nhập tên thiết bị.</small>
                     </div>
                     <div class="formgrid grid">
                         <div class="field col">
-                            <label for="unit">Đơn vị</label>
-                            <p-dropdown appendTo="body" placeholder="Đơn vị" formControlName="unit" [options]="units"  [ngClass]="{'ng-invalid ng-dirty' : equipmentForm.controls['unit'].invalid && (equipmentForm.controls['unit'].dirty || equipmentForm.controls['unit'].touched)}"></p-dropdown>
+                            <label for="unit">Đơn vị <span class="mandatory-sign">*</span></label>
+                            <div class="input-box">
+                                <p-dropdown appendTo="body" placeholder="Đơn vị" formControlName="unit" [options]="units"  [ngClass]="{'ng-invalid ng-dirty' : equipmentForm.controls['unit'].invalid && (equipmentForm.controls['unit'].dirty || equipmentForm.controls['unit'].touched)}"></p-dropdown>
+                            </div>
                             <small class="ng-dirty ng-invalid" *ngIf="equipmentForm.get('unit')?.invalid && (equipmentForm.controls['unit'].dirty || equipmentForm.controls['unit'].touched)">Vui lòng nhập đơn vị.</small>
                         </div>
                         <div class="field col">
-                            <label for="status">Trạng thái</label>
-                            <p-dropdown appendTo="body" placeholder="Trạng thái" formControlName="status" [options]="status"  [ngClass]="{'ng-invalid ng-dirty' : equipmentForm.controls['status'].invalid && (equipmentForm.controls['status'].dirty || equipmentForm.controls['status'].touched)}"></p-dropdown>
+                            <label for="status">Trạng thái <span class="mandatory-sign">*</span></label>
+                            <div class="input-box">
+                                <p-dropdown appendTo="body" placeholder="Trạng thái" formControlName="status" [options]="status"  [ngClass]="{'ng-invalid ng-dirty' : equipmentForm.controls['status'].invalid && (equipmentForm.controls['status'].dirty || equipmentForm.controls['status'].touched)}"></p-dropdown>
+                            </div>
                             <small class="ng-dirty ng-invalid" *ngIf="equipmentForm.get('status')?.invalid && (equipmentForm.controls['status'].dirty || equipmentForm.controls['status'].touched)">Vui lòng chọn trạng thái.</small>
                         </div>
                     </div>
                     <div class="field">
-                        <label for="price">Giá (đồng)</label>
-                        <p-inputNumber id="price" formControlName="price"></p-inputNumber>
+                        <label for="price">Giá (đồng) <span class="mandatory-sign">*</span></label>
+                        <div class="input-box">
+                            <p-inputNumber id="price" formControlName="price"></p-inputNumber>
+                        </div>
                     </div>   
                     <div class="field">
                         <label for="description">Mô tả</label>

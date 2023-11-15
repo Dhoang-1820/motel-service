@@ -34,10 +34,11 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { PickListModule } from 'primeng/picklist';
 import { SpeedDialModule } from 'primeng/speeddial';
 import { EditorModule } from 'primeng/editor';
+import { OnlyNumberDirective } from '../directive/only-number.directive';
 
 
 @NgModule({
-  declarations: [],
+  declarations: [OnlyNumberDirective],
   imports: [
     CommonModule
   ],
@@ -76,7 +77,8 @@ import { EditorModule } from 'primeng/editor';
     GalleriaModule,
     MenuModule,
     MultiSelectModule,
-    PickListModule
+    PickListModule,
+    OnlyNumberDirective
   ],
 })
 export class SharedModuleModule { }

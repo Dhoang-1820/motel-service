@@ -15,7 +15,7 @@ export class SidebarComponent implements OnInit {
         this.model = [
             {
                 label: 'Trang chủ',
-                items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] }],
+                items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/motel-management/dashboard'] }],
             },
             {
                 label: 'Hệ thống',
@@ -30,8 +30,7 @@ export class SidebarComponent implements OnInit {
                     { label: 'Nhà trọ', icon: 'pi pi-fw pi-id-card', routerLink: ['/motel-management/accomodation'] },
                     { label: 'Phòng', icon: 'pi pi-fw pi-server', routerLink: ['/motel-management/room'] },
                     { label: 'Dịch vụ', icon: 'pi pi-th-large', routerLink: ['/motel-management/service'] },
-                    { label: 'Thiết bị', icon: 'pi pi-table', routerLink: ['/motel-management/equipment'] },
-                    { label: 'Quản lý ảnh phòng', icon: 'pi pi-fw pi-images', routerLink: ['/motel-management/room-image'] },
+                    { label: 'Thiết bị', icon: 'pi pi-table', routerLink: ['/motel-management/equipment'] }
                 ],
             },
             {
@@ -39,8 +38,7 @@ export class SidebarComponent implements OnInit {
                 items: [
                     { label: 'Hợp đồng', icon: 'pi pi-ticket', routerLink: ['/motel-management/contract'] },
                     { label: 'Đặt cọc phòng', icon: 'pi pi-fw pi-sitemap', routerLink: ['/motel-management/deposit'] },
-                    { label: 'Khách thuê', icon: 'pi pi-fw pi-users', routerLink: ['/motel-management/tenant'] },
-                    { label: 'Lịch sử khách thuê', icon: 'pi pi-history', routerLink: ['/motel-management/#'] },
+                    { label: 'Khách thuê', icon: 'pi pi-fw pi-users', routerLink: ['/motel-management/tenant'] }
                 ],
             },
             {
@@ -61,11 +59,6 @@ export class SidebarComponent implements OnInit {
                         label: 'Trả phòng',
                         icon: 'pi pi-wallet',
                         routerLink: ['/motel-management/checkout'],
-                    },
-                    {
-                        label: 'Phiếu chi',
-                        icon: 'pi pi-shopping-bag',
-                        routerLink: ['/motel-management/#'],
                     }
                 ],
             },

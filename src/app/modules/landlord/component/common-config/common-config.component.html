@@ -1,23 +1,26 @@
 <div class="grid">
     <div class="col-12 md:col-6">
 		<div class="card p-fluid">
-			<h5>Thông tin khu trọ</h5>
+			<h5>Cấu hình hệ thống</h5>
 			<div class="field">
-				<label htmlFor="name1">Tên nhà trọ</label>
-				<input pInputText id="name1" type="text" />
+				<label htmlFor="issue">Ngày xuất hoá đơn hàng tháng</label>
+				<p-calendar class="no-header" view="date" position="bottom" [(ngModel)]="commonConfig.issueInvoiceDate"
+				 dateFormat="dd" [readonlyInput]="true"></p-calendar>
 			</div>
 			<div class="field">
-				<label htmlFor="address">Địa chỉ</label>
-				<input pInputText id="address" type="text" />
+				<label htmlFor="inputIndex">Ngày chốt chỉ số điện nước hàng tháng</label>
+				<p-calendar class="no-header" view="date" position="bottom" [(ngModel)]="commonConfig.electricWaterDate"
+				 dateFormat="dd" [readonlyInput]="true"></p-calendar>
 			</div>
-			<div class="field">
-				<label htmlFor="phone">Số điện thoại</label>
-				<input pInputText id="phone" type="text" />
+		</div>
+		<div class="flex justify-content-center" >
+			<div>
+				<button [disabled]="!commonConfig.electricWaterDate || !commonConfig.issueInvoiceDate"  pButton type="button" label="Lưu" icon="pi pi-credit-card" class="p-button"  (click)="saveUserPreference()"></button>
 			</div>
 		</div>
 	</div>
 
-	<div class="col-12 md:col-6">
+	<!-- <div class="col-12 md:col-6">
 		<div class="card p-fluid">
 			<h5>Thông tin hoá đơn</h5>
 			<div class="field grid">
@@ -45,5 +48,8 @@
 				</div>
 			</div>
 		</div>
-	</div>
+	</div> -->
+</div>
+<div class="progress-spinner" *ngIf="loading">
+    <p-progressSpinner></p-progressSpinner>
 </div>

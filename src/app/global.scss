@@ -13,6 +13,10 @@ html {
     box-sizing: border-box;
 }
 
+.mandatory-sign {
+    color: red;
+}
+
 .progress-spinner {
     position: fixed;
     z-index: 99999;
@@ -36,5 +40,9 @@ html {
   width: 100%;
   height: 100%;
   background-color: rgba(0,0,0,0.53);
+}
+
+.input-box {
+    margin-bottom: 5px;
 }
 

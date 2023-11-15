@@ -5,6 +5,7 @@ import { User } from '../model/user.model';
 import { finalize } from 'rxjs';
 import { AppConstant } from '../common/Constants';
 import { ActivatedRoute, Router } from '@angular/router';
+import { NgxPermissionsService } from 'ngx-permissions';
 
 @Component({
   selector: 'app-auth',
@@ -18,10 +19,11 @@ export class AuthComponent implements OnInit {
   username!: string;
   password!: string;
   userRole!: string | undefined;
+  rememberLogin: boolean = false
 
   user!: User;
 
-  constructor(public layoutService: LayoutService, private authenticationService: AuthenticationService, private router: Router, private route: ActivatedRoute,) { }
+  constructor(private permissionsService: NgxPermissionsService, public layoutService: LayoutService, private authenticationService: AuthenticationService, private router: Router, private route: ActivatedRoute,) { }
 
   ngOnInit(): void {
   }
@@ -35,9 +37,16 @@ export class AuthComponent implements OnInit {
           if (this.userRole === AppConstant.ROLE_LANDLORD) {
              this.router.navigateByUrl('/motel-management/accomodation');
           } else if (this.userRole === AppConstant.ROLE_ADMIN) {
-            this.router.navigateByUrl('/admin/user-management');
+            this.router.navigateByUrl('/administration/user-management');
           } else {
             this.router.navigateByUrl('/motel-service');
+          }
+          if (this.user.roles) {
+            const permissions = [this.user.roles]
+            this.permissionsService.loadPermissions(permissions);
+          }
+          if (this.rememberLogin) {
+            localStorage.setItem('user', JSON.stringify(this.user))
           }
           this.loading = false;
         }

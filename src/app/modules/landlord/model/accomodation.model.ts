@@ -19,7 +19,8 @@ export interface Room {
 export interface RoomDropdown {
     id?: Number
     name?: string
-    price?: any
+    price?: any,
+    capacity?: number
 }
 
 export interface Accomodation {

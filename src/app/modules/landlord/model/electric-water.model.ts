@@ -1,3 +1,5 @@
+import { RoomDropdown } from "./accomodation.model";
+
 export class ElectricWater {
     id?: number;
 	month?: Date;
@@ -8,6 +10,7 @@ export class ElectricWater {
 	lastWater?: number;
 	waterNum?: number;
 	createdAt?: number;
-	room?: number;
+	room?: RoomDropdown;
 	accomodationId?: number;
+	loading?: any
 }

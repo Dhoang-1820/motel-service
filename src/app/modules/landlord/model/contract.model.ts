@@ -4,8 +4,7 @@ import { Tenant } from "./tenant.model"
 export class Contract {
     id?: Number
     duration?: Number
-    recurrent?: Number
-    deposit?: Number
+    deposit?: number
     startDate?: Date
     endDate?: Date
     firstElectricNum?: Number
@@ -16,4 +15,7 @@ export class Contract {
     services?: Services[] = []
     room?: RoomDropdown = {}
     preRoom?: Number
+    dayStayedBefore?: number
+    firstComePayment?: number
+    keepRoomDeposit?: number
 }

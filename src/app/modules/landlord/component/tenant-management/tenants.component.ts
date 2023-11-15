@@ -3,7 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms'
 import * as moment from 'moment'
 import { MessageService } from 'primeng/api'
 import { Table } from 'primeng/table'
-import { finalize, forkJoin } from 'rxjs'
+import { debounceTime, distinctUntilChanged, finalize, forkJoin } from 'rxjs'
 import { AuthenticationService } from 'src/app/modules/auth/service/authentication.service'
 import { User } from 'src/app/modules/model/user.model'
 import { Room } from '../../model/accomodation.model'
@@ -36,6 +36,8 @@ export class TenantsComponent implements OnInit {
     tenantForm: FormGroup
     returnDate: Date | undefined = moment(Date.now()).toDate()
     gender: any = AppConstant.GENDER
+    isValidating: boolean = false
+    oldIdentifyNum: any = ''
 
     constructor(
         private messageService: MessageService,
@@ -47,11 +49,11 @@ export class TenantsComponent implements OnInit {
         this.tenantForm = new FormGroup({
             firstName: new FormControl(this.tentant.firstName, [Validators.required]),
             lastName: new FormControl(this.tentant.lastName, [Validators.required]),
-            startDate: new FormControl(this.tentant.startDate, [Validators.required]),
-            gender: new FormControl(this.tentant.gender, [Validators.required]),
+            startDate: new FormControl(this.tentant.startDate, []),
+            gender: new FormControl(this.tentant.gender, []),
             identifyNum: new FormControl(this.tentant.identifyNum, [Validators.required]),
             phone: new FormControl(this.tentant.phone, [Validators.required]),
-            email: new FormControl(this.tentant.email, []),
+            email: new FormControl(this.tentant.email, [Validators.required]),
         })
     }
 
@@ -61,10 +63,34 @@ export class TenantsComponent implements OnInit {
         this.tenantForm.get('firstName')?.valueChanges.subscribe((data) => (this.tentant.firstName = data))
         this.tenantForm.get('lastName')?.valueChanges.subscribe((data) => (this.tentant.lastName = data))
         this.tenantForm.get('startDate')?.valueChanges.subscribe((data) => (this.tentant.startDate = data))
-        this.tenantForm.get('identifyNum')?.valueChanges.subscribe((data) => (this.tentant.identifyNum = data))
-        this.tenantForm.get('phone')?.valueChanges.subscribe((data) => (this.tentant.phone = data))
-        this.tenantForm.get('email')?.valueChanges.subscribe((data) => (this.tentant.email = data))
-        this.tenantForm.get('gender')?.valueChanges.subscribe((data) => (this.tentant.gender = data.key))
+        this.tenantForm.get('identifyNum')?.valueChanges.pipe(
+            debounceTime(500),
+            distinctUntilChanged()
+        ).subscribe((data) => {
+            if (data) {
+                this.tentant.identifyNum = data
+                if (this.oldIdentifyNum !== this.tentant.identifyNum) {
+                    this.checkDuplicated()
+                }
+            }
+        })
+        this.tenantForm.get('phone')?.valueChanges.subscribe((data) => {
+            if (data) {
+                this.validatePhoneNumber(data)
+                this.tentant.phone = data
+            }
+        })
+        this.tenantForm.get('email')?.valueChanges.subscribe((data) => {
+            if (data) {
+                this.validateGmail(data)
+                this.tentant.email = data
+            }
+        })
+        this.tenantForm.get('gender')?.valueChanges.subscribe((data) => {
+            if (data) {
+                (this.tentant.gender = data.key)
+            }
+        })
     }
 
     getDropdownAccomodation() {
@@ -80,8 +106,37 @@ export class TenantsComponent implements OnInit {
             .subscribe((response) => (this.accomodations = response.data))
     }
 
+    validatePhoneNumber(phone: string) {
+        const isValid = phone.toLowerCase().match(
+            /(84|0[3|5|7|8|9])+([0-9]{8})\b/g
+        )
+        if (!isValid) {
+            this.tenantForm.get('phone')?.setErrors({phoneInvalid: true})
+        } else {
+            this.tenantForm.get('phone')?.setErrors(null)
+        }
+    }
+
+    onHideDialog() {
+        this.tenantForm.reset()
+    }
+
+    checkDuplicated() {
+        let isDuplicated = false;
+        this.isValidating = true
+        this.tenantService.checkDuplicated(this.tentant.identifyNum).pipe(
+            finalize(() => {
+                this.isValidating = false
+                if (isDuplicated) {
+                    this.tenantForm.get('identifyNum')?.setErrors({duplicated: true})
+                }
+            })
+        ).subscribe(response => isDuplicated = response.data)
+    }
+
     openNew() {
         this.tentant = {}
+        this.oldIdentifyNum = ''
         this.tenantForm.get('firstName')?.setValue(null)
         this.tenantForm.get('lastName')?.setValue(null)
         this.tenantForm.get('startDate')?.setValue(null)
@@ -129,19 +184,9 @@ export class TenantsComponent implements OnInit {
         this.getRoomAndTenantData()
     }
 
-    returnRoom(tentant: Tenant) {
-        this.deleteTenantDialog = true
-        this.tentant = { ...tentant }
-        let request: { id: any; returnDate: any } = { id: this.tentant.id, returnDate: this.returnDate }
-        this.tenantService.returnRoom(request).pipe(
-            finalize(() => {
-                this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Trả phòng thành công', life: 3000 })
-            }),
-        ).subscribe
-    }
-
     editTenant(tentant: Tenant) {
         this.tentant = { ...tentant }
+        this.oldIdentifyNum = tentant.identifyNum
         this.tenantForm.get('firstName')?.setValue(tentant.firstName)
         this.tenantForm.get('lastName')?.setValue(tentant.lastName)
         if (tentant.startDate) {
@@ -162,8 +207,20 @@ export class TenantsComponent implements OnInit {
         this.tenantDialog = true
     }
 
+    validateGmail(email: string) {
+        const isValid = email.toLowerCase().match(
+            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        )
+        if (!isValid) {
+            this.tenantForm.get('email')?.setErrors({mailInvalid: true})
+        } else {
+            this.tenantForm.get('email')?.setErrors(null)
+        }
+    }
+
     hideDialog() {
-        this.tenantDialog = false
+        // this.tenantDialog = false
+        console.log( this.tenantForm.get('email'))
     }
 
     saveTenant() {
@@ -184,27 +241,6 @@ export class TenantsComponent implements OnInit {
             )
             .subscribe((data) => console.log(data))
         this.tenantDialog = false
-    }
-
-    confirmDelete() {
-        this.loading = true
-        this.deleteTenantDialog = false
-        let request: { id?: any; returnDate?: any } = { id: this.tentant.id, returnDate: this.returnDate }
-        console.log(request)
-        this.tenantService
-            .returnRoom(request)
-            .pipe(
-                finalize(() => {
-                    this.getTenantByAccomodation()
-                        .pipe(
-                            finalize(() => {
-                                this.loading = false
-                            }),
-                        )
-                        .subscribe((res) => (this.tentants = res.data))
-                }),
-            )
-            .subscribe()
     }
 
     onGlobalFilter(table: Table, event: Event) {

@@ -1,3 +1,4 @@
+import { RoomDropdown } from "./accomodation.model";
 
 export class Booking {
     id?: number;
@@ -9,5 +10,5 @@ export class Booking {
 	reviewDate?: Date;
 	createdDate?: Date;
 	roomId?: number;
-	room?: string;
+	room?: RoomDropdown;
 }

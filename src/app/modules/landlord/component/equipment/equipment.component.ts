@@ -104,8 +104,9 @@ export class EquipmentComponent implements OnInit {
             this.equipment.quantity = data
         })
         this.equipmentForm.get('room')?.valueChanges.subscribe((data) => {
-            console.log(data)
-            this.equipment.roomId = data.id
+            if (data) {
+                this.equipment.roomId = data.id
+            }
         })
     }
 
@@ -122,6 +123,10 @@ export class EquipmentComponent implements OnInit {
         this.equipmentForm.get('selectedRoom')?.setValue([])
         this.equipmentForm.get('quantity')?.setValue(null)
         this.equipmentForm.get('room')?.setValue(null)
+    }
+
+    onHideDialog() {
+        this.equipmentForm.reset()
     }
 
     onFilterByRoom() {
@@ -259,10 +264,10 @@ export class EquipmentComponent implements OnInit {
         let newEquipment: any
 
         if (quantity > 0) {
-            for (let i = 0; i < quantity; i++) {
-                for (let j = 0; j < selectedRoom.length; j++) {
+            for (let j = 0; j < selectedRoom.length; j++) {
+                for (let i = 0; i < quantity; i++) {
                     newEquipment = Object.assign({}, this.equipment)
-                    newEquipment.roomId = selectedRoom[i]
+                    newEquipment.roomId = selectedRoom[j]
                     equipSubmit.push(newEquipment)
                 }
             }

@@ -17,6 +17,7 @@ import { ElectricityWaterComponent } from './component/electricity-water/electri
 import { ReturnRoomComponent } from './component/return-room/return-room.component'
 import { PostComponent } from './component/post/post.component'
 import { BookingComponent } from './component/booking/booking.component'
+import { DashboardComponent } from './component/dashboard/dashboard.component'
 
 const routes: Routes = [
     {
@@ -40,6 +41,7 @@ const routes: Routes = [
             { path: 'post', component: PostComponent},
             { path: 'checkout', component: ReturnRoomComponent},
             { path: 'booking', component: BookingComponent},
+            { path: 'dashboard', component: DashboardComponent}
         ],
     },
 ]

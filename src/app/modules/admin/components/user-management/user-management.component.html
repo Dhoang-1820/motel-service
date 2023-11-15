@@ -5,7 +5,7 @@
             <p-toolbar styleClass="mb-4">
                 <ng-template pTemplate="left">
                     <div class="my-2">
-                        <button pButton pRipple label="Thêm" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
+                        <button pButton pRipple label="Tạo tài khoản" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
                     </div>
                 </ng-template>
 
@@ -17,7 +17,7 @@
             <p-table #dt [value]="users" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['firstName','lastName','address','phone', 'email']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [(selection)]="selectedProducts" selectionMode="multiple" [rowHover]="true" dataKey="id">
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-                        <h5 class="m-0">Quản lý phòng trọ</h5>
+                        <h5 class="m-0">Quản lý tài khoản</h5>
                         <span class="block mt-2 md:mt-0 p-input-icon-left">
                             <i class="pi pi-search"></i>
                             <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Tìm kiếm..."  class="w-full sm:w-auto"/>
@@ -26,13 +26,13 @@
                 </ng-template>
                 <ng-template pTemplate="header">
                     <tr>
-                        <th pSortableColumn="name">Họ tên<p-sortIcon field="name"></p-sortIcon></th>
-                        <th pSortableColumn="createdAt">Ngày tạo<p-sortIcon field="createdAt"></p-sortIcon></th>
-                        <th pSortableColumn="address">Địa chỉ<p-sortIcon field="address"></p-sortIcon></th>
-                        <th pSortableColumn="phone">Số điện thoại<p-sortIcon field="phone"></p-sortIcon></th>
-                        <th pSortableColumn="email">Email<p-sortIcon field="email"></p-sortIcon></th>
-                        <th pSortableColumn="accomodationNum">Số lượng khu trọ<p-sortIcon field="accomodationNum"></p-sortIcon></th>
-                        <th pSortableColumn="active">Trạng thái<p-sortIcon field="active"></p-sortIcon></th>
+                        <th>Họ tên</th>
+                        <th>Ngày tạo</th>
+                        <th>Địa chỉ</th>
+                        <th>Số điện thoại</th>
+                        <th>Email</th>
+                        <th>Số lượng khu trọ</th>
+                        <th>Trạng thái</th>
                         <th></th>
                     </tr>
                 </ng-template>
@@ -58,47 +58,42 @@
             </p-table>
         </div>
 
-        <p-dialog [(visible)]="userDialog" [style]="{width: '550px'}" header="Chi tiết phòng trọ" [modal]="true" class="p-fluid">
+        <p-dialog [(visible)]="userDialog" [style]="{width: '550px'}" header="Tạo tài khoản" [modal]="true" class="p-fluid">
             <ng-template pTemplate="content">
                 <div class="field">
-                    <label for="name">Họ</label>
-                    <input type="text" pInputText id="name" [(ngModel)]="userSelected.firstName" required autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !userSelected.firstName}"/>
+                    <label for="firstName">Họ</label>
+                    <input type="text" pInputText id="firstName" [(ngModel)]="userSelected.firstName" required autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !userSelected.firstName}"/>
                     <small class="ng-dirty ng-invalid" *ngIf="submitted && !userSelected.firstName">Name is required.</small>
                 </div>
                 <div class="field">
-                    <label for="name">Tên</label>
-                    <input type="text" pInputText id="name" [(ngModel)]="userSelected.lastName" required autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !userSelected.lastName}"/>
+                    <label for="lastName">Tên</label>
+                    <input type="text" pInputText id="lastName" [(ngModel)]="userSelected.lastName" required autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !userSelected.lastName}"/>
                     <small class="ng-dirty ng-invalid" *ngIf="submitted && !userSelected.lastName">Name is required.</small>
                 </div>
                 <div class="field">
-                    <label for="name">Địa chỉ</label>
-                    <input type="text" pInputText id="name" [(ngModel)]="userSelected.address" required autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !userSelected.address}"/>
+                    <label for="address">Địa chỉ</label>
+                    <input type="text" pInputText id="address" [(ngModel)]="userSelected.address" required autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !userSelected.address}"/>
                     <small class="ng-dirty ng-invalid" *ngIf="submitted && !userSelected.address">Name is required.</small>
                 </div>
                 <div class="field">
-                    <label for="name">Số điện thoại</label>
-                    <input type="text" pInputText id="name" [(ngModel)]="userSelected.phone" required autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !userSelected.phone}"/>
+                    <label for="phone">Số điện thoại</label>
+                    <input type="text" pInputText id="phone" [(ngModel)]="userSelected.phone" required autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !userSelected.phone}"/>
                     <small class="ng-dirty ng-invalid" *ngIf="submitted && !userSelected.phone">Name is required.</small>
                 </div>
                 <div class="field">
-                    <label for="name">Email</label>
-                    <input type="text" pInputText id="name" [(ngModel)]="userSelected.email" required autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !userSelected.email}"/>
+                    <label for="email">Email</label>
+                    <input type="text" pInputText id="email" [(ngModel)]="userSelected.email" required autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !userSelected.email}"/>
                     <small class="ng-dirty ng-invalid" *ngIf="submitted && !userSelected.email">Name is required.</small>
                 </div>
                <ng-container *ngIf="!userSelected.userId">
                     <div class="field">
-                        <label for="name">Tên tài khoản</label>
-                        <input type="text" pInputText id="name" [(ngModel)]="userSelected.userName" required autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !userSelected.userName}"/>
+                        <label for="userName">Tên tài khoản</label>
+                        <input type="text" pInputText id="userName" [(ngModel)]="userSelected.userName" required autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !userSelected.userName}"/>
                         <small class="ng-dirty ng-invalid" *ngIf="submitted && !userSelected.userName">Name is required.</small>
-                    </div>
-                    <div class="field">
-                        <label for="name">Mật khẩu</label>
-                        <input type="text" pInputText id="name" [(ngModel)]="userSelected.password" required autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !userSelected.password}"/>
-                        <small class="ng-dirty ng-invalid" *ngIf="submitted && !userSelected.password">Name is required.</small>
                     </div>
                </ng-container>
                 <div class="field">
-                    <label for="name">Trạng thái hoạt động</label>
+                    <label for="status">Trạng thái hoạt động</label>
                     <div class="formgrid grid">
                         <div class="field-radiobutton col-6">
                             <p-radioButton id="yes" [(ngModel)]="userSelected.active"  [value]="true" ></p-radioButton>

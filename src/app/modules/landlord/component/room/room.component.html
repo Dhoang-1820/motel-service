@@ -5,30 +5,38 @@
             <p-toolbar styleClass="mb-4">
                 <ng-template pTemplate="left">
                     <div class="my-2">
-                        <button pButton pRipple label="Thêm" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
+                        <button pButton pRipple label="Thêm phòng trọ" icon="pi pi-plus" class="p-button-success mr-2"
+                            (click)="openNew()"></button>
                     </div>
                 </ng-template>
 
                 <ng-template pTemplate="right">
-                   <div class="flex justify-content-center">
-                        <p-dropdown placeholder="Chọn phòng trọ"  [options]="accomodations" (onChange)="onSelectAccomodation()" [(ngModel)]="selectedAccomodation" optionLabel="name" autoWidth="false"  [style]="{'width':'100%'}"></p-dropdown>
-                   </div>
+                    <div class="flex justify-content-center">
+                        <p-dropdown placeholder="Chọn phòng trọ" [options]="accomodations"
+                            (onChange)="onSelectAccomodation()" [(ngModel)]="selectedAccomodation" optionLabel="name"
+                            autoWidth="false" [style]="{'width':'100%'}"></p-dropdown>
+                    </div>
                 </ng-template>
             </p-toolbar>
 
-            <p-table #dt [value]="rooms" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['name','capacity','price','acreage', 'isRent']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [(selection)]="selectedProducts" selectionMode="multiple" [rowHover]="true" dataKey="id">
+            <p-table #dt [value]="rooms" [columns]="cols" responsiveLayout="scroll" [rows]="10"
+                [globalFilterFields]="['name','capacity','price','acreage', 'isRent']" [paginator]="true"
+                [rowsPerPageOptions]="[10,20,30]" [(selection)]="selectedProducts" selectionMode="multiple"
+                [rowHover]="true" dataKey="id">
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                         <h5 class="m-0">Quản lý phòng trọ</h5>
                         <span class="block mt-2 md:mt-0 p-input-icon-left">
                             <i class="pi pi-search"></i>
-                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Tìm kiếm..."  class="w-full sm:w-auto"/>
+                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Tìm kiếm..."
+                                class="w-full sm:w-auto" />
                         </span>
                     </div>
                 </ng-template>
                 <ng-template pTemplate="header">
                     <tr>
                         <th pSortableColumn="name">Tên phòng/Số phòng<p-sortIcon field="name"></p-sortIcon></th>
+                        <th pSortableColumn="tenants">Số người đang ở<p-sortIcon field="tenants"></p-sortIcon></th>
                         <th pSortableColumn="capacity">Số người ở tối đa<p-sortIcon field="capacity"></p-sortIcon></th>
                         <th pSortableColumn="price">Giá phòng<p-sortIcon field="price"></p-sortIcon></th>
                         <th pSortableColumn="acreage">Diện tích<p-sortIcon field="acreage"></p-sortIcon></th>
@@ -38,18 +46,21 @@
                 </ng-template>
                 <ng-template pTemplate="body" let-product>
                     <tr>
-                        <td>{{product.name}}</td>
-                        <td>{{product.capacity}}</td>
-                        <td>{{product.price | currency: 'VND':'symbol'}}</td>
-                        <td>{{product.acreage}} m²</td>
-                        <td *ngIf="product.isRent; else isRent">Đã cho thuê</td>
+                        <td style="width:15%;">{{product.name}}</td>
+                        <td style="width:15%;">{{product.capacity}}</td>
+                        <td style="width:15%;">{{product.capacity}}</td>
+                        <td style="width:15%;">{{product.price | currency: 'VND':'symbol'}}</td>
+                        <td style="width:10%;">{{product.acreage}} m²</td>
+                        <td style="width:25%;" *ngIf="product.isRent; else isRent">Đã cho thuê</td>
                         <ng-template #isRent>
-                            <td>Chưa cho thuê</td>
+                            <td style="width:25%;">Chưa cho thuê</td>
                         </ng-template>
                         <td>
                             <div class="flex">
-                                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editRoom(product)"></button>
-                                <button pButton pRipple icon="pi pi-trash" [disabled]="product.isRent" class="p-button-rounded p-button-warning" (click)="deleteRoom(product)"></button>
+                                <button pButton pRipple icon="pi pi-pencil"
+                                    class="p-button-rounded p-button-success mr-2" (click)="editRoom(product)"></button>
+                                <button pButton pRipple icon="pi pi-trash" [disabled]="product.isRent"
+                                    class="p-button-rounded p-button-warning" (click)="deleteRoom(product)"></button>
                             </div>
                         </td>
                     </tr>
@@ -57,47 +68,74 @@
             </p-table>
         </div>
 
-        <p-dialog [(visible)]="addDialog" [style]="{width: '550px'}" header="Chi tiết phòng trọ" [modal]="true" class="p-fluid">
+        <p-dialog (onHide)="onHideDialog()" [(visible)]="addDialog" [style]="{width: '550px'}"
+            header="Chi tiết phòng trọ" [modal]="true" class="p-fluid">
             <ng-template pTemplate="content">
-                <div class="field">
-                    <label for="name">Tên phòng/Số phòng</label>
-                    <input type="text" pInputText id="name" [(ngModel)]="room.name" required autofocus [ngClass]="{'ng-invalid ng-dirty' : submitted && !room.name}"/>
-                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !room.name">Vui lòng nhập tên phòng.</small>
-                </div>
-                <div class="field">
-                    <label for="price">Giá phòng (đồng)</label>
-                    <p-inputNumber id="price" [(ngModel)]="room.price" [ngClass]="{'ng-invalid ng-dirty' : submitted && !room.name}"></p-inputNumber>
-                    <small class="ng-dirty ng-invalid" *ngIf="submitted && !room.price">Vui lòng nhập giá.</small>
-                </div>                
-                <div class="formgrid grid">
-                    <div class="field col">
-                        <label for="price">Diện tích</label>
-                        <p-inputNumber id="price" [(ngModel)]="room.acreage" mode="decimal" suffix="m²" [ngClass]="{'ng-invalid ng-dirty' : submitted && !room.name}"></p-inputNumber>
-                        <small class="ng-dirty ng-invalid" *ngIf="submitted && !room.price">Vui lòng nhập diện tích.</small>
+                <form [formGroup]="roomForm">
+                    <div class="field">
+                        <label for="name">Tên phòng/Số phòng <span class="mandatory-sign">*</span></label>
+                        <span class="p-input-icon-right">
+                            <i class="pi pi-spin pi-spinner" *ngIf="isValidating"></i>
+                            <div class="input-box">
+                                <input type="text" pInputText id="name" formControlName="roomName" required autofocus
+                                    [ngClass]="{'ng-invalid ng-dirty' : roomForm.controls['roomName'].invalid && (roomForm.controls['roomName'].dirty || roomForm.controls['roomName'].touched)}" />
+                            </div>
+                        </span>
+                        <small class="ng-dirty ng-invalid"
+                            *ngIf="roomForm.get('roomName')?.hasError('required') && (roomForm.controls['roomName'].dirty || roomForm.controls['roomName'].touched)">Vui
+                            lòng nhập tên phòng.</small>
+                        <small class="ng-dirty ng-invalid"
+                            *ngIf="roomForm.get('roomName')?.hasError('duplicated') && (roomForm.controls['roomName'].dirty || roomForm.controls['roomName'].touched)">Tên phòng đã tồn tại.</small>
                     </div>
-                    <div class="field col">
-                        <label for="price">Số người ở</label>
-                        <p-inputNumber id="price" [(ngModel)]="room.capacity" ></p-inputNumber>
+                    <div class="field">
+                        <label for="price">Giá phòng (đồng) <span class="mandatory-sign">*</span></label>
+                        <div class="input-box">
+                            <p-inputNumber id="price" formControlName="price"
+                                [ngClass]="{'ng-invalid ng-dirty' : roomForm.controls['price'].invalid && (roomForm.controls['price'].dirty || roomForm.controls['price'].touched)}"></p-inputNumber>
+                        </div>
+                        <small class="ng-dirty ng-invalid"
+                            *ngIf="roomForm.get('price')?.invalid && (roomForm.controls['price'].dirty || roomForm.controls['price'].touched)">Vui
+                            lòng nhập giá.</small>
                     </div>
-                </div>
+                    <div class="formgrid grid">
+                        <div class="field col">
+                            <label for="price">Diện tích <span class="mandatory-sign">*</span></label>
+                            <div class="input-box">
+                                <p-inputNumber id="price" formControlName="acreage" mode="decimal" suffix="m²"
+                                    [ngClass]="{'ng-invalid ng-dirty' : roomForm.controls['acreage'].invalid && (roomForm.controls['acreage'].dirty || roomForm.controls['acreage'].touched)}"></p-inputNumber>
+                            </div>
+                            <small class="ng-dirty ng-invalid"
+                                *ngIf="roomForm.get('acreage')?.invalid && (roomForm.controls['acreage'].dirty || roomForm.controls['acreage'].touched)">Vui
+                                lòng nhập diện tích.</small>
+                        </div>
+                        <div class="field col">
+                            <label for="price">Số người ở tối đa</label>
+                            <p-inputNumber id="price" formControlName="maxCapacity"></p-inputNumber>
+                        </div>
+                    </div>
+                </form>
             </ng-template>
 
             <ng-template pTemplate="footer">
-                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-                <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveRoom()"></button>
+                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text"
+                    (click)="hideDialog()"></button>
+                <button pButton pRipple label="Save" [disabled]="roomForm.invalid" icon="pi pi-check"
+                    class="p-button-text" (click)="saveRoom()"></button>
             </ng-template>
         </p-dialog>
 
-        
+
 
         <p-dialog [(visible)]="deleteProductDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
             <div class="flex align-items-center justify-content-center">
                 <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
-                <span *ngIf="room">Are you sure you want to delete <b>{{room.name}}</b>?</span>
+                <span *ngIf="room">Xác nhận xoá phòng <b>{{room.name}}</b>?</span>
             </div>
             <ng-template pTemplate="footer">
-                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteProductDialog = false"></button>
-                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDelete()"></button>
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No"
+                    (click)="deleteProductDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes"
+                    (click)="confirmDelete()"></button>
             </ng-template>
         </p-dialog>
     </div>

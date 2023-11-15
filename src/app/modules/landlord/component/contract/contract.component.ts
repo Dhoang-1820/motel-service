@@ -3,7 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms'
 import * as moment from 'moment'
 import { DurationInputArg1 } from 'moment'
 import { MessageService } from 'primeng/api'
-import { finalize, forkJoin } from 'rxjs'
+import { debounceTime, distinctUntilChanged, finalize, forkJoin } from 'rxjs'
 import { AuthenticationService } from 'src/app/modules/auth/service/authentication.service'
 import { AppConstant } from 'src/app/modules/common/Constants'
 import { User } from 'src/app/modules/model/user.model'
@@ -55,6 +55,12 @@ export class ContractComponent implements OnInit {
     tenantForm: FormGroup
     tenantDialog: boolean = false
     gender: any = AppConstant.GENDER
+    durations: {value: number, display: string}[] = [{value: 6, display: '6 tháng'}, {value: 12, display: '12 tháng'}]
+    oldDeposit: number = 0
+    nextMonth!: Date
+    dayStayedMoney!: number
+    isValidating: boolean = false
+    oldIdentifyNum: any = ''
 
     constructor(
         private accomodationService: AccomodationService,
@@ -67,24 +73,26 @@ export class ContractComponent implements OnInit {
         this.contractForm = new FormGroup({
             startDate: new FormControl(this.contract.startDate, [Validators.required]),
             endDate: new FormControl(this.contract.endDate, [Validators.required]),
-            recurrent: new FormControl(this.contract.recurrent, [Validators.required]),
             deposit: new FormControl(this.contract.deposit, [Validators.required]),
             representative: new FormControl(this.contract.representative, [Validators.required]),
             duration: new FormControl(this.contract.duration, [Validators.required]),
             firstElectricNum: new FormControl(this.contract.firstElectricNum, [Validators.required]),
             firstWaterNum: new FormControl(this.contract.firstWaterNum, [Validators.required]),
             room: new FormControl(this.contract.room, [Validators.required]),
+            dayNumber: new FormControl(this.contract.dayStayedBefore, [Validators.required]),
+            firstTotalPayment: new FormControl(this.contract.firstComePayment, [Validators.required]),
+            holdRoomMoney: new FormControl(this.contract.keepRoomDeposit, []),
         })
         this.contractForm.controls['endDate'].disable();
 
         this.tenantForm = new FormGroup({
             firstName: new FormControl(this.tentant.firstName, [Validators.required]),
             lastName: new FormControl(this.tentant.lastName, [Validators.required]),
-            startDate: new FormControl(this.tentant.startDate, [Validators.required]),
-            gender: new FormControl(this.tentant.gender, [Validators.required]),
+            startDate: new FormControl(this.tentant.startDate, []),
+            gender: new FormControl(this.tentant.gender, []),
             identifyNum: new FormControl(this.tentant.identifyNum, [Validators.required]),
             phone: new FormControl(this.tentant.phone, [Validators.required]),
-            email: new FormControl(this.tentant.email, []),
+            email: new FormControl(this.tentant.email, [Validators.required]),
         })
     }
 
@@ -95,10 +103,34 @@ export class ContractComponent implements OnInit {
         this.tenantForm.get('firstName')?.valueChanges.subscribe((data) => (this.tentant.firstName = data))
         this.tenantForm.get('lastName')?.valueChanges.subscribe((data) => (this.tentant.lastName = data))
         this.tenantForm.get('startDate')?.valueChanges.subscribe((data) => (this.tentant.startDate = data))
-        this.tenantForm.get('identifyNum')?.valueChanges.subscribe((data) => (this.tentant.identifyNum = data))
-        this.tenantForm.get('phone')?.valueChanges.subscribe((data) => (this.tentant.phone = data))
-        this.tenantForm.get('email')?.valueChanges.subscribe((data) => (this.tentant.email = data))
-        this.tenantForm.get('gender')?.valueChanges.subscribe((data) => (this.tentant.gender = data.key))
+        this.tenantForm.get('identifyNum')?.valueChanges.pipe(
+            debounceTime(500),
+            distinctUntilChanged()
+        ).subscribe((data) => {
+            if (data) {
+                this.tentant.identifyNum = data
+                if (this.oldIdentifyNum !== this.tentant.identifyNum) {
+                    this.checkDuplicated()
+                }
+            }
+        })
+        this.tenantForm.get('phone')?.valueChanges.subscribe((data) => {
+            if (data) {
+                this.validatePhoneNumber(data)
+                this.tentant.phone = data
+            }
+        })
+        this.tenantForm.get('email')?.valueChanges.subscribe((data) => {
+            if (data) {
+                this.validateGmail(data)
+                this.tentant.email = data
+            }
+        })
+        this.tenantForm.get('gender')?.valueChanges.subscribe((data) => {
+            if (data) {
+                (this.tentant.gender = data.key)
+            }
+        })
 
         this.contractForm.get('representative')?.valueChanges.subscribe((data) => {
             this.selectedTenant = data
@@ -106,6 +138,8 @@ export class ContractComponent implements OnInit {
         })
         this.contractForm.get('startDate')?.valueChanges.subscribe((data) => {
             this.contract.startDate = data
+            this.getNumberDayStayed()
+            this.getTotalFirstPayment()
 
             let startDate: moment.Moment = moment(this.contract.startDate)
             if (this.contract.duration) {
@@ -125,11 +159,19 @@ export class ContractComponent implements OnInit {
         this.contractForm.get('firstWaterNum')?.valueChanges.subscribe((data) => {
             this.contract.firstWaterNum = data
         })
-        this.contractForm.get('recurrent')?.valueChanges.subscribe((data) => {
-            this.contract.recurrent = data
-        })
         this.contractForm.get('deposit')?.valueChanges.subscribe((data) => {
             this.contract.deposit = data
+            this.getTotalFirstPayment()
+        })
+        this.contractForm.get('dayNumber')?.valueChanges.subscribe((data) => {
+            this.contract.dayStayedBefore = data
+        })
+        this.contractForm.get('firstTotalPayment')?.valueChanges.subscribe((data) => {
+            console.log('data', data)
+            this.contract.firstComePayment = data
+        })
+        this.contractForm.get('holdRoomMoney')?.valueChanges.subscribe((data) => {
+            this.contract.keepRoomDeposit = data
         })
         this.contractForm.get('duration')?.valueChanges.subscribe((data) => {
             this.contract.duration = data
@@ -142,8 +184,69 @@ export class ContractComponent implements OnInit {
             this.contract.room = data
             if (this.contract.room) {
                 this.checkIsRoomHasDeposit()
+                this.checkRoomCapacity()
             }
         })
+    }
+
+    checkDuplicated() {
+        let isDuplicated = false;
+        this.isValidating = true
+        this.tenantService.checkDuplicated(this.tentant.identifyNum).pipe(
+            finalize(() => {
+                this.isValidating = false
+                if (isDuplicated) {
+                    this.tenantForm.get('identifyNum')?.setErrors({duplicated: true})
+                }
+            })
+        ).subscribe(response => isDuplicated = response.data)
+    }
+
+    validatePhoneNumber(phone: string) {
+        const isValid = phone.toLowerCase().match(
+            /(84|0[3|5|7|8|9])+([0-9]{8})\b/g
+        )
+        if (!isValid) {
+            this.tenantForm.get('phone')?.setErrors({phoneInvalid: true})
+        } else {
+            this.tenantForm.get('phone')?.setErrors(null)
+        }
+    }
+
+    validateGmail(email: string) {
+        const isValid = email.toLowerCase().match(
+            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        )
+        if (!isValid) {
+            this.tenantForm.get('email')?.setErrors({mailInvalid: true})
+        } else {
+            this.tenantForm.get('email')?.setErrors(null)
+        }
+    }
+
+    getNumberDayStayed() {
+        let startDate =  moment(this.contract.startDate)
+        this.nextMonth = moment(this.contract.startDate).endOf('month').toDate()
+        let dayDiff = moment(this.nextMonth).diff(startDate, 'days')
+        this.contractForm.get('dayNumber')?.setValue(dayDiff)
+    }
+
+    getTotalFirstPayment() {
+        const firstMonthDay = moment(this.contract.startDate).startOf('month')
+        const lastMonthDay = moment(this.contract.startDate).endOf('month')
+        const numberDayOfMonth = lastMonthDay.diff(firstMonthDay, 'days')
+        const roomPrice = this.contract.room?.price
+        const roomDeposit: number = this.contract.deposit || 0
+        const numDay: number = this.contract.dayStayedBefore || 0
+        const pricePerday = roomPrice / numberDayOfMonth || 0
+        const oldDeposit: number = this.contract.keepRoomDeposit || 0
+        this.dayStayedMoney = pricePerday * numDay;
+        let total =  this.dayStayedMoney - oldDeposit + roomDeposit || 0
+         if (total < 0) {
+            total = 0
+         }
+        console.log('total',total)
+        this.contractForm.get('firstTotalPayment')?.setValue(total)
     }
 
     checkIsRoomHasDeposit() {
@@ -154,12 +257,17 @@ export class ContractComponent implements OnInit {
                 this.loading = false
                 if (result.isBooked) {
                     this.depositor = result.depositor
+                    this.oldDeposit = result.depositMoney
                     let tenant =  this.selectedTenants.find((item: any) => item.id === this.depositor.id)
                     if (!tenant) {
                         this.selectedTenants.push(this.depositor)
                         this.tenantsDisplayed = this.tenantsDisplayed.filter(tenant => tenant.id !== this.depositor.id)
                     }
-                } 
+                }  else {
+                    this.depositor = {}
+                    this.oldDeposit = 0
+                }
+                this.contractForm.get('holdRoomMoney')?.setValue(this.oldDeposit)
             })
         ).subscribe(response => result = response.data)
     }
@@ -175,7 +283,8 @@ export class ContractComponent implements OnInit {
     }
 
     onMoveTenant() {
-        this.checkTenantDeposit()
+        // this.checkTenantDeposit()
+        this.checkRoomCapacity()
     }
 
     newTenant() {
@@ -216,12 +325,22 @@ export class ContractComponent implements OnInit {
         this.tenantDialog = false
     }
 
+    checkRoomCapacity() {
+        if (this.contract.room) {
+            if (this.contract.room.capacity && this.contract.room.capacity < this.selectedTenants.length) {
+                this.contractForm.get('room')?.setErrors({overCapacity: true})
+            } else {
+                this.contractForm.get('room')?.setErrors(null);
+            }
+        }
+    }
     
     onMoveBackTenant() {
         if (!this.selectedTenants.find((item: any) => item.id === this.selectedTenant?.id)) {
             this.contractForm.get('representative')?.setValue(null)
         }
-        this.checkTenantDeposit()
+        this.checkRoomCapacity()
+        // this.checkTenantDeposit()
     }
 
     onMoveBackService(value: any) {
@@ -232,16 +351,18 @@ export class ContractComponent implements OnInit {
         this.contract = {}
         this.addDialog = true
         this.isAddNew = true
-        this.contractForm.get('startDate')?.setValue(moment(new Date).toDate())
-        this.contractForm.get('endDate')?.setValue(moment(new Date).toDate())
-        this.contractForm.get('recurrent')?.setValue(null)
+        this.contractForm.get('startDate')?.setValue(moment(new Date()).toDate())
+        this.contractForm.get('endDate')?.setValue(moment(new Date()).toDate())
         this.contractForm.get('deposit')?.setValue(null)
         this.contractForm.get('representative')?.setValue(null)
         this.contractForm.get('duration')?.setValue(null)
         this.contractForm.get('firstElectricNum')?.setValue(null)
         this.contractForm.get('firstWaterNum')?.setValue(null)
         this.contractForm.get('room')?.setValue(null)
-        this.defaultService();
+        // this.contractForm.get('dayNumber')?.setValue(null)
+        // this.contractForm.get('firstTotalPayment')?.setValue(null)
+        this.contractForm.get('holdRoomMoney')?.setValue(null)
+        // this.defaultService();
     }
 
     defaultService() {
@@ -266,7 +387,6 @@ export class ContractComponent implements OnInit {
                     this.loading = false
                     this.servicesDisplayed = JSON.parse(JSON.stringify(this.services))
                     this.tenantsDisplayed = JSON.parse(JSON.stringify(this.tenants))
-                   
                 }),
             )
             .subscribe((response) => {
@@ -333,8 +453,6 @@ export class ContractComponent implements OnInit {
         }
     }
 
-    
-
     filterService() {
         let service;
         this.contract.services?.forEach((item: any) => {
@@ -361,7 +479,6 @@ export class ContractComponent implements OnInit {
         this.filterTenant()
         this.contractForm.get('startDate')?.setValue(moment(this.contract.startDate).toDate())
         this.contractForm.get('endDate')?.setValue(moment(this.contract.endDate).toDate())
-        this.contractForm.get('recurrent')?.setValue(this.contract.recurrent)
         this.contractForm.get('deposit')?.setValue(this.contract.deposit)
         this.contractForm.get('firstElectricNum')?.setValue(this.contract.firstElectricNum)
         this.contractForm.get('firstWaterNum')?.setValue(this.contract.firstWaterNum)
@@ -386,6 +503,10 @@ export class ContractComponent implements OnInit {
         this.tenantsDisplayed = JSON.parse(JSON.stringify(this.tenants))
         this.depositor = {}
         this.contractForm.reset()
+    }
+
+    onHideTenantDialog() {
+        this.tenantForm.reset()
     }
 
     saveContract() {

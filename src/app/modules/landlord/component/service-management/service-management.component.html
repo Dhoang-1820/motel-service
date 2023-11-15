@@ -5,7 +5,7 @@
             <p-toolbar styleClass="mb-4">
                 <ng-template pTemplate="left">
                     <div class="my-2">
-                        <button pButton pRipple label="Thêm"  loadingIcon="pi pi-spin pi-spinner" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNewService()"></button>
+                        <button pButton pRipple label="Thêm dịch vụ"  loadingIcon="pi pi-spin pi-spinner" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNewService()"></button>
                     </div>
                 </ng-template>
 
@@ -52,27 +52,33 @@
             </p-table>
         </div>
 
-        <p-dialog [(visible)]="addDialog" [style]="{width: '550px'}" header="Chi tiết dịch vụ" [modal]="true" class="p-fluid">
+        <p-dialog (onHide)="onHideAddDialog()" [(visible)]="addDialog" [style]="{width: '550px'}" header="Chi tiết dịch vụ" [modal]="true" class="p-fluid">
             <ng-template pTemplate="content" >
                 <form [formGroup]="serviceForm"> 
                     <div class="field">
-                        <label for="name">Tên dịch vụ</label>
+                        <label for="name">Tên dịch vụ <span class="mandatory-sign">*</span></label>
                         <span class="p-input-icon-right">
                             <i class="pi pi-spin pi-spinner" *ngIf="isValidating"></i>
-                            <input type="text" pInputText id="name" formControlName="name" [ngClass]="{'ng-invalid ng-dirty' : serviceForm.controls['name'].invalid && (serviceForm.controls['name'].dirty || serviceForm.controls['name'].touched)}">
+                            <div class="input-box">
+                                <input type="text" pInputText id="name" formControlName="name" [ngClass]="{'ng-invalid ng-dirty' : serviceForm.controls['name'].invalid && (serviceForm.controls['name'].dirty || serviceForm.controls['name'].touched)}">
+                            </div>
                         </span>
                         <small class="ng-dirty ng-invalid" *ngIf="serviceForm.get('name')?.hasError('required') && (serviceForm.controls['name'].dirty || serviceForm.controls['name'].touched)">Vui lòng nhập tên dịch vụ.</small>
                         <small class="ng-dirty ng-invalid" *ngIf="serviceForm.get('name')?.hasError('nameExisted') && (serviceForm.controls['name'].dirty || serviceForm.controls['name'].touched)">Dịch vụ đã tồn tại.</small>
                     </div>
                     <div class="field">
-                        <label for="price">Đơn giá (đồng)</label>
-                        <p-inputNumber id="price" formControlName="price" [ngClass]="{'ng-invalid ng-dirty' : serviceForm.controls['price'].invalid && (serviceForm.controls['price'].dirty || serviceForm.controls['price'].touched)}"></p-inputNumber>
+                        <label for="price">Đơn giá (đồng) <span class="mandatory-sign">*</span></label>
+                        <div class="input-box">
+                            <p-inputNumber id="price" formControlName="price" [ngClass]="{'ng-invalid ng-dirty' : serviceForm.controls['price'].invalid && (serviceForm.controls['price'].dirty || serviceForm.controls['price'].touched)}"></p-inputNumber>
+                        </div>
                         <small class="ng-dirty ng-invalid" *ngIf="serviceForm.get('price')?.invalid && (serviceForm.controls['price'].dirty || serviceForm.controls['price'].touched)">Vui lòng nhập đơn giá.</small>
                     </div>
                     <div class="field">
-                        <label for="unit">Đơn vị</label>
-                        <p-dropdown appendTo="body" placeholder="Đơn vị" formControlName="unit" [options]="units"  [ngClass]="{'ng-invalid ng-dirty' : serviceForm.controls['unit'].invalid && (serviceForm.controls['unit'].dirty || serviceForm.controls['unit'].touched)}"></p-dropdown>
-                        <small class="ng-dirty ng-invalid" *ngIf="serviceForm.get('unit')?.invalid && (serviceForm.controls['unit'].dirty || serviceForm.controls['unit'].touched)">Vui lòng nhập đơn vị.</small>
+                        <label for="unit">Đơn vị <span class="mandatory-sign">*</span></label>
+                        <div class="input-box">
+                            <p-dropdown appendTo="body" placeholder="Đơn vị" formControlName="unit" [options]="units"  [ngClass]="{'ng-invalid ng-dirty' : serviceForm.controls['unit'].invalid && (serviceForm.controls['unit'].dirty || serviceForm.controls['unit'].touched)}"></p-dropdown>
+                        </div>
+                        <small class="ng-dirty ng-invalid" *ngIf="serviceForm.get('unit')?.invalid && (serviceForm.controls['unit'].dirty || serviceForm.controls['unit'].touched)">Vui lòng chọn đơn vị.</small>
                     </div>
                     <div class="field">
                         <label for="description">Mô tả</label>

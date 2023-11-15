@@ -127,208 +127,199 @@
         </div>
 
         <p-dialog (onHide)="onDialogHide()" [(visible)]="invoiceDialog" [style]="{ width: '1050px' }" header="Xuất hoá đơn" [modal]="true" class="p-fluid">
-            <ng-template pTemplate="content">
-                <div class="formgrid grid">
-                    <div class="field col">
-                        <label for="name">Tên phòng/Số phòng</label>
-                        <div pInputText>{{ invoice.room?.name }}</div>
-                    </div>
-                    <div class="field col">
-                        <label for="name">Giá phòng</label>
-                        <div pInputText>{{ invoice.room?.price | currency : 'VND' : 'symbol' }}</div>
-                    </div>
-                    <div class="field col">
-                        <label for="price">Tháng</label>
-                        <p-calendar [(ngModel)]="selectedMonth" dateFormat="mm/yy" disabled="true"></p-calendar>
-                    </div>
-                </div>
-                <div class="field">
-                    <p-table [value]="invoice.service || []">
-                        <ng-template pTemplate="header">
-                            <tr>
-                                <th style="width: 20%">Tên dịch vụ</th>
-                                <th style="width: 15%">Đơn vị</th>
-                                <th style="width: 15%">Đơn giá</th>
-                                <th style="width: 30%">Số lượng</th>
-                                <th style="width: 20%">Thành tiền</th>
-                            </tr>
-                        </ng-template>
-                        <ng-template pTemplate="body" let-rowData>
-                            <tr>
-                                <td>{{ rowData.serviceName }}</td>
-                                <td>{{ rowData.unit }}</td>
-                                <td>{{ rowData.price | currency : 'VND' : 'symbol' }}</td>
-                                <ng-container
-                                    *ngIf="
-                                        rowData.serviceName !== staticElectricPriceName && rowData.serviceName !== staticWaterPriceName;
-                                        else isCustomUnit
-                                    "
-                                >
-                                    <td>{{ rowData.quantity }}</td>
-                                </ng-container>
-                                <ng-template #isCustomUnit>
-                                    <td *ngIf="rowData.serviceName === staticElectricPriceName">
-                                        <div class="flex">
-                                            <div pInputText class="mr-3">
-                                                {{ rowData.firstElectricNum }}
-                                            </div>
-                                            <div pInputText class="mr-3">
-                                                {{ rowData.lastElectricNum }}
-                                            </div>
-                                            <div pInputText>
-                                                {{ rowData.electricNum }}
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td *ngIf="rowData.serviceName === staticWaterPriceName">
-                                        <div class="flex">
-                                            <div pInputText class="mr-3">
-                                                {{ rowData.firstWaterNum }}
-                                            </div>
-                                            <div pInputText class="mr-3">
-                                                {{ rowData.lastWaterNum }}
-                                            </div>
-                                            <div pInputText>
-                                                {{ rowData.waterNum }}
-                                            </div>
-                                        </div>
-                                    </td>
-                                </ng-template>
-                                <td>{{ rowData.totalPrice | currency : 'VND' : 'symbol' }}</td>
-                            </tr>
-                        </ng-template>
-                    </p-table>
-                </div>
-                <p-divider></p-divider>
-                <form [formGroup]="invoiceForm">
+            <ng-template pTemplate="content" >
+                <div id="contentToConvert">
                     <div class="formgrid grid">
-                        <div class="field col mr-3">
-                            <div class="field">
-                                <label for="totalService">Tổng tiền dịch vụ</label>
-                                <p-inputNumber
-                                    id="totalService"
-                                    class="disabled"
-                                    [readonly]="true"
-                                    formControlName="totalService"
-                                    [ngClass]="{
-                                        'ng-invalid ng-dirty':
-                                            invoiceForm.controls['totalService'].invalid &&
-                                            (invoiceForm.controls['totalService'].dirty || invoiceForm.controls['totalService'].touched)
-                                    }"
-                                ></p-inputNumber>
-                            </div>
-                            <div class="field">
-                                <label for="debt">Nợ cũ tháng {{preMonth | date : 'MM/yyyy'}}</label>
-                                <p-inputNumber
-                                    id="debt"
-                                    class="disabled"
-                                    [readonly]="true"
-                                    formControlName="debt"
-                                    [ngClass]="{
-                                        'ng-invalid ng-dirty':
-                                            invoiceForm.controls['debt'].invalid &&
-                                            (invoiceForm.controls['debt'].dirty || invoiceForm.controls['debt'].touched)
-                                    }"
-                                ></p-inputNumber>
-                            </div>
-                            <div class="field">
-                                <label for="totalPrice">Tổng tiền</label>
-                                <p-inputNumber
-                                    id="totalPrice"
-                                    class="disabled"
-                                    [readonly]="true"
-                                    formControlName="totalPrice"
-                                    [ngClass]="{
-                                        'ng-invalid ng-dirty':
-                                            invoiceForm.controls['totalPrice'].invalid &&
-                                            (invoiceForm.controls['totalPrice'].dirty || invoiceForm.controls['totalPrice'].touched)
-                                    }"
-                                ></p-inputNumber>
-                            </div>
-                            <div class="field">
-                                <label for="discount">Giảm giá (đồng)</label>
-                                <p-inputNumber
-                                    id="discount"
-                                    formControlName="discount"
-                                    [ngClass]="{
-                                        'ng-invalid ng-dirty':
-                                            invoiceForm.controls['discount'].invalid &&
-                                            (invoiceForm.controls['discount'].dirty || invoiceForm.controls['discount'].touched)
-                                    }"
-                                ></p-inputNumber>
-                                <small
-                                    class="ng-dirty ng-invalid"
-                                    *ngIf="
-                                        invoiceForm.get('discount')?.invalid &&
-                                        (invoiceForm.controls['discount'].dirty || invoiceForm.controls['discount'].touched)
-                                    "
-                                    >Số tiền giảm giá vượt quá tổng tiền.</small
-                                >
-                            </div>
-                            <div class="field">
-                                <label for="totalPayment">Thành tiền</label>
-                                <p-inputNumber
-                                    id="totalPayment"
-                                    class="disabled"
-                                    [readonly]="true"
-                                    formControlName="totalPayment"
-                                    [ngClass]="{
-                                        'ng-invalid ng-dirty':
-                                            invoiceForm.controls['totalPayment'].invalid &&
-                                            (invoiceForm.controls['totalPayment'].dirty || invoiceForm.controls['totalPayment'].touched)
-                                    }"
-                                ></p-inputNumber>
-                            </div>
+                        <div class="field col">
+                            <label for="name">Tên phòng/Số phòng</label>
+                            <div pInputText>{{ invoice.room?.name }}</div>
                         </div>
-                        <div class="field col mr-3">
-                            <div class="field">
-                                <label for="paidMoney">Thanh toán</label>
-                                <p-inputNumber
-                                    id="paidMoney"
-                                    formControlName="paidMoney"
-                                    [ngClass]="{
-                                        'ng-invalid ng-dirty':
-                                            invoiceForm.controls['paidMoney'].invalid &&
-                                            (invoiceForm.controls['paidMoney'].dirty || invoiceForm.controls['paidMoney'].touched)
-                                    }"
-                                ></p-inputNumber>
-                                <small
-                                    class="ng-dirty ng-invalid"
-                                    *ngIf="
-                                        invoiceForm.get('paidMoney')?.invalid &&
-                                        (invoiceForm.controls['paidMoney'].dirty || invoiceForm.controls['paidMoney'].touched)
-                                    "
-                                    >Số tiền thanh toán vượt quá tổng thanh toán.</small
-                                >
-                            </div>
-                            <div class="field">
-                                <label for="newDebt">Nợ mới tháng {{selectedMonth | date : 'MM/yyyy'}}</label>
-                                <p-inputNumber
-                                    id="newDebt"
-                                    formControlName="newDebt"
-                                    class="disabled"
-                                    [ngClass]="{
-                                        'ng-invalid ng-dirty':
-                                            invoiceForm.controls['newDebt'].invalid &&
-                                            (invoiceForm.controls['newDebt'].dirty || invoiceForm.controls['newDebt'].touched)
-                                    }"
-                                ></p-inputNumber>
-                                <small
-                                    class="ng-dirty ng-invalid"
-                                    *ngIf="
-                                        invoiceForm.get('newDebt')?.invalid &&
-                                        (invoiceForm.controls['newDebt'].dirty || invoiceForm.controls['newDebt'].touched)
-                                    "
-                                    >Số tiền không hợp lệ.</small
-                                >
-                            </div>
-                            <div class="field">
-                                <label for="description">Mô tả</label>
-                                <textarea type="text" pInputTextarea id="description" formControlName="description"></textarea>
-                            </div> 
+                        <div class="field col">
+                            <label for="name">Giá phòng</label>
+                            <div pInputText>{{ invoice.room?.price | currency : 'VND' : 'symbol' }}</div>
+                        </div>
+                        <div class="field col">
+                            <label for="price">Tháng</label>
+                            <div pInputText>{{ selectedMonth | date : 'MM/yyyy'}}</div>
                         </div>
                     </div>
-                </form>
+                    <div class="field">
+                        <p-table [value]="invoice.service || []">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th style="width: 20%">Tên dịch vụ</th>
+                                    <th style="width: 15%">Đơn vị</th>
+                                    <th style="width: 15%">Đơn giá</th>
+                                    <th style="width: 30%">Số lượng</th>
+                                    <th style="width: 20%">Thành tiền</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-rowData>
+                                <tr>
+                                    <td>{{ rowData.serviceName }}</td>
+                                    <td>{{ rowData.unit }}</td>
+                                    <td>{{ rowData.price | currency : 'VND' : 'symbol' }}</td>
+                                    <ng-container
+                                        *ngIf="
+                                            rowData.serviceName !== staticElectricPriceName && rowData.serviceName !== staticWaterPriceName;
+                                            else isCustomUnit
+                                        "
+                                    >
+                                        <td>{{ rowData.quantity }}</td>
+                                    </ng-container>
+                                    <ng-template #isCustomUnit>
+                                        <td *ngIf="rowData.serviceName === staticElectricPriceName">
+                                            <div class="flex">
+                                                <div pInputText class="mr-3">
+                                                    {{ rowData.firstElectricNum }}
+                                                </div>
+                                                <div pInputText class="mr-3">
+                                                    {{ rowData.lastElectricNum }}
+                                                </div>
+                                                <div pInputText>
+                                                    {{ rowData.electricNum }}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td *ngIf="rowData.serviceName === staticWaterPriceName">
+                                            <div class="flex">
+                                                <div pInputText class="mr-3">
+                                                    {{ rowData.firstWaterNum }}
+                                                </div>
+                                                <div pInputText class="mr-3">
+                                                    {{ rowData.lastWaterNum }}
+                                                </div>
+                                                <div pInputText>
+                                                    {{ rowData.waterNum }}
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </ng-template>
+                                    <td>{{ rowData.totalPrice | currency : 'VND' : 'symbol' }}</td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                    <p-divider></p-divider>
+                    <form [formGroup]="invoiceForm">
+                        <div class="formgrid grid" style="position: relative;">
+                            <div class="field col mr-3">
+                                <div class="field">
+                                    <label for="totalService">Tổng tiền dịch vụ</label>
+                                    <p-inputNumber
+                                        id="totalService"
+                                        class="disabled"
+                                        [readonly]="true"
+                                        formControlName="totalService"
+                                        [ngClass]="{
+                                            'ng-invalid ng-dirty':
+                                                invoiceForm.controls['totalService'].invalid &&
+                                                (invoiceForm.controls['totalService'].dirty || invoiceForm.controls['totalService'].touched)
+                                        }"
+                                    ></p-inputNumber>
+                                </div>
+                                <div class="field">
+                                    <label for="debt">Nợ tháng {{preMonth | date : 'MM/yyyy'}}</label>
+                                    <p-inputNumber
+                                        id="debt"
+                                        class="disabled"
+                                        [readonly]="true"
+                                        formControlName="debt"
+                                        [ngClass]="{
+                                            'ng-invalid ng-dirty':
+                                                invoiceForm.controls['debt'].invalid &&
+                                                (invoiceForm.controls['debt'].dirty || invoiceForm.controls['debt'].touched)
+                                        }"
+                                    ></p-inputNumber>
+                                </div>
+                                <div class="field">
+                                    <label for="totalPrice">Tổng tiền</label>
+                                    <p-inputNumber
+                                        id="totalPrice"
+                                        class="disabled"
+                                        [readonly]="true"
+                                        formControlName="totalPrice"
+                                        [ngClass]="{
+                                            'ng-invalid ng-dirty':
+                                                invoiceForm.controls['totalPrice'].invalid &&
+                                                (invoiceForm.controls['totalPrice'].dirty || invoiceForm.controls['totalPrice'].touched)
+                                        }"
+                                    ></p-inputNumber>
+                                </div>
+                                <div class="field">
+                                    <label for="discount">Giảm giá (đồng)</label>
+                                    <p-inputNumber
+                                        id="discount"
+                                        [class.disabled]="isEdit"
+                                        [readonly]="isEdit"
+                                        formControlName="discount"
+                                        [ngClass]="{
+                                            'ng-invalid ng-dirty':
+                                                invoiceForm.controls['discount'].invalid &&
+                                                (invoiceForm.controls['discount'].dirty || invoiceForm.controls['discount'].touched)
+                                        }"
+                                    ></p-inputNumber>
+                                    <small
+                                        class="ng-dirty ng-invalid"
+                                        *ngIf="
+                                            invoiceForm.get('discount')?.invalid &&
+                                            (invoiceForm.controls['discount'].dirty || invoiceForm.controls['discount'].touched)
+                                        "
+                                        >Số tiền giảm giá vượt quá tổng tiền.</small
+                                    >
+                                </div>
+                                <div class="field">
+                                    <label for="totalPayment">Thành tiền</label>
+                                    <p-inputNumber
+                                        id="totalPayment"
+                                        class="disabled"
+                                        [readonly]="true"
+                                        formControlName="totalPayment"
+                                        [ngClass]="{
+                                            'ng-invalid ng-dirty':
+                                                invoiceForm.controls['totalPayment'].invalid &&
+                                                (invoiceForm.controls['totalPayment'].dirty || invoiceForm.controls['totalPayment'].touched)
+                                        }"
+                                    ></p-inputNumber>
+                                </div>
+                            </div>
+                            <div class="field col mr-3">
+                                <div class="field">
+                                    <label for="paidMoney">Thanh toán</label>
+                                    <p-inputNumber
+                                        id="paidMoney"
+                                        class="disabled"
+                                        [readonly]="true"
+                                        formControlName="paidMoney"
+                                        [ngClass]="{
+                                            'ng-invalid ng-dirty':
+                                                invoiceForm.controls['paidMoney'].invalid &&
+                                                (invoiceForm.controls['paidMoney'].dirty || invoiceForm.controls['paidMoney'].touched)
+                                        }"
+                                    ></p-inputNumber>
+                                    <small
+                                        class="ng-dirty ng-invalid"
+                                        
+                                        *ngIf="
+                                            invoiceForm.get('paidMoney')?.invalid &&
+                                            (invoiceForm.controls['paidMoney'].dirty || invoiceForm.controls['paidMoney'].touched)
+                                        "
+                                        >Số tiền thanh toán vượt quá tổng thanh toán.</small
+                                    >
+                                </div>
+                                <div class="field">
+                                    <label for="description">Mô tả</label>
+                                    <textarea type="text" [class.disabled]="isEdit"
+                                    [readonly]="isEdit" pInputTextarea id="description" formControlName="description"></textarea>
+                                </div> 
+                            </div>
+                            <div *ngIf="invoice.isPay" style="position: absolute;top: 0;right: 50%;transform: translateX(50%);;">
+                                <img style="width: 300px;transform: rotate(45deg);" src="../../../../../assets/images/paid.svg">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+               
             </ng-template>
 
             <ng-template pTemplate="footer">
@@ -348,7 +339,16 @@
                             class="p-button-text"
                         ></button>
                         <!-- [disabled]="invoice.isPay" -->
-                        <button
+                        <!-- <button
+                            *ngIf="!invoice.isPay"
+                            pButton
+                            pRipple
+                            label="In hoá đơn"
+                            icon="pi pi-check"
+                            class="p-button-text"
+                            (click)="convetToPDF()"
+                        ></button> -->
+                        <!-- <button
                             *ngIf="isEdit"
                             pButton
                             pRipple
@@ -356,9 +356,75 @@
                             icon="pi pi-check"
                             class="p-button-text"
                             (click)="updateInvoice()"
-                        ></button>
+                        ></button> -->
                     </div>
                 </div>
+            </ng-template>
+        </p-dialog>
+        <p-dialog [(visible)]="confirmPaymentDialog" header="Xác nhận" [modal]="true" [style]="{ width: '450px' }" class="p-fluid">
+            <div class="flex align-items-center justify-content-center mb-4">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span *ngIf="invoice"
+                    >Xác nhận thanh toán hoá đơn tháng <b>{{ invoice.billDate | date : 'MM/yyyy'}}</b
+                    > phòng {{invoice.room?.name}}</span
+                >
+            </div>
+            <ng-template pTemplate="content">
+                <form [formGroup]="confirmInvoiceForm">
+                    <div class="field">
+                        <label for="paidMoney">Số tiền cần thanh toán</label>
+                        <div pInputText style="padding-top: 14px; padding-bottom: 14px;">
+                            {{invoice.paidMoney | currency : 'VND' : 'symbol'}}
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="paidMoney">Số tiền đã thanh toán</label>
+                        <div class="input-box">
+                            <p-inputNumber
+                            id="paidMoney"
+                            formControlName="paidMoney"
+                            [ngClass]="{
+                                'ng-invalid ng-dirty':
+                                    confirmInvoiceForm.controls['paidMoney'].invalid &&
+                                    (confirmInvoiceForm.controls['paidMoney'].dirty || confirmInvoiceForm.controls['paidMoney'].touched)
+                            }"
+                        ></p-inputNumber>
+                        </div>
+                        <small
+                            class="ng-dirty ng-invalid"
+                            *ngIf="
+                                confirmInvoiceForm.get('paidMoney')?.getError('required') &&
+                                (confirmInvoiceForm.controls['paidMoney'].dirty || confirmInvoiceForm.controls['paidMoney'].touched)
+                            "
+                            >Vui lòng nhập số tiền đã thanh toán.</small
+                        >
+                        <small
+                            class="ng-dirty ng-invalid"
+                            *ngIf="
+                                confirmInvoiceForm.get('paidMoney')?.getError('invalid') &&
+                                (confirmInvoiceForm.controls['paidMoney'].dirty || confirmInvoiceForm.controls['paidMoney'].touched)
+                            "
+                            >Số tiền không hợp lệ.</small
+                        >
+                    </div>
+                    <div class="field">
+                        <label for="debt">Số tiền còn nợ</label>
+                        <p-inputNumber
+                            id="debt"
+                            formControlName="debt"
+                            [ngClass]="{
+                                'ng-invalid ng-dirty':
+                                    confirmInvoiceForm.controls['debt'].invalid &&
+                                    (confirmInvoiceForm.controls['debt'].dirty || confirmInvoiceForm.controls['debt'].touched)
+                            }"
+                        ></p-inputNumber>
+                        
+                    </div>
+                </form>
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="confirmPaymentDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmPayment()"></button>
             </ng-template>
         </p-dialog>
 

@@ -23,7 +23,6 @@ export class ServiceManagementComponent implements OnInit {
     rowsPerPageOptions = [5, 10, 20]
     user!: User | null
     loading: boolean = false
-    
     deleteDialog: boolean = false
 
     services: AccomodationUtilities[] = []
@@ -31,7 +30,7 @@ export class ServiceManagementComponent implements OnInit {
     serviceForm: FormGroup
     units: String[] = AppConstant.UNITS
     isValidating: boolean = false
-    isAdd: boolean = false
+    oldName: any = ''
 
     constructor(
         private accomodationService: AccomodationService,
@@ -54,7 +53,7 @@ export class ServiceManagementComponent implements OnInit {
         ).subscribe(data => {
             if (data) {
                 this.service.name = data
-                if (this.isAdd) {
+                if (this.oldName !== this.service.name) {
                     this.checkValidService()
                 }
             }
@@ -77,13 +76,16 @@ export class ServiceManagementComponent implements OnInit {
         this.service.accomodationId = this.selectedAccomodation.id
         this.accomodationService.checkValidService(this.service).pipe(
             finalize(() => {
-                console.log('isValid', isValid)
                 this.isValidating = false
                 if (!isValid) {
                     this.serviceForm.get('name')?.setErrors({nameExisted: true})
                 }
             })
         ).subscribe(response => isValid = response.data)
+    }
+
+    onHideAddDialog() {
+        this.serviceForm.reset()
     }
 
     getDropdownAccomodation() {
@@ -105,8 +107,8 @@ export class ServiceManagementComponent implements OnInit {
 
     openNewService() {
         this.addDialog = true
-        this.isAdd = true
         this.service = {}
+        this.oldName = ''
         this.serviceForm.get('name')?.setValue(null)
         this.serviceForm.get('price')?.setValue(null)
         this.serviceForm.get('unit')?.setValue(null)
@@ -130,6 +132,7 @@ export class ServiceManagementComponent implements OnInit {
 
     editService(service: AccomodationUtilities) {
         this.service = {...service}
+        this.oldName = service.name
         this.serviceForm.get('name')?.setValue(this.service.name)
         this.serviceForm.get('price')?.setValue(this.service.price)
         this.serviceForm.get('unit')?.setValue(this.service.unit)
@@ -142,7 +145,6 @@ export class ServiceManagementComponent implements OnInit {
             this.serviceForm.get('unit')?.enable()
         }
         this.addDialog = true
-        this.isAdd = false
     }  
 
     deleteService(service: AccomodationUtilities) {

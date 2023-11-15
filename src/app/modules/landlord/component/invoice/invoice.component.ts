@@ -12,6 +12,10 @@ import { User } from 'src/app/modules/model/user.model'
 import { Invoice } from '../../model/bill.model'
 import { AccomodationService } from '../../service/accomodation.service'
 import { BillService } from '../../service/bill.service'
+import html2canvas from 'html2canvas'
+import jspdf from 'jspdf'
+import { asBlob } from 'html-docx-js-typescript'
+import * as saveAs from 'file-saver'
 
 @Component({
     selector: 'app-invoice',
@@ -37,8 +41,12 @@ export class InvoiceComponent implements OnInit {
     getInvoiceRequest!: { id: any; month: any }
     isEdit: boolean = false
     preMonth: Date
-
+    confirmPaymentDialog: boolean = false
     items: MenuItem[] = []
+
+    confirmInvoiceForm: FormGroup
+    paidMoney: number = 0
+    debt: number = 0
 
     constructor(
         private accomodationService: AccomodationService,
@@ -56,14 +64,37 @@ export class InvoiceComponent implements OnInit {
             paidMoney: new FormControl(this.invoice.paidMoney, [Validators.required]),
             totalPayment: new FormControl(this.invoice.totalPayment, []),
             debt: new FormControl(this.invoice.debt, []),
-            newDebt: new FormControl(this.invoice.newDebt, [Validators.required, Validators.min(0)]),
+            newDebt: new FormControl(this.invoice.newDebt, []),
             description: new FormControl(this.invoice.description, []),
+        })
+
+        this.confirmInvoiceForm = new FormGroup({
+            paidMoney: new FormControl(this.paidMoney, [Validators.required]),
+            debt: new FormControl(this.debt, [Validators.required]),
         })
     }
 
     ngOnInit() {
         this.user = this.auth.userValue
         this.getDropdownAccomodation()
+
+        this.confirmInvoiceForm.get('paidMoney')?.valueChanges.subscribe((data) => {
+            if (data) {
+                this.paidMoney = data
+                if (this.invoice.paidMoney) {
+                    let result = this.invoice.paidMoney - this.paidMoney
+                    if (result < 0 || result > this.invoice.paidMoney) {
+                        this.confirmInvoiceForm.get('paidMoney')?.setErrors({ invalid: true })
+                    } else {
+                        this.confirmInvoiceForm.get('debt')?.setValue(result)
+                    }
+                }
+            }
+        })
+
+        this.confirmInvoiceForm.get('debt')?.valueChanges.subscribe((data) => {
+            this.debt = data
+        })
 
         this.invoiceForm.get('totalService')?.valueChanges.subscribe((data) => {
             this.invoice.totalService = data
@@ -86,15 +117,16 @@ export class InvoiceComponent implements OnInit {
         this.invoiceForm.get('totalPrice')?.valueChanges.subscribe((data) => {
             this.invoice.totalPrice = data
         })
-        this.invoiceForm.get('paidMoney')?.valueChanges.subscribe((data) => {
-            this.invoice.paidMoney = data
+        this.invoiceForm.get('totalPayment')?.valueChanges.subscribe((data) => {
+            this.invoice.totalPayment = data
             if (this.invoice.totalPayment && this.invoice.paidMoney) {
                 let newDebt = this.invoice.totalPayment - this.invoice.paidMoney
                 this.invoiceForm.get('newDebt')?.setValue(newDebt)
             }
+            this.invoiceForm.get('paidMoney')?.setValue(this.invoice.totalPayment)
         })
-        this.invoiceForm.get('totalPayment')?.valueChanges.subscribe((data) => {
-            this.invoice.totalPayment = data
+        this.invoiceForm.get('paidMoney')?.valueChanges.subscribe((data) => {
+            this.invoice.paidMoney = data
             if (this.invoice.totalPayment && this.invoice.paidMoney) {
                 let newDebt = this.invoice.totalPayment - this.invoice.paidMoney
                 this.invoiceForm.get('newDebt')?.setValue(newDebt)
@@ -123,8 +155,8 @@ export class InvoiceComponent implements OnInit {
     getMenuItems(invoice: Invoice): MenuItem[] {
         this.items = [
             {
-                icon: 'pi pi-pencil',
-                label: 'Sửa hoá đơn',
+                icon: 'pi pi-info-circle',
+                label: 'Xem chi tiết hoá đơn',
                 command: (e: any) => {
                     this.isEdit = true
                     this.getInvoiceDetail(e.item.data.id)
@@ -135,7 +167,8 @@ export class InvoiceComponent implements OnInit {
                 label: 'Xác nhận thanh toán',
                 disabled: invoice.isPay,
                 command: (e: any) => {
-                    this.confirmPayment(e.item.data)
+                    this.invoice = e.item.data
+                    this.onConfirmPayment()
                 },
             },
             {
@@ -149,7 +182,6 @@ export class InvoiceComponent implements OnInit {
             {
                 label: 'Xoá',
                 icon: 'pi pi-trash',
-                disabled: invoice.isPay,
                 command: (e) => {
                     this.removeInvoice(e.item.data.id)
                 },
@@ -159,6 +191,19 @@ export class InvoiceComponent implements OnInit {
             menuItem.data = invoice
         })
         return this.items
+    }
+
+    public async convetToPDF() {
+        var someElement: any = document.getElementById('contentToConvert')
+        var someElementToString
+
+        if (someElement.outerHTML) someElementToString = someElement.outerHTML
+        else if (XMLSerializer) someElementToString = new XMLSerializer().serializeToString(someElement)
+        var converted: any = await asBlob(someElementToString, {
+            orientation: 'landscape',
+            margins: { top: 720 },
+        })
+        saveAs(converted, 'test.docx')
     }
 
     toggleMenu(menu: any, event: any) {
@@ -246,10 +291,13 @@ export class InvoiceComponent implements OnInit {
     }
 
     sendInvoiceMail(invoiceId: number) {
+        this.loading = true
+        let request: { id: number; month?: Date } = { id: invoiceId, month: this.selectedMonth }
         this.billService
-            .sendInvoice(invoiceId)
+            .sendInvoice(request)
             .pipe(
                 finalize(() => {
+                    this.loading = false
                     this.messageService.add({ severity: 'success', summary: 'Thành công', detail: 'Mail đã gửi thành công' })
                 }),
             )
@@ -276,8 +324,9 @@ export class InvoiceComponent implements OnInit {
 
     getInvoiceDetail(invoiceId: number) {
         this.loading = true
+        let request: { id: number; month?: Date } = { id: invoiceId, month: this.selectedMonth }
         this.billService
-            .getInvoiceDetail(invoiceId)
+            .getInvoiceDetail(request)
             .pipe(
                 finalize(() => {
                     this.loading = false
@@ -304,17 +353,18 @@ export class InvoiceComponent implements OnInit {
         this.invoiceDialog = false
     }
 
-    confirmPayment(invoice: Invoice) {
+    confirmPayment() {
         this.loading = true
-        this.invoice.isPay = true
+        let request: { invoiceId: any; paidMoney: number; debt: number } = { invoiceId: this.invoice.id, paidMoney: this.paidMoney, debt: this.debt }
         this.billService
-            .confirmPayment(invoice.id)
+            .confirmPayment(request)
             .pipe(
                 finalize(() => {
                     this.hideDialog()
                     this.getInvoiceByAccomodation()
                         .pipe(
                             finalize(() => {
+                                this.confirmPaymentDialog = false
                                 this.messageService.add({ severity: 'success', summary: 'Thành công', detail: 'Xuất hoá đơn thành công' })
                             }),
                         )
@@ -324,20 +374,11 @@ export class InvoiceComponent implements OnInit {
             .subscribe((response) => console.log(response))
     }
 
-    // sendInvoice() {
-    //     this.loading = true
-    //     let request: {roomId: any, billId: any, month: any} = {roomId: this.room.id, billId: this.room.billId, month: this.selectedMonth}
-    //     this.billService
-    //         .sendInvoice(request)
-    //         .pipe(
-    //             finalize(() => {
-    //                 this.submitted = false
-    //                 this.getDropdownAccomodation()
-    //             }),
-    //         )
-    //         .subscribe((data) => console.log(data))
-    //     this.invoiceDialog = false
-    // }
+    onConfirmPayment() {
+        this.confirmPaymentDialog = true
+        this.confirmInvoiceForm.get('paidMoney')?.setValue(this.invoice.paidMoney)
+        this.confirmInvoiceForm.get('debt')?.setValue(0)
+    }
 
     updateInvoice() {
         if (!this.invoiceForm.invalid) {

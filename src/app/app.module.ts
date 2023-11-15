@@ -1,11 +1,11 @@
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http'
 import { NgModule } from '@angular/core'
 import { BrowserModule } from '@angular/platform-browser'
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http'
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
+import { NgxPermissionsModule } from 'ngx-permissions'
 import { AppRoutingModule } from './app-routing.module'
 import { AppComponent } from './app.component'
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 import { JwtInterceptor } from './modules/auth/helper/jwt.interceptor'
-import { NgxPermissionsModule } from 'ngx-permissions'
 
 @NgModule({
     declarations: [AppComponent],

@@ -5,7 +5,7 @@
             <p-toolbar styleClass="mb-4">
                 <ng-template pTemplate="left">
                     <div class="my-2">
-                        <button pButton pRipple label="Thêm" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
+                        <button pButton pRipple label="Thêm chỉ số điện nước" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
                     </div>
                 </ng-template>
 
@@ -42,19 +42,19 @@
                         <th></th>
                     </tr>
                 </ng-template>
-                <ng-template pTemplate="body" let-bill>
+                <ng-template pTemplate="body" let-num>
                     <tr>
-                        <td>{{bill.room.name}}</td>
-                        <td>{{bill.month | date:'MM/yyyy'}}</td>
-                        <td>{{bill.firstElectric}} (kWH)</td>
-                        <td>{{bill.lastElectric}} (kWH)</td>
-                        <td>{{bill.electricNum}} (kWH)</td>
-                        <td>{{bill.firstWater}} (m³)</td>
-                        <td>{{bill.lastWater}} (m³)</td>
-                        <td>{{bill.waterNum}} (m³)</td>
+                        <td>{{num.room.name}}</td>
+                        <td>{{num.month | date:'MM/yyyy'}}</td>
+                        <td>{{num.firstElectric}} (kWH)</td>
+                        <td>{{num.lastElectric}} (kWH)</td>
+                        <td>{{num.electricNum}} (kWH)</td>
+                        <td>{{num.firstWater}} (m³)</td>
+                        <td>{{num.lastWater}} (m³)</td>
+                        <td>{{num.waterNum}} (m³)</td>
                         <td>
                             <div class="flex">
-                                <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editTenant(bill)"></button>
+                                <button [loading]="num.loading" pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="onEdit(num)"></button>
                                 <!-- <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteTenant(bill)"></button> -->
                             </div>
                         </td>
@@ -65,53 +65,69 @@
 
         <p-dialog (onHide)="onHideDialog()" [(visible)]="billDialog" [style]="{width: '450px'}" header="Chi tiết chỉ số điện nước" [modal]="true" class="p-fluid">
             <ng-template pTemplate="content">
-                <form [formGroup]="billForm">
+                <form [formGroup]="electricWaterNumForm">
                     <div class="field">
-                        <label for="room">Phòng</label>
-                        <p-dropdown formControlName="room" optionLabel="name" [options]="rooms" placeholder="Chọn phòng" [ngClass]="{'ng-invalid ng-dirty' : billForm.controls['room'].invalid && (billForm.controls['room'].dirty || billForm.controls['room'].touched)}">
-                        </p-dropdown>
-                        <small class="ng-dirty ng-invalid" *ngIf="this.billForm.get('room')?.invalid && (billForm.controls['room'].dirty || billForm.controls['room'].touched)">Vui lòng chọn phòng.</small>
+                        <label for="room">Phòng <span class="mandatory-sign">*</span></label>
+                        <div class="input-box">
+                            <p-dropdown (onChange)="onChangeRoom()" formControlName="room" optionLabel="name" [options]="rooms" placeholder="Chọn phòng" [ngClass]="{'ng-invalid ng-dirty' : electricWaterNumForm.controls['room'].invalid && (electricWaterNumForm.controls['room'].dirty || electricWaterNumForm.controls['room'].touched)}">
+                            </p-dropdown>
+                        </div>
+                        <small class="ng-dirty ng-invalid" *ngIf="this.electricWaterNumForm.get('room')?.invalid && (electricWaterNumForm.controls['room'].dirty || electricWaterNumForm.controls['room'].touched)">Vui lòng chọn phòng.</small>
                     </div>
                     <div class="field">
-                        <label for="month">Tháng</label>
-                        <p-calendar formControlName="month" view="month" dateFormat="mm/yy" [touchUI]="true"></p-calendar>
+                        <label for="month">Tháng <span class="mandatory-sign">*</span></label>
+                        <div class="input-box">
+                            <p-calendar formControlName="month" view="month" dateFormat="mm/yy" [touchUI]="true"></p-calendar>
+                        </div>
                     </div>
                     <div class="field">
-                        <label for="firstElectric">Số điện đầu</label>
-                        <input formControlName="firstElectric" type="number" pInputText id="firstElectric" [ngClass]="{'ng-invalid ng-dirty' : billForm.controls['firstElectric'].invalid && (billForm.controls['firstElectric'].dirty || billForm.controls['firstElectric'].touched)}"/>
-                        <small class="ng-dirty ng-invalid" *ngIf="this.billForm.get('firstElectric')?.invalid && (billForm.controls['firstElectric'].dirty || billForm.controls['firstElectric'].touched)">Chỉ số điện đầu không hợp lệ.</small>
+                        <label for="firstElectric">Số điện đầu <span class="mandatory-sign">*</span></label>
+                        <div class="input-box">
+                            <input formControlName="firstElectric" type="number" pInputText id="firstElectric" [ngClass]="{'ng-invalid ng-dirty' : electricWaterNumForm.controls['firstElectric'].invalid && (electricWaterNumForm.controls['firstElectric'].dirty || electricWaterNumForm.controls['firstElectric'].touched)}"/>
+                        </div>
+                        <small class="ng-dirty ng-invalid" *ngIf="this.electricWaterNumForm.get('firstElectric')?.invalid && (electricWaterNumForm.controls['firstElectric'].dirty || electricWaterNumForm.controls['firstElectric'].touched)">Chỉ số điện đầu không hợp lệ.</small>
                     </div>
                     <div class="field">
-                        <label for="lastElectric">Số điện cuối</label>
-                        <input formControlName="lastElectric" pInputText type="number" id="lastElectric" [ngClass]="{'ng-invalid ng-dirty' : billForm.controls['lastElectric'].invalid && (billForm.controls['lastElectric'].dirty || billForm.controls['lastElectric'].touched)}"/>
-                        <small class="ng-dirty ng-invalid" *ngIf="this.billForm.get('lastElectric')?.invalid && (billForm.controls['lastElectric'].dirty || billForm.controls['lastElectric'].touched)">Chỉ số điện cuối không hợp lệ.</small>
+                        <label for="lastElectric">Số điện cuối <span class="mandatory-sign">*</span></label>
+                        <div class="input-box">
+                            <input formControlName="lastElectric" pInputText type="number" id="lastElectric" [ngClass]="{'ng-invalid ng-dirty' : electricWaterNumForm.controls['lastElectric'].invalid && (electricWaterNumForm.controls['lastElectric'].dirty || electricWaterNumForm.controls['lastElectric'].touched)}"/>
+                        </div>
+                        <small class="ng-dirty ng-invalid" *ngIf="this.electricWaterNumForm.get('lastElectric')?.invalid && (electricWaterNumForm.controls['lastElectric'].dirty || electricWaterNumForm.controls['lastElectric'].touched)">Chỉ số điện cuối không hợp lệ.</small>
                     </div>
                     <div class="field">
-                        <label for="electricNum">Số điện tiêu thụ</label>
-                        <input [readOnly]="true" formControlName="electricNum" type="number" pInputText id="electricNum" [ngClass]="{'ng-invalid ng-dirty' : billForm.controls['electricNum'].invalid}"/>
-                        <small class="ng-dirty ng-invalid" *ngIf="this.billForm.get('electricNum')?.getError('electricInvalid')">Chỉ số điện không hợp lệ.</small>
+                        <!-- <label for="electricNum">Số điện tiêu thụ <span class="mandatory-sign">*</span></label> -->
+                        <div class="font-xl font-bold input-box">Số điện tiêu thụ: <span class="font-2xl">{{electricWater.electricNum}}</span></div>
+                        <!-- <input [readOnly]="true" formControlName="electricNum" type="number" pInputText id="electricNum" [ngClass]="{'ng-invalid ng-dirty' : electricWaterNumForm.controls['electricNum'].invalid}"/> -->
+                        <small class="ng-dirty ng-invalid" *ngIf="this.electricWaterNumForm.get('electricNum')?.getError('electricInvalid')">Chỉ số điện không hợp lệ.</small>
                     </div>
                     <div class="field">
-                        <label for="firstWater">Số nước đầu</label>
-                        <input formControlName="firstWater" type="number" pInputText id="firstWater" [ngClass]="{'ng-invalid ng-dirty' : billForm.controls['firstWater'].invalid && (billForm.controls['firstWater'].dirty || billForm.controls['firstWater'].touched)}"/>
-                        <small class="ng-dirty ng-invalid" *ngIf="this.billForm.get('firstWater')?.invalid && (billForm.controls['firstWater'].dirty || billForm.controls['firstWater'].touched)">Chỉ số nước đầu không hợp lệ.</small>
+                        <label for="firstWater">Số nước đầu <span class="mandatory-sign">*</span></label>
+                         <div class="input-box">
+                             <input formControlName="firstWater" type="number" pInputText id="firstWater" [ngClass]="{'ng-invalid ng-dirty' : electricWaterNumForm.controls['firstWater'].invalid && (electricWaterNumForm.controls['firstWater'].dirty || electricWaterNumForm.controls['firstWater'].touched)}"/>
+                         </div>
+                        <small class="ng-dirty ng-invalid" *ngIf="this.electricWaterNumForm.get('firstWater')?.invalid && (electricWaterNumForm.controls['firstWater'].dirty || electricWaterNumForm.controls['firstWater'].touched)">Chỉ số nước đầu không hợp lệ.</small>
                     </div>
                     <div class="field">
-                        <label for="lastWater">Số nước cuối</label>
-                        <input formControlName="lastWater" type="number" pInputText id="lastWater" [ngClass]="{'ng-invalid ng-dirty' : billForm.controls['lastWater'].invalid && (billForm.controls['lastWater'].dirty || billForm.controls['lastWater'].touched)}"/>
-                        <small class="ng-dirty ng-invalid" *ngIf="this.billForm.get('lastWater')?.invalid && (billForm.controls['lastWater'].dirty || billForm.controls['lastWater'].touched)">Chỉ số nước cuối không hợp lệ.</small>
+                        <label for="lastWater">Số nước cuối <span class="mandatory-sign">*</span></label>
+                         <div class="input-box">
+                             <input formControlName="lastWater" type="number" pInputText id="lastWater" [ngClass]="{'ng-invalid ng-dirty' : electricWaterNumForm.controls['lastWater'].invalid && (electricWaterNumForm.controls['lastWater'].dirty || electricWaterNumForm.controls['lastWater'].touched)}"/>
+                         </div>
+                        <small class="ng-dirty ng-invalid" *ngIf="this.electricWaterNumForm.get('lastWater')?.invalid && (electricWaterNumForm.controls['lastWater'].dirty || electricWaterNumForm.controls['lastWater'].touched)">Chỉ số nước cuối không hợp lệ.</small>
                     </div>
                     <div class="field">
-                        <label for="waterNum">Số nước tiêu thụ</label>
-                        <input [readOnly]="true" formControlName="waterNum" type="number" pInputText id="waterNum" [ngClass]="{'ng-invalid ng-dirty' : billForm.controls['waterNum'].invalid}"/>
-                        <small class="ng-dirty ng-invalid" *ngIf="this.billForm.get('waterNum')?.getError('waterInvalid')">Chỉ số nước không hợp lệ.</small>
+                        <!-- <label for="waterNum">Số nước tiêu thụ</label> -->
+                        <div class="font-xl font-bold input-box">Số nước tiêu thụ: <span class="font-2xl">{{electricWater.waterNum}}</span></div>
+                         <!-- <div class="input-box">
+                             <input [readOnly]="true" formControlName="waterNum" type="number" pInputText id="waterNum" [ngClass]="{'ng-invalid ng-dirty' : electricWaterNumForm.controls['waterNum'].invalid}"/>
+                         </div> -->
+                        <small class="ng-dirty ng-invalid" *ngIf="this.electricWaterNumForm.get('waterNum')?.getError('waterInvalid')">Chỉ số nước không hợp lệ.</small>
                     </div>
                 </form>
             </ng-template>
 
             <ng-template pTemplate="footer">
                 <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-                <button pButton pRipple label="Save" [disabled]="billForm.invalid" icon="pi pi-check" class="p-button-text" (click)="saveBill()"></button>
+                <button pButton pRipple label="Save" [disabled]="electricWaterNumForm.invalid" icon="pi pi-check" class="p-button-text" (click)="save()"></button>
             </ng-template>
         </p-dialog>
 

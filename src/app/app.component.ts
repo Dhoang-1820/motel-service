@@ -10,15 +10,15 @@ import { User } from './modules/model/user.model';
 })
 export class AppComponent implements OnInit {
     user!: User | null;
-    userRole: any;
 
     constructor(private permissionsService: NgxPermissionsService, private auth: AuthenticationService) {}
 
     ngOnInit(): void {
       this.user = this.auth.userValue
-      this.userRole = this.user?.roles;
-      console.log('role', this.userRole)
-      // this.permissionsService.loadPermissions(this.userRole );
+      if (this.user?.roles) {
+        const permissions = [this.user.roles]
+        this.permissionsService.loadPermissions(permissions);
+      }
     }
     title = 'motel-service'
 }

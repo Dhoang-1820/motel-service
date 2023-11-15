@@ -14,18 +14,3 @@
         z-index: 10000 !important;
     }
 }
-
-.disabled {
-    opacity: .5;
-    user-select: none;
-    cursor: default;
-    pointer-events: none;
-}
-
-::ng-deep {
-    li:has(.disabled) {
-        user-select: none;
-        cursor: default;
-        pointer-events: none;
-    }
-}

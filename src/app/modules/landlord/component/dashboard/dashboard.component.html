@@ -1,0 +1,72 @@
+<div class="grid" *ngIf="!loading">
+    <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card mb-0">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">Số lượng nhà trọ</span>
+                    <div class="text-900 font-medium text-xl">{{dashboards.accomodationNum}}</div>
+                </div>
+                <div class="flex align-items-center justify-content-center bg-blue-100 border-round"
+                    [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                    <i class="pi pi-shopping-cart text-blue-500 text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card mb-0">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">Tổng số phòng trọ</span>
+                    <div class="text-900 font-medium text-xl">{{dashboards.roomNum}}</div>
+                </div>
+                <div class="flex align-items-center justify-content-center bg-orange-100 border-round"
+                    [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                    <i class="pi pi-map-marker text-orange-500 text-xl"></i>
+                </div>
+            </div>
+            <span class="text-green-500 font-medium">{{dashboards.emptyRoomNum}} </span>
+            <span class="text-500">Phòng trống</span>
+        </div>
+    </div>
+    <div class="col-12 lg:col-6 xl:col-3">
+        <div class="card mb-0">
+            <div class="flex justify-content-between mb-3">
+                <div>
+                    <span class="block text-500 font-medium mb-3">Số lượng khách thuê</span>
+                    <div class="text-900 font-medium text-xl">{{dashboards.tenantNum}}</div>
+                </div>
+                <div class="flex align-items-center justify-content-center bg-cyan-100 border-round"
+                    [ngStyle]="{width: '2.5rem', height: '2.5rem'}">
+                    <i class="pi pi-inbox text-cyan-500 text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 xl:col-6">
+        <div class="card">
+            <div class="flex align-items-center justify-content-between mb-4">
+                <h5>Thông báo</h5>
+            </div>
+
+            <span class="block text-600 font-medium mb-3">Hôm nay</span>
+            <ul class="p-0 mx-0 mt-0 mb-4 list-none">
+                <li class="flex align-items-center py-2 border-bottom-1 surface-border" *ngFor="let item of dashboards.notifications">
+                    <div
+                        class="w-3rem h-3rem flex align-items-center justify-content-center bg-blue-100 border-circle mr-3 flex-shrink-0">
+                        <i class="pi pi-dollar text-xl text-blue-500"></i>
+                    </div>
+                    <span class="text-900 line-height-3">
+                        {{item}}
+                    </span>
+                </li>
+                <div *ngIf="dashboards.notifications.length === 0">Không có thông báo đặt phòng nào hôm nay</div>
+            </ul>
+        </div>
+    </div>
+    
+</div>
+<div class="progress-spinner" *ngIf="loading">
+    <p-progressSpinner></p-progressSpinner>
+</div>

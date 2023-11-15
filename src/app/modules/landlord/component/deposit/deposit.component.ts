@@ -3,7 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms'
 import * as moment from 'moment'
 import { MessageService } from 'primeng/api'
 import { Table } from 'primeng/table'
-import { finalize, forkJoin } from 'rxjs'
+import { debounceTime, distinctUntilChanged, finalize, forkJoin } from 'rxjs'
 import { AuthenticationService } from 'src/app/modules/auth/service/authentication.service'
 import { User } from 'src/app/modules/model/user.model'
 import { AccomodationUtilities, Room } from '../../model/accomodation.model'
@@ -58,6 +58,21 @@ export class DepositComponent implements OnInit {
     selectedServices: AccomodationUtilities[] = []
     selectedTenants: any = []
     contractInfoLoading: boolean = false
+    minEndDate!: Date;
+    maxEndDate!: Date;
+    minDate!: Date;
+    maxDate!: Date;
+    isValidating: boolean = false
+    oldIdentifyNum: any = ''
+    durations: {value: number, display: string}[] = [{value: 6, display: '6 tháng'}, {value: 12, display: '12 tháng'}]
+    oldDeposit: number = 0
+    nextMonth!: Date
+    dayStayedMoney!: number
+    gender: any = AppConstant.GENDER
+
+    tentant: Tenant = {}
+    tenantForm: FormGroup
+    tenantDialog: boolean = false
 
     constructor(
         private accomodationService: AccomodationService,
@@ -75,9 +90,9 @@ export class DepositComponent implements OnInit {
             deposit: new FormControl(this.deposit.deposit, [Validators.required]),
             firstName: new FormControl(this.deposit.firstName, [Validators.required]),
             lastName: new FormControl(this.deposit.lastName, [Validators.required]),
-            phone: new FormControl(this.deposit.phone, []),
+            phone: new FormControl(this.deposit.phone, [Validators.required]),
             identifyNum: new FormControl(this.deposit.identifyNum, [Validators.required]),
-            email: new FormControl(this.deposit.email, []),
+            email: new FormControl(this.deposit.email, [Validators.required]),
             room: new FormControl(this.deposit.room, [Validators.required]),
             selectedTenant: new FormControl(this.selectedTenant, []),
         })
@@ -85,14 +100,28 @@ export class DepositComponent implements OnInit {
         this.contractForm = new FormGroup({
             startDate: new FormControl(this.contract.startDate, [Validators.required]),
             endDate: new FormControl(this.contract.endDate, [Validators.required]),
-            recurrent: new FormControl(this.contract.recurrent, [Validators.required]),
             deposit: new FormControl(this.contract.deposit, [Validators.required]),
             representative: new FormControl(this.contract.representative, [Validators.required]),
             duration: new FormControl(this.contract.duration, [Validators.required]),
             firstElectricNum: new FormControl(this.contract.firstElectricNum, [Validators.required]),
             firstWaterNum: new FormControl(this.contract.firstWaterNum, [Validators.required]),
             room: new FormControl(this.contract.room, [Validators.required]),
+            dayNumber: new FormControl(this.contract.dayStayedBefore, [Validators.required]),
+            firstTotalPayment: new FormControl(this.contract.firstComePayment, [Validators.required]),
+            holdRoomMoney: new FormControl(this.contract.keepRoomDeposit, []),
         })
+
+        this.tenantForm = new FormGroup({
+            firstName: new FormControl(this.tentant.firstName, [Validators.required]),
+            lastName: new FormControl(this.tentant.lastName, [Validators.required]),
+            startDate: new FormControl(this.tentant.startDate, []),
+            gender: new FormControl(this.tentant.gender, []),
+            identifyNum: new FormControl(this.tentant.identifyNum, [Validators.required]),
+            phone: new FormControl(this.tentant.phone, [Validators.required]),
+            email: new FormControl(this.tentant.email, [Validators.required]),
+        })
+
+        this.validateDate()
     }
 
     ngOnInit() {
@@ -101,6 +130,8 @@ export class DepositComponent implements OnInit {
 
         this.depositForm.get('startDate')?.valueChanges.subscribe((data) => {
             this.deposit.startDate = data
+            this.minEndDate = moment(this.deposit.startDate).add(4, 'days').toDate()
+            this.maxEndDate = moment(this.deposit.startDate).add(15, 'days').toDate();
         })
         this.depositForm.get('dueDate')?.valueChanges.subscribe((data) => {
             this.deposit.dueDate = data
@@ -126,16 +157,37 @@ export class DepositComponent implements OnInit {
             this.deposit.firstName = data
         })
         this.depositForm.get('identifyNum')?.valueChanges.subscribe((data) => {
-            this.deposit.identifyNum = data
+            if (data) {
+                this.deposit.identifyNum = data
+                if (this.oldIdentifyNum !== this.deposit.identifyNum) {
+                    this.checkDuplicatedTenant()
+                }
+            }
         })
         this.depositForm.get('lastName')?.valueChanges.subscribe((data) => {
             this.deposit.lastName = data
         })
         this.depositForm.get('phone')?.valueChanges.subscribe((data) => {
-            this.deposit.phone = data
+            if (data) {
+                this.deposit.phone = data
+                let isValid = this.validatePhoneNumber(data)
+                if (!isValid) {
+                    this.depositForm.get('phone')?.setErrors({phoneInvalid: true})
+                } else {
+                    this.depositForm.get('phone')?.setErrors(null)
+                }
+            }
         })
         this.depositForm.get('email')?.valueChanges.subscribe((data) => {
-            this.deposit.email = data
+            if (data) {
+                this.deposit.email = data
+                let isValid =  this.validateGmail(data)
+                if (!isValid) {
+                    this.depositForm.get('email')?.setErrors({mailInvalid: true})
+                } else {
+                    this.depositForm.get('email')?.setErrors(null)
+                }
+            }
         })
         this.depositForm.get('room')?.valueChanges.subscribe((data) => {
             this.deposit.room = data
@@ -154,11 +206,14 @@ export class DepositComponent implements OnInit {
         })
         this.contractForm.get('startDate')?.valueChanges.subscribe((data) => {
             this.contract.startDate = data
+            this.getNumberDayStayed()
+            this.getTotalFirstPayment()
 
             let startDate: moment.Moment = moment(this.contract.startDate)
             if (this.contract.duration) {
                 let duration: moment.DurationInputArg1 = this.contract.duration as moment.DurationInputArg1
                 let endDate: moment.Moment = moment(startDate).add(duration, 'M');
+                
                 this.contractForm.get('endDate')?.setValue(endDate.toDate())
             } else {
                 this.contractForm.get('endDate')?.setValue(startDate.toDate())
@@ -173,11 +228,18 @@ export class DepositComponent implements OnInit {
         this.contractForm.get('firstWaterNum')?.valueChanges.subscribe((data) => {
             this.contract.firstWaterNum = data
         })
-        this.contractForm.get('recurrent')?.valueChanges.subscribe((data) => {
-            this.contract.recurrent = data
-        })
         this.contractForm.get('deposit')?.valueChanges.subscribe((data) => {
             this.contract.deposit = data
+            this.getTotalFirstPayment()
+        })
+        this.contractForm.get('dayNumber')?.valueChanges.subscribe((data) => {
+            this.contract.dayStayedBefore = data
+        })
+        this.contractForm.get('firstTotalPayment')?.valueChanges.subscribe((data) => {
+            this.contract.firstComePayment = data
+        })
+        this.contractForm.get('holdRoomMoney')?.valueChanges.subscribe((data) => {
+            this.contract.keepRoomDeposit = data
         })
         this.contractForm.get('duration')?.valueChanges.subscribe((data) => {
             this.contract.duration = data
@@ -188,7 +250,176 @@ export class DepositComponent implements OnInit {
         })
         this.contractForm.get('room')?.valueChanges.subscribe((data) => {
             this.contract.room = data
+            if (this.contract.room) {
+                this.checkRoomCapacity()
+                this.onChangeRoomContract()
+            }
         })
+
+        this.tenantForm.get('firstName')?.valueChanges.subscribe((data) => (this.tentant.firstName = data))
+        this.tenantForm.get('lastName')?.valueChanges.subscribe((data) => (this.tentant.lastName = data))
+        this.tenantForm.get('startDate')?.valueChanges.subscribe((data) => (this.tentant.startDate = data))
+        this.tenantForm.get('identifyNum')?.valueChanges.pipe(
+            debounceTime(500),
+            distinctUntilChanged()
+        ).subscribe((data) => {
+            if (data) {
+                this.tentant.identifyNum = data
+                if (this.oldIdentifyNum !== this.tentant.identifyNum) {
+                    this.checkDuplicated()
+                }
+            }
+        })
+        this.tenantForm.get('phone')?.valueChanges.subscribe((data) => {
+            if (data) {
+                this.tentant.phone = data
+                let isValid = this.validatePhoneNumber(data)
+                if (!isValid) {
+                    this.tenantForm.get('phone')?.setErrors({phoneInvalid: true})
+                } else {
+                    this.tenantForm.get('phone')?.setErrors(null)
+                }
+            }
+        })
+        this.tenantForm.get('email')?.valueChanges.subscribe((data) => {
+            if (data) {
+                this.tentant.email = data
+                let isValid = this.validateGmail(data)
+                if (!isValid) {
+                    this.tenantForm.get('email')?.setErrors({mailInvalid: true})
+                } else {
+                    this.tenantForm.get('email')?.setErrors(null)
+                }
+            }
+        })
+        this.tenantForm.get('gender')?.valueChanges.subscribe((data) => {
+            if (data) {
+                (this.tentant.gender = data.key)
+            }
+        })
+    }
+    checkDuplicated() {
+        let isDuplicated = false;
+        this.isValidating = true
+        this.tenantService.checkDuplicated(this.tentant.identifyNum).pipe(
+            finalize(() => {
+                this.isValidating = false
+                if (isDuplicated) {
+                    this.tenantForm.get('identifyNum')?.setErrors({duplicated: true})
+                }
+            })
+        ).subscribe(response => isDuplicated = response.data)
+    }
+
+    validatePhoneNumber(phone: string) {
+        const isValid = phone.toLowerCase().match(
+            /(84|0[3|5|7|8|9])+([0-9]{8})\b/g
+        )
+        return isValid;
+        
+    }
+
+    validateGmail(email: string) {
+        const isValid = email.toLowerCase().match(
+            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        )
+        return isValid;
+    }
+
+    getNumberDayStayed() {
+        let startDate =  moment(this.contract.startDate)
+        this.nextMonth = moment(this.contract.startDate).endOf('month').toDate()
+        let dayDiff = moment(this.nextMonth).diff(startDate, 'days')
+        this.contractForm.get('dayNumber')?.setValue(dayDiff)
+    }
+
+    getTotalFirstPayment() {
+        const firstMonthDay = moment(this.contract.startDate).startOf('month')
+        const lastMonthDay = moment(this.contract.startDate).endOf('month')
+        const numberDayOfMonth = lastMonthDay.diff(firstMonthDay, 'days')
+        const roomPrice = this.contract.room?.price
+        const roomDeposit: number = this.contract.deposit || 0
+        const numDay: number = this.contract.dayStayedBefore || 0
+        const pricePerday = roomPrice / numberDayOfMonth || 0
+        const oldDeposit: number = this.contract.keepRoomDeposit || 0
+        this.dayStayedMoney = pricePerday * numDay;
+        let total =  this.dayStayedMoney - oldDeposit + roomDeposit || 0
+         if (total < 0) {
+            total = 0
+         }
+        console.log('total',total)
+        this.contractForm.get('firstTotalPayment')?.setValue(total)
+    }
+
+    checkRoomCapacity() {
+        if (this.contract.room) {
+            if (this.contract.room.capacity && this.contract.room.capacity < this.selectedTenants.length) {
+                this.contractForm.get('room')?.setErrors({overCapacity: true})
+            } else {
+                this.contractForm.get('room')?.setErrors(null);
+            }
+        }
+    }
+
+    newTenant() {
+        this.tentant = {}
+        this.tenantForm.get('firstName')?.setValue(null)
+        this.tenantForm.get('lastName')?.setValue(null)
+        this.tenantForm.get('startDate')?.setValue(null)
+        this.tenantForm.get('identifyNum')?.setValue(null)
+        this.tenantForm.get('phone')?.setValue(null)
+        this.tenantForm.get('email')?.setValue(null)
+        this.tenantForm.get('gender')?.setValue({key: 'UNKNOWN', value: 'Chưa biết'})
+        this.tentant.accomodationId = this.selectedAccomodation.id;
+        this.tenantDialog = true
+    }
+
+    saveTenant() {
+        this.loading = true
+        let message: string
+        if (this.tentant.id) {
+            message = 'Chỉnh sửa thành công'
+        } else {
+            message = 'Thêm thành công'
+        }
+        this.tenantService
+            .saveTenant(this.tentant)
+            .pipe(
+                finalize(() => {
+                    this.getTenantByAccomodation().pipe(
+                        finalize(() => {
+                            this.messageService.add({ severity: 'success', summary: 'Successful', detail: message, life: 3000 })
+                            this.loading = false
+                            this.tenantsDisplayed = JSON.parse(JSON.stringify(this.tenants))
+                        })
+                    ).subscribe(response => this.tenants = response.data)
+                }),
+            )
+            .subscribe((data) => console.log(data))
+    }
+
+    checkDuplicatedTenant() {
+        let isDuplicated = false;
+        this.isValidating = true
+        this.tenantService.checkDuplicated(this.deposit.identifyNum).pipe(
+            finalize(() => {
+                this.isValidating = false
+                if (isDuplicated) {
+                    this.depositForm.get('identifyNum')?.setErrors({duplicated: true})
+                }
+            })
+        ).subscribe(response => isDuplicated = response.data)
+    }
+
+    validateDate() {
+        let today = new Date();
+        this.minDate = moment(today).subtract(5, 'days').toDate()
+        this.maxDate = moment(today).add(5, 'days').toDate()
+        this.minEndDate =  this.minDate
+    }
+
+    onChangeRoomContract() {
+        this.contractForm.get('deposit')?.setValue(this.contract.room?.price)
     }
 
     onDialogHide() {
@@ -218,7 +449,6 @@ export class DepositComponent implements OnInit {
             
     }
 
-
     onMoveTenant() {
     }
 
@@ -237,6 +467,7 @@ export class DepositComponent implements OnInit {
         this.preRoom = {}
         this.addDialog = true
         this.isAddNew = true
+        this.oldIdentifyNum = ''
         this.depositForm.get('startDate')?.setValue(null)
         this.depositForm.get('dueDate')?.setValue(null)
         this.depositForm.get('note')?.setValue(null)
@@ -280,6 +511,9 @@ export class DepositComponent implements OnInit {
     }
 
     onChangeTenant() {
+        this.oldIdentifyNum = this.selectedTenant.identifyNum
+        this.depositForm.get('firstName')?.setValue(this.selectedTenant.firstName)
+        this.depositForm.get('lastName')?.setValue(this.selectedTenant.lastName)
         this.depositForm.get('identifyNum')?.setValue(this.selectedTenant.identifyNum)
         this.depositForm.get('phone')?.setValue(this.selectedTenant.phone)
         this.depositForm.get('email')?.setValue(this.selectedTenant.email)
@@ -329,12 +563,11 @@ export class DepositComponent implements OnInit {
             )
             .subscribe((response) => (this.deposits = response.data))
     }
-
     
-
     editDeposit(deposit: Deposit) {
         this.isAddNew = false
         this.deposit = { ...deposit }
+        this.oldIdentifyNum = deposit.identifyNum
         this.preRoom = this.deposit.room?.id
         this.depositForm.get('startDate')?.setValue((moment(this.deposit.startDate)).toDate())
         this.depositForm.get('dueDate')?.setValue(moment(this.deposit.dueDate).toDate())
@@ -349,6 +582,7 @@ export class DepositComponent implements OnInit {
         this.roomPresent = this.deposit.room
         this.rooms.push(this.roomPresent)
         this.addDialog = true
+        this.isChooseExisted = true
     }
 
     getEditingTenant(tenantId: any) {
@@ -403,7 +637,14 @@ export class DepositComponent implements OnInit {
         })
     }
 
+    filterTenant() {
+        this.contract.tenants?.forEach((item: any) => {
+            this.selectedTenants.push(item);
+        })
+    }
+
     createContract(deposit: Deposit) {
+        deposit.loading = true
         this.contractInfoLoading = true
         this.initContractData().pipe(
             finalize(() => {
@@ -411,18 +652,23 @@ export class DepositComponent implements OnInit {
                 this.contractInfoLoading = false
                 this.contractDialog = true
                 this.isAddNew = true
-                this.defaultService()
+                deposit.loading = false
+                // this.defaultService()
                 let tenant = this.findTenant(deposit.tenantId)
-                this.selectedTenants.push(tenant);
-                this.contractForm.get('startDate')?.setValue(moment(new Date).toDate())
-                this.contractForm.get('endDate')?.setValue(moment(new Date).toDate())
-                this.contractForm.get('recurrent')?.setValue(null)
+                if (tenant) {
+                    this.selectedTenants.push(tenant);
+                    this.tenantsDisplayed = this.tenantsDisplayed.filter(item => item.id !== tenant?.id)
+                }
+                this.contractForm.get('startDate')?.setValue(moment(new Date()).toDate())
+                this.contractForm.get('endDate')?.setValue(moment(new Date()).toDate())
                 this.contractForm.get('deposit')?.setValue(null)
                 this.contractForm.get('representative')?.setValue(null)
                 this.contractForm.get('duration')?.setValue(null)
                 this.contractForm.get('firstElectricNum')?.setValue(null)
                 this.contractForm.get('firstWaterNum')?.setValue(null)
-                this.contractForm.get('room')?.setValue(deposit.room)
+                this.contractForm.get('room')?.setValue({id: deposit.room?.id, name: deposit.room?.name, price: deposit.room?.price, capacity: deposit.room?.capacity})
+                this.roomPresent = this.contract.room
+                this.rooms.push(this.roomPresent)
             })
         )
         .subscribe((response: any) => {
@@ -452,7 +698,8 @@ export class DepositComponent implements OnInit {
             this.contract.services = this.selectedServices
             this.contractService.saveContract(this.contract).pipe(
                 finalize(() => {
-                    // this.initData()
+                    this.initData()
+                    this.contractDialog = false
                     this.contract = {}
                     this.messageService.add({ severity: 'success', summary: 'Thành công', detail: message, life: 3000 })
                 })
@@ -467,11 +714,24 @@ export class DepositComponent implements OnInit {
     }
 
     onDialogContractHide() {
+        if (this.roomPresent) {
+            this.rooms = this.rooms.filter(item => item.id !== this.roomPresent.id)
+        }
+        this.selectedServices = []
         this.selectedTenants = []
+        this.servicesDisplayed = JSON.parse(JSON.stringify(this.services))
+        this.tenantsDisplayed = JSON.parse(JSON.stringify(this.tenants))
+        this.contractForm.reset()
     }
+
 
     hideDialog() {
         this.addDialog = false
+        this.isChooseExisted = false
+    }
+
+    onHideTenantDialog() {
+        this.tenantForm.reset()
     }
 
     saveDeposit() {

@@ -270,7 +270,7 @@
                         </div>
                     </div>
                     <div class="field" *ngIf="isAddReviewDate">
-                        <p-calendar appendTo="body" position="bottom" id="reviewDate" [minDate]="minDate"
+                        <p-calendar appendTo="body" position="bottom" [showTime]="true" id="reviewDate" [minDate]="minDate"
                             formControlName="reviewDate" dateFormat="dd/mm/yy" [readonlyInput]="true"></p-calendar>
                     </div>
                 </form>
