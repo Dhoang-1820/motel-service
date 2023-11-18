@@ -48,7 +48,7 @@
                         <td>
                             <div class="flex">
                                 <button pButton [loading]="item.loading" pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editAccomodation(item)"></button>
-                                <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteAccomodation(item)"></button>
+                                <button pButton [loading]="item.removeLoading" pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteAccomodation(item)"></button>
                             </div>
                         </td>
                     </tr>
@@ -60,14 +60,14 @@
             <ng-template pTemplate="content">
                 <form [formGroup]="accomodationForm">
                     <div class="field">
-                        <label for="name">Tên khu/Toà nhà</label>
+                        <label for="name">Tên khu/Toà nhà <span class="mandatory-sign">*</span></label>
                         <div class="input-box">
                             <input type="text" pInputText  formControlName="name" autofocus [ngClass]="{'ng-invalid ng-dirty' : accomodationForm.controls['name'].invalid && (accomodationForm.controls['name'].dirty || accomodationForm.controls['name'].touched)}"/>
                         </div>
                         <small class="ng-dirty ng-invalid" *ngIf="this.accomodationForm.get('name')?.invalid && (accomodationForm.controls['name'].dirty || accomodationForm.controls['name'].touched)">Vui lòng nhập tên khu trọ.</small>
                     </div>
                     <div class="field">
-                        <label for="province">Tỉnh/Thành phố</label>
+                        <label for="province">Tỉnh/Thành phố <span class="mandatory-sign">*</span></label>
                         <div class="input-box">
                             <p-dropdown appendTo="body" (onChange)="getDistrictByProvince()" placeholder="Tỉnh/Thành phố" [options]="provices" formControlName="province" optionLabel="name" [ngClass]="{'ng-invalid ng-dirty' : accomodationForm.controls['province'].invalid && (accomodationForm.controls['province'].dirty || accomodationForm.controls['province'].touched)}">
                             </p-dropdown>
@@ -75,7 +75,7 @@
                         <small class="ng-dirty ng-invalid" *ngIf="this.accomodationForm.get('province')?.invalid && (accomodationForm.controls['province'].dirty || accomodationForm.controls['province'].touched)">Vui lòng chọn địa chỉ.</small>
                     </div>
                     <div class="field">
-                        <label for="district">Quận/Huyện</label>
+                        <label for="district">Quận/Huyện <span class="mandatory-sign">*</span></label>
                         <div class="input-box">
                             <p-dropdown appendTo="body" (onChange)="getWardByDistrict()" placeholder="Quận/Huyện" formControlName="district" [options]="districts" optionLabel="name" [ngClass]="{'ng-invalid ng-dirty' : accomodationForm.controls['district'].invalid && (accomodationForm.controls['district'].dirty || accomodationForm.controls['district'].touched)}"></p-dropdown>
                         </div>
@@ -123,7 +123,9 @@
         <p-dialog [(visible)]="deleteDialog" header="Xác nhận" [modal]="true" [style]="{width:'450px'}">
             <div class="flex align-items-center justify-content-center">
                 <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
-                <span *ngIf="accomodation">Bạn có chắc chắn muốn xoá <b>{{accomodation.name}}</b>?</span>
+                <span *ngIf="accomodation">Các phòng cùng dịch vụ kèm theo toà nhà sẽ bị xoá 
+                    <br>
+                    Bạn có chắc chắn muốn xoá <b>{{accomodation.name}}</b>? </span>
             </div>
             <ng-template pTemplate="footer">
                 <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteDialog = false"></button>

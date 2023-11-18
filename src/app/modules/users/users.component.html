@@ -156,28 +156,17 @@
                             <div *ngIf="rangePrice.length > 0" class="flex justify-content-center font-semibold mb-4">
                                 <span>Đang xem {{rangePrice[0]}} - {{rangePrice[1]}} triệu</span>
                             </div>
-                            <div class="flex flex-wrap">
-                                <div (click)="quickSelectPrice(range, true)" style="cursor: pointer;" class="mr-3 mb-4"
-                                    *ngFor="let range of quickRangePrice">
-                                    <p-chip styleClass="chip">
-                                        <div class="p-2">{{range.name}}</div>
-                                    </p-chip>
-                                </div>
-                            </div>
+                            <p-listbox [options]="quickRangePrice" (onChange)="onChangePrice()" [(ngModel)]="selectedPriceRange" optionLabel="name" [style]="{'width':'15rem'}">
+                            </p-listbox>
                         </p-card>
                     </div>
                     <p-card header="Xem theo diện tích">
                         <div *ngIf="rangeAreage.length > 0" class="flex justify-content-center font-semibold mb-4">
                             <span>Đang xem {{rangeAreage[0]}} - {{rangeAreage[1]}} m²</span>
                         </div>
-                        <div class="flex flex-wrap">
-                            <div (click)="quickSelectAreage(range, true)" style="cursor: pointer;" class="mr-3 mb-4"
-                                *ngFor="let range of quickRangeAreage">
-                                <p-chip>
-                                    <div class="p-2">{{range.name}}</div>
-                                </p-chip>
-                            </div>
-                        </div>
+                        <p-listbox [options]="quickRangeAreage" (onChange)="onChangeAreage()" [(ngModel)]="selectedAreageRange" optionLabel="name" [style]="{'width':'15rem'}">
+                           
+                        </p-listbox>
                     </p-card>
                 </div>
             </div>
@@ -240,27 +229,30 @@
                 <form [formGroup]="bookingForm">
                     <div class="field">
                         <label for="fullname">Họ và tên</label>
-                        <input formControlName="fullname" pInputText id="fullname"
+                        <div class="input-box">
+                            <input formControlName="fullname" pInputText id="fullname"
                             [ngClass]="{'ng-invalid ng-dirty' : bookingForm.controls['fullname'].invalid && (bookingForm.controls['fullname'].dirty || bookingForm.controls['fullname'].touched)}" />
+                        </div>
                         <small class="ng-dirty ng-invalid"
-                            *ngIf="bookingForm.get('fullname')?.getError('invalid') && (bookingForm.controls['fullname'].dirty || bookingForm.controls['fullname'].touched)">Vui
-                            lòng nhập họ.</small>
+                            *ngIf="bookingForm.get('fullname')?.getError('required') && (bookingForm.controls['fullname'].dirty || bookingForm.controls['fullname'].touched)">Vui
+                            lòng nhập họ tên.</small>
                     </div>
                     <div class="field">
                         <label for="email">Email</label>
-                        <input formControlName="email" pInputText id="email"
+                        <div class="input-box">
+                            <input formControlName="email" pInputText id="email"
                             [ngClass]="{'ng-invalid ng-dirty' : bookingForm.controls['email'].invalid && (bookingForm.controls['email'].dirty || bookingForm.controls['email'].touched)}" />
-                        <small class="ng-dirty ng-invalid"
-                            *ngIf="bookingForm.get('email')?.getError('invalid') && (bookingForm.controls['email'].dirty || bookingForm.controls['email'].touched)">Vui
-                            lòng nhập mật tên.</small>
+                        </div>
+                        <small class="ng-dirty ng-invalid" *ngIf="bookingForm.get('email')?.getError('required') && (bookingForm.controls['email'].dirty || bookingForm.controls['email'].touched)">Vui lòng nhập email.</small>
+                        <small class="ng-dirty ng-invalid" *ngIf="bookingForm.get('email')?.getError('mailInvalid') && (bookingForm.controls['email'].dirty || bookingForm.controls['email'].touched)">Email không hợp lệ.</small>
                     </div>
                     <div class="field">
                         <label for="phone">Số điện thoại</label>
-                        <input formControlName="phone" pInputText id="phone"
-                            [ngClass]="{'ng-invalid ng-dirty' : bookingForm.controls['phone'].invalid && (bookingForm.controls['phone'].dirty || bookingForm.controls['phone'].touched)}" />
-                        <small class="ng-dirty ng-invalid"
-                            *ngIf="bookingForm.get('phone')?.getError('invalid') && (bookingForm.controls['phone'].dirty || bookingForm.controls['phone'].touched)">Vui
-                            lòng nhập mật tên.</small>
+                        <div class="input-box">
+                            <input formControlName="phone" onlyNumber type="text" pInputText id="phone" [ngClass]="{'ng-invalid ng-dirty' : bookingForm.controls['phone'].invalid && (bookingForm.controls['phone'].dirty || bookingForm.controls['phone'].touched)}"/>
+                        </div>
+                        <small class="ng-dirty ng-invalid" *ngIf="bookingForm.get('phone')?.getError('required') && (bookingForm.controls['phone'].dirty || bookingForm.controls['phone'].touched)">Vui lòng nhập số điện thoại.</small>
+                        <small class="ng-dirty ng-invalid" *ngIf="bookingForm.get('phone')?.getError('phoneInvalid') && (bookingForm.controls['phone'].dirty || bookingForm.controls['phone'].touched)">Số điện thoại không hợp lệ.</small>
                     </div>
                     <div lass="field">
                         <div class="field col flex align-items-center">
@@ -344,46 +336,6 @@
                 <button pButton pRipple label="Áp dụng" class="p-button-text" (click)="searchPost()"></button>
             </ng-template>
         </p-dialog>
-
-        <div class="py-4 px-4 mx-0 mt-8 lg:mx-8">
-            <div class="grid w-full justify-content-center flex">
-                <div class="col-12 md:col-10 lg:col-7">
-                    <div class="grid text-center md:text-left">
-                        <div class="col-12 md:col-3">
-                            <h4 class="font-medium text-2xl line-height-3 mb-3 text-900">Company</h4>
-                            <a class="line-height-3 text-xl block cursor-pointer mb-2 text-700">About Us</a>
-                            <a class="line-height-3 text-xl block cursor-pointer mb-2 text-700">News</a>
-                            <a class="line-height-3 text-xl block cursor-pointer mb-2 text-700">Investor Relations</a>
-                            <a class="line-height-3 text-xl block cursor-pointer mb-2 text-700">Careers</a>
-                            <a class="line-height-3 text-xl block cursor-pointer text-700">Media Kit</a>
-                        </div>
-
-                        <div class="col-12 md:col-3 mt-4 md:mt-0">
-                            <h4 class="font-medium text-2xl line-height-3 mb-3 text-900">Resources</h4>
-                            <a class="line-height-3 text-xl block cursor-pointer mb-2 text-700">Get Started</a>
-                            <a class="line-height-3 text-xl block cursor-pointer mb-2 text-700">Learn</a>
-                            <a class="line-height-3 text-xl block cursor-pointer text-700">Case Studies</a>
-                        </div>
-
-                        <div class="col-12 md:col-3 mt-4 md:mt-0">
-                            <h4 class="font-medium text-2xl line-height-3 mb-3 text-900">Community</h4>
-                            <a class="line-height-3 text-xl block cursor-pointer mb-2 text-700">Discord</a>
-                            <a class="line-height-3 text-xl block cursor-pointer mb-2 text-700">Events<img
-                                    src="../../../assets/images/landing/new-badge.svg" class="ml-2" /></a>
-                            <a class="line-height-3 text-xl block cursor-pointer mb-2 text-700">FAQ</a>
-                            <a class="line-height-3 text-xl block cursor-pointer text-700">Blog</a>
-                        </div>
-
-                        <div class="col-12 md:col-3 mt-4 md:mt-0">
-                            <h4 class="font-medium text-2xl line-height-3 mb-3 text-900">Legal</h4>
-                            <a class="line-height-3 text-xl block cursor-pointer mb-2 text-700">Brand Policy</a>
-                            <a class="line-height-3 text-xl block cursor-pointer mb-2 text-700">Privacy Policy</a>
-                            <a class="line-height-3 text-xl block cursor-pointer text-700">Terms of Service</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 <div class="progress-spinner" *ngIf="loading">

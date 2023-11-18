@@ -40,6 +40,7 @@ import { SliderModule } from 'primeng/slider';
 import { ChipModule } from 'primeng/chip';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { ListboxModule } from 'primeng/listbox';
 
 @NgModule({
   declarations: [
@@ -50,6 +51,7 @@ import { BreadcrumbModule } from 'primeng/breadcrumb';
     UsersRoutingModule,
     SharedModule,
     SliderModule,
+    ListboxModule,
     SelectButtonModule,
     BreadcrumbModule,
     ChipModule,

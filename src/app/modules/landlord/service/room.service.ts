@@ -65,6 +65,13 @@ export class RoomService {
         )
     }
 
+    getRoomRentedDate(roomId: any): Observable<any> {
+        return this.http.get<any>(`${environment.apiUrl}/room/utility/rented-date/${roomId}`).pipe(
+            retry(1),
+            delay(1000),
+        )
+    }
+
     getRoomNoPost(accomodationId: any): Observable<any> {
         return this.http.get<any>(`${environment.apiUrl}/room/utility/no-post/${accomodationId}`).pipe(
             retry(1),
@@ -106,28 +113,5 @@ export class RoomService {
             delay(1000),
         )
     }
-
-    removeRoomFee(roomId: any, feeId: any) {
-        return this.http.delete<any>(`${environment.apiUrl}/room/fee/${roomId}/${feeId}`).pipe(
-            retry(1),
-            delay(1000),
-        )
-    }
-
-    getImageByRoom(roomId: any) {
-        return this.http.get<any>(`${environment.apiUrl}/room/image/${roomId}`).pipe(
-            retry(1),
-            delay(1000),
-        )
-    }
-
-    removeImage(imgId: any) {
-        return this.http.delete<any>(`${environment.apiUrl}/room/image/${imgId}`).pipe(
-            retry(1),
-            delay(1000),
-        )
-    }
-
-   
 
 }

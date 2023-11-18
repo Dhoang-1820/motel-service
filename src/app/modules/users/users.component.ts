@@ -60,6 +60,8 @@ export class UsersComponent implements OnInit, AfterViewInit {
     quickRangeAreage: any[] = AppConstant.QUICK_AREAGE
     priceSelected: number[] = []
     areageSelected: number[] = []
+    selectedPriceRange: any
+    selectedAreageRange: any
 
     searchPostRequest: { address?: Address; price?: RangeRequest; areage?: RangeRequest } = {}
 
@@ -122,10 +124,16 @@ export class UsersComponent implements OnInit, AfterViewInit {
             this.submitForm.name = data
         })
         this.bookingForm.get('email')?.valueChanges.subscribe((data) => {
-            this.submitForm.email = data
+            if (data) {
+                this.submitForm.email = data
+                this.validateGmail(data)
+            }
         })
         this.bookingForm.get('phone')?.valueChanges.subscribe((data) => {
-            this.submitForm.phone = data
+            if (data) {
+                this.submitForm.phone = data
+                this.validatePhoneNumber(data)
+            }
         })
         this.bookingForm.get('roomId')?.valueChanges.subscribe((data) => {
             this.submitForm.roomId = data
@@ -138,6 +146,28 @@ export class UsersComponent implements OnInit, AfterViewInit {
             this.selectedAddress = data
             this.searchPost()
         })
+    }
+
+    validatePhoneNumber(phone: string) {
+        const isValid = phone.toLowerCase().match(
+            /(84|0[3|5|7|8|9])+([0-9]{8})\b/g
+        )
+        if (!isValid) {
+            this.bookingForm.get('phone')?.setErrors({phoneInvalid: true})
+        } else {
+            this.bookingForm.get('phone')?.setErrors(null)
+        }
+    }
+
+    validateGmail(email: string) {
+        const isValid = email.toLowerCase().match(
+            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        )
+        if (!isValid) {
+            this.bookingForm.get('email')?.setErrors({mailInvalid: true})
+        } else {
+            this.bookingForm.get('email')?.setErrors(null)
+        }
     }
 
     getAllPostAddress() {
@@ -153,11 +183,13 @@ export class UsersComponent implements OnInit, AfterViewInit {
 
     clearPrice() {
         this.rangePrice = []
+        this.selectedPriceRange = {}
         this.searchPost()
     }
 
     clearAreage() {
         this.rangeAreage = []
+        this.selectedAreageRange = {}
         this.searchPost()
     }
 
@@ -226,6 +258,18 @@ export class UsersComponent implements OnInit, AfterViewInit {
 
     hideBookingDialog() {
         this.bookingDialog = false
+    }
+
+    onChangePrice() {
+        let value = this.selectedPriceRange.value
+        this.rangePrice = [value.from, value.to]
+        this.searchPost()
+    }
+
+    onChangeAreage() {
+        let value = this.selectedAreageRange.value
+        this.rangeAreage = [value.from, value.to]
+            this.searchPost()
     }
 
     quickSelectPrice(range: any, isSearch: boolean) {

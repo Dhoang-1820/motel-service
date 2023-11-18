@@ -29,6 +29,13 @@ export class AccomodationService {
         )
     }
 
+    isCanRemove(id: any): Observable<any> {
+        return this.http.get<any>(`${environment.apiUrl}/accomodation/check/remove/${id}`).pipe(
+            retry(1),
+            delay(1000)
+        )
+    }
+
     removeAccomodation(id: any): Observable<any> {
         return this.http.delete<any>(`${environment.apiUrl}/accomodation/${id}`).pipe(
             retry(1),

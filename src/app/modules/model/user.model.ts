@@ -6,6 +6,7 @@ export class User {
     token?: string;
     refreshToken?: string;
     roles?: string;
+    isActive?: boolean;
 }
 
 export class ChangePassword {

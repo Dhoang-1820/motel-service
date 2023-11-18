@@ -37,8 +37,8 @@ export class JwtInterceptor implements HttpInterceptor {
                 if (error instanceof HttpErrorResponse && error.status === 401) {
                     return this.handle401Error(request, next);
                   } else {
-                    return throwError(() => new Error(error));
-                  }
+                }
+                return throwError(() => new Error(error));
             })
         )
     }

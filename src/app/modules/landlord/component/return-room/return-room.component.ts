@@ -44,6 +44,7 @@ export class ReturnRoomComponent implements OnInit {
     items: MenuItem[] = []
     isReturnRoomValid: boolean = false
     issueLoading: boolean = false
+    rentedDate: any
 
     commonRequest!: { id: any; month: any }
 
@@ -80,13 +81,13 @@ export class ReturnRoomComponent implements OnInit {
         this.returnRoomForm.get('returnDate')?.valueChanges.subscribe((data) => {
             this.returnRoom.returnDate = data
             if (this.returnRoom.room && this.returnRoom.returnDate) {
-                this.checkIsRoomInputElectricWater()
+                this.checkRoomValid()
             }
         })
         this.returnRoomForm.get('room')?.valueChanges.subscribe((data) => {
             this.returnRoom.room = data
             if (this.returnRoom.room && this.returnRoom.returnDate) {
-                this.checkIsRoomInputElectricWater()
+                this.checkRoomValid()
             }
         })
 
@@ -223,27 +224,56 @@ export class ReturnRoomComponent implements OnInit {
         }
     }
 
+    checkRoomValid() {
+        let resultBill: any;
+        this.loading = true
+        forkJoin({
+            rentedDate: this.getRoomRentedDate(),
+            inputed: this.checkIsRoomInputElectricWater()
+        }).pipe(
+            finalize(() => {
+                this.loading = false
+                if (resultBill.bill) {
+                    this.isReturnRoomValid = false
+                    this.messageService.add({ severity: 'warn', summary: 'Cảnh báo', detail: `Phòng ${this.returnRoom.room.name} đã được tạo hoá đơn`, life: 5000 })
+                } else if (resultBill.inputed) {
+                    this.isReturnRoomValid = true
+                    this.messageService.add({ severity: 'warn', summary: 'Cảnh báo', detail: `Phòng ${this.returnRoom.room.name} chưa được nhập chỉ số điện nước`, life: 5000 })
+                } else {
+                    this.isReturnRoomValid = true
+                }
+
+                this.checkReturnDate()
+            }),
+        ).subscribe(response => {
+            this.rentedDate = response.rentedDate.data.date
+            resultBill = response.inputed.data
+        })
+    }
+
+    checkReturnDate() {
+        let rentedDate = moment(this.rentedDate)
+        let returnDate = moment(this.returnRoom.returnDate)
+        console.log('rentedDate',rentedDate.format('DD/MM/yyyy'))
+        console.log('returnDate',returnDate.format('DD/MM/yyyy'))
+        if (returnDate) {
+            if (rentedDate.isSameOrAfter(returnDate)) {
+                this.messageService.add({ severity: 'warn', summary: 'Cảnh báo', detail: `Ngày trả phòng không được trước ngày bắt đầu cho thuê`, life: 5000 })
+                this.returnRoomForm.get('returnDate')?.setValue(null)
+                this.returnRoomForm.get('returnDate')?.setErrors({dateInvalid: true})
+            } else {
+                this.returnRoomForm.get('returnDate')?.setErrors(null)
+            }
+        }
+    }
+
+    getRoomRentedDate() {
+        return this.roomService.getRoomRentedDate(this.returnRoom.room.id)
+    }
+
     checkIsRoomInputElectricWater() {
         let request: any = { id: this.returnRoom.room.id, month: this.returnRoom.returnDate }
-        let result: any
-        this.loading = true
-        this.billService
-            .checkIsRoomReturnValid(request)
-            .pipe(
-                finalize(() => {
-                    this.loading = false
-                    if (result.bill) {
-                        this.isReturnRoomValid = false
-                        this.messageService.add({ severity: 'warn', summary: 'Cảnh báo', detail: `Phòng ${this.returnRoom.room.name} đã được tạo hoá đơn`, life: 5000 })
-                    } else if (result.inputed) {
-                        this.isReturnRoomValid = true
-                        this.messageService.add({ severity: 'warn', summary: 'Cảnh báo', detail: `Phòng ${this.returnRoom.room.name} chưa được nhập chỉ số điện nước`, life: 5000 })
-                    } else {
-                        this.isReturnRoomValid = true
-                    }
-                }),
-            )
-            .subscribe((response) => (result = response.data))
+        return this.billService.checkIsRoomReturnValid(request)
     }
 
     sendInvoiceMail(invoiceId: number) {

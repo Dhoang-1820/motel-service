@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http'
 import { Injectable } from '@angular/core'
 import { Router } from '@angular/router'
-import { BehaviorSubject, Observable, map } from 'rxjs'
+import { BehaviorSubject, Observable, catchError, map, of } from 'rxjs'
 import { environment } from 'src/environments/environment'
 import { User } from '../../model/user.model'
 
@@ -24,10 +24,9 @@ export class AuthenticationService {
     login(userName: string, password: string) {
         return this.http.post<any>(`${environment.apiUrl}/user/auth/signin`, { userName, password }).pipe(
             map((user) => {
-                
                 this.userSubject.next(user)
                 return user
-            }),
+            })
         )
     }
 

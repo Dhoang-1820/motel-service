@@ -139,13 +139,13 @@ export class RoomComponent implements OnInit {
     }
 
     confirmDelete() {
+        this.loading = true
         this.deleteProductDialog = false
         this.roomService
             .removeRoom(this.room.id)
             .pipe(
                 finalize(() => {
-                    this.rooms = this.rooms.filter((val) => val.id !== this.room.id)
-                    this.room = {}
+                    this.getRoomByAccomodation()
                     this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Xoá thành công!', life: 3000 })
                 }),
             )

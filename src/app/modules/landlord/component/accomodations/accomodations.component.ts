@@ -203,17 +203,36 @@ export class AccomodationsComponent implements OnInit {
         return source.find((item: any) => item.code === code)
     }
 
-    deleteAccomodation(accomodation: Accomodation) {
-        this.deleteDialog = true
+    deleteAccomodation(accomodation: any) {
         this.accomodation = { ...accomodation }
+        accomodation.removeLoading = true
+        let result: boolean
+        this.isCanDelete().pipe(
+            finalize(() => {
+                accomodation.removeLoading = false
+                if (result) {
+                    this.deleteDialog = true
+                } else {
+                    this.messageService.add({ severity: 'warn', summary: 'Cảnh báo', detail: 'Khu trọ đang được sử dụng không thể xoá, vui lòng liên hệ admin để được giúp đỡ!', life: 5000 })
+                    this.accomodation = {}
+                }
+               
+            })
+        ).subscribe(response => result = response.data)
+    }
+
+    isCanDelete() {
+        return this.accomodationService.isCanRemove(this.accomodation.id)
     }
 
     confirmDelete() {
-        this.deleteDialog = false
-        this.accomodations = this.accomodations.filter((val) => val.id !== this.accomodation.id)
-        this.accomodationService.removeAccomodation(this.accomodation.id).pipe().subscribe()
-        this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Accomodation Deleted', life: 3000 })
-        this.accomodation = {}
+        this.accomodationService.removeAccomodation(this.accomodation.id).pipe(
+            finalize(() => {
+                this.deleteDialog = false
+                this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Xoá thành công', life: 3000 })
+                this.accomodation = {}
+            })
+        ).subscribe()
     }
 
     saveAccomodation() {
