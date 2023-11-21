@@ -109,8 +109,13 @@
                                 lòng nhập diện tích.</small>
                         </div>
                         <div class="field col">
-                            <label for="price">Số người ở tối đa</label>
-                            <p-inputNumber id="price" formControlName="maxCapacity"></p-inputNumber>
+                            <label for="price">Số người ở tối đa <span class="mandatory-sign">*</span></label>
+                            <div class="input-box">
+                                <p-inputNumber id="price" formControlName="maxCapacity" [ngClass]="{'ng-invalid ng-dirty' : roomForm.controls['maxCapacity'].invalid && (roomForm.controls['maxCapacity'].dirty || roomForm.controls['maxCapacity'].touched)}"></p-inputNumber>
+                            </div>
+                            <small class="ng-dirty ng-invalid"
+                            *ngIf="roomForm.get('maxCapacity')?.invalid && (roomForm.controls['maxCapacity'].dirty || roomForm.controls['maxCapacity'].touched)">Vui
+                            lòng nhập số người ở tối đa.</small>
                         </div>
                     </div>
                 </form>

@@ -2,20 +2,20 @@
 
 import { Component, OnInit } from '@angular/core'
 import { FormControl, FormGroup, Validators } from '@angular/forms'
+import { Packer } from 'docx'
+import * as saveAs from 'file-saver'
 import * as moment from 'moment'
 import { MenuItem, MessageService } from 'primeng/api'
 import { Table } from 'primeng/table'
-import { Observable, distinctUntilChanged, finalize } from 'rxjs'
+import { finalize, forkJoin } from 'rxjs'
 import { AuthenticationService } from 'src/app/modules/auth/service/authentication.service'
 import { AppConstant } from 'src/app/modules/common/Constants'
 import { User } from 'src/app/modules/model/user.model'
 import { Invoice } from '../../model/bill.model'
 import { AccomodationService } from '../../service/accomodation.service'
 import { BillService } from '../../service/bill.service'
-import html2canvas from 'html2canvas'
-import jspdf from 'jspdf'
-import { asBlob } from 'html-docx-js-typescript'
-import * as saveAs from 'file-saver'
+import { DocumentCreator } from '../../service/docx.service'
+import { UserService } from '../../service/user.service'
 
 @Component({
     selector: 'app-invoice',
@@ -52,6 +52,7 @@ export class InvoiceComponent implements OnInit {
         private accomodationService: AccomodationService,
         private auth: AuthenticationService,
         private billService: BillService,
+        private userService: UserService,
         private messageService: MessageService,
     ) {
         this.selectedMonth = moment().toDate()
@@ -163,6 +164,13 @@ export class InvoiceComponent implements OnInit {
                 },
             },
             {
+                icon: 'pi pi-print',
+                label: 'In hoá đơn',
+                command: (e: any) => {
+                    this.printInvoice(e.item.data.id)
+                },
+            },
+            {
                 icon: 'pi pi-check',
                 label: 'Xác nhận thanh toán',
                 disabled: invoice.isPay,
@@ -193,17 +201,81 @@ export class InvoiceComponent implements OnInit {
         return this.items
     }
 
-    public async convetToPDF() {
-        var someElement: any = document.getElementById('contentToConvert')
-        var someElementToString
-
-        if (someElement.outerHTML) someElementToString = someElement.outerHTML
-        else if (XMLSerializer) someElementToString = new XMLSerializer().serializeToString(someElement)
-        var converted: any = await asBlob(someElementToString, {
-            orientation: 'landscape',
-            margins: { top: 720 },
+    initPrintData(invoiceId: any) {
+        this.loading = true
+        let request: { id: number; month?: Date } = { id: invoiceId, month: this.selectedMonth }
+        return forkJoin({
+            invoice: this.billService.getInvoiceDetail(request),
+            landlord: this.userService.getUserByUserId(this.user?.id),
         })
-        saveAs(converted, 'test.docx')
+    }
+
+    printInvoice(invoiceId: any) {
+        let invoice: any
+        let lanlord: any
+        this.initPrintData(invoiceId)
+            .pipe(
+                finalize(() => {
+                    console.log(invoice)
+                    this.loading = false
+
+                    let services: { name?: string; quantity?: any; price?: any }[] = []
+                    let electricsWaterNum: { name?: string; firstNum?: any; lastNum?: any; quantity?: any; price?: any }[] = []
+
+                    invoice.service?.forEach((item: any) => {
+                        if (item.electricNum !== null) {
+                            electricsWaterNum.push({
+                                name: 'Tiền điện',
+                                firstNum: item.firstElectricNum,
+                                lastNum: item.lastElectricNum,
+                                price: item.totalPrice,
+                                quantity: item.electricNum,
+                            })
+                        } else if (item.waterNum !== null) {
+                            electricsWaterNum.push({
+                                name: 'Tiền nước',
+                                firstNum: item.firstWaterNum,
+                                lastNum: item.lastWaterNum,
+                                price: item.totalPrice,
+                                quantity: item.waterNum,
+                            })
+                        } else {
+                            services.push({ name: item.serviceName, price: item.totalPrice, quantity: item.quantity })
+                        }
+                    })
+                    const month = moment(invoice.billDate).format('MM/YYYY')
+                    const debtMonth = moment(this.preMonth).format('MM/YYYY')
+                    let printData: any = {
+                        services,
+                        electricsWaterNum,
+                        roomName: invoice.room?.name,
+                        month,
+                        totalService: invoice.totalService,
+                        debtMonth,
+                        debt: invoice.debt,
+                        totalPrice: invoice.totalPrice,
+                        discount: invoice.discount,
+                        totalPayment: invoice.totalPayment,
+                        paidMoney: invoice.paidMoney,
+                        banks: lanlord.bankAccounts,
+                    }
+
+                    const documentCreator = new DocumentCreator()
+                    const doc = documentCreator.createInvoice(printData)
+
+                    console.log('printData',printData)
+
+                    Packer.toBlob(doc).then((blob) => {
+                        console.log(blob)
+                        saveAs(blob, 'example.docx')
+                        console.log('Document created successfully')
+                    })
+                }),
+            )
+            .subscribe((response) => {
+                lanlord = response.landlord.data
+                invoice = response.invoice.data
+            })
     }
 
     toggleMenu(menu: any, event: any) {

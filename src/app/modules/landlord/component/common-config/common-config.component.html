@@ -1,21 +1,22 @@
 <div class="grid">
+	<p-toast></p-toast>
     <div class="col-12 md:col-6">
 		<div class="card p-fluid">
 			<h5>Cấu hình hệ thống</h5>
 			<div class="field">
 				<label htmlFor="issue">Ngày xuất hoá đơn hàng tháng</label>
-				<p-calendar class="no-header" view="date" position="bottom" [(ngModel)]="commonConfig.issueInvoiceDate"
+				<p-calendar class="no-header" (onSelect)="isValid()" view="date" position="bottom" [(ngModel)]="commonConfig.issueInvoiceDate"
 				 dateFormat="dd" [readonlyInput]="true"></p-calendar>
 			</div>
 			<div class="field">
 				<label htmlFor="inputIndex">Ngày chốt chỉ số điện nước hàng tháng</label>
-				<p-calendar class="no-header" view="date" position="bottom" [(ngModel)]="commonConfig.electricWaterDate"
+				<p-calendar class="no-header" (onSelect)="isValid()"  view="date" position="bottom" [(ngModel)]="commonConfig.electricWaterDate"
 				 dateFormat="dd" [readonlyInput]="true"></p-calendar>
 			</div>
 		</div>
 		<div class="flex justify-content-center" >
 			<div>
-				<button [disabled]="!commonConfig.electricWaterDate || !commonConfig.issueInvoiceDate"  pButton type="button" label="Lưu" icon="pi pi-credit-card" class="p-button"  (click)="saveUserPreference()"></button>
+				<button [disabled]="!commonConfig.electricWaterDate || !commonConfig.issueInvoiceDate || disabledSave"  pButton type="button" label="Lưu" icon="pi pi-credit-card" class="p-button"  (click)="saveUserPreference()"></button>
 			</div>
 		</div>
 	</div>

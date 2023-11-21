@@ -24,7 +24,7 @@ export class CommonConfigComponent implements OnInit {
   commonConfig: CommonConfig = {}
   user!: User | null
   loading: boolean = false
-  disabledSave: boolean = true
+  disabledSave: boolean = false
 
   constructor(private userService: UserService,  private auth: AuthenticationService, private messageService: MessageService) { }
 
@@ -43,9 +43,26 @@ export class CommonConfigComponent implements OnInit {
     ).subscribe(response => this.commonConfig = response.data)
   }
 
+  isValid() {
+    if ( this.commonConfig.electricWaterDate && this.commonConfig.issueInvoiceDate) {
+      const eletricDate = moment(this.commonConfig.electricWaterDate)
+      const invoiceDate = moment(this.commonConfig.issueInvoiceDate)
+      console.log(eletricDate)
+      console.log(invoiceDate)
+      console.log(eletricDate.isSameOrAfter(invoiceDate))
+      if (eletricDate.isSameOrAfter(invoiceDate)) {
+        this.disabledSave = true
+        this.messageService.add({ severity: 'warn', summary: 'Cảnh báo', detail: 'Ngày chốt chỉ số điện nước cần trước ngày xuất hoá đơn!', life: 5000 })
+      } else {
+        this.disabledSave = false
+      }
+    }
+  }
+
   retrieveDate() {
     this.commonConfig.electricWaterDate = moment(this.commonConfig.electricWaterDate).toDate()
     this.commonConfig.issueInvoiceDate = moment(this.commonConfig.issueInvoiceDate).toDate()
+    this.isValid()
   }
 
   saveUserPreference() {

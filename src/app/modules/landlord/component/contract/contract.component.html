@@ -43,14 +43,27 @@
                         <td style="width:15%; min-width:10rem;">{{data.endDate | date:'dd/MM/yyyy'}}</td>
                         <td style="width:15%; min-width:10rem;">
                             <div class="flex">
+                                <button pButton pRipple pTooltip="In hợp đồng" icon="pi pi-print" tooltipPosition="top" class="p-button-rounded p-button-success mr-2" (click)="printContract(data)"></button>
                                 <button pButton pRipple pTooltip="Chỉnh sửa" icon="pi pi-pencil" tooltipPosition="top" class="p-button-rounded p-button-success mr-2" (click)="editContract(data)"></button>
-                                <button pButton pRipple pTooltip="Xoá" icon="pi pi-trash" tooltipPosition="top" class="p-button-rounded p-button-warning mr-2"  (click)="cancelDeposit(data)"></button>
+                                <button pButton pRipple pTooltip="Xoá" icon="pi pi-trash" tooltipPosition="top" [loading]="data.removeLoading" class="p-button-rounded p-button-warning mr-2"  (click)="deleteContract(data)"></button>
                             </div>
                         </td>
                     </tr>
                 </ng-template>
             </p-table>
         </div>
+        <p-dialog [(visible)]="deleteContractDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span *ngIf="contract">Xác nhận xoá hợp đồng phòng <b>{{contract.room?.name}}</b>?</span>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No"
+                    (click)="deleteContractDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes"
+                    (click)="confirmDeleteContract()"></button>
+            </ng-template>
+        </p-dialog>
 
         <p-dialog (onHide)="onHideDialog()" [(visible)]="addDialog" [style]="{width: '1150px'}" header="Chi tiết hợp đồng" [modal]="true" position="top" class="p-fluid">
             <ng-template pTemplate="content">

@@ -13,7 +13,11 @@ export class AuthenticationService {
     public user: Observable<User | null>
 
     constructor(private router: Router, private http: HttpClient) {
-        this.userSubject = new BehaviorSubject(JSON.parse(localStorage.getItem('user')!))
+        let user = JSON.parse(localStorage.getItem('user')!)
+        if (!user) {
+            JSON.parse(sessionStorage.getItem('user')!)
+        }
+        this.userSubject = new BehaviorSubject(user)
         this.user = this.userSubject.asObservable()
     }
 

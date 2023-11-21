@@ -52,7 +52,7 @@ export class RoomComponent implements OnInit {
             roomName: new FormControl(this.room.name, [Validators.required]),
             price: new FormControl(this.room.price, [Validators.required]),
             acreage: new FormControl(this.room.acreage, [Validators.required]),
-            maxCapacity: new FormControl(this.room.capacity, [])
+            maxCapacity: new FormControl(this.room.capacity, [Validators.required])
         })
     }
 

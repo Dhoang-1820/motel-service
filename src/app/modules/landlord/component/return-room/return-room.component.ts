@@ -258,9 +258,8 @@ export class ReturnRoomComponent implements OnInit {
         console.log('returnDate',returnDate.format('DD/MM/yyyy'))
         if (returnDate) {
             if (rentedDate.isSameOrAfter(returnDate)) {
-                this.messageService.add({ severity: 'warn', summary: 'Cảnh báo', detail: `Ngày trả phòng không được trước ngày bắt đầu cho thuê`, life: 5000 })
-                this.returnRoomForm.get('returnDate')?.setValue(null)
                 this.returnRoomForm.get('returnDate')?.setErrors({dateInvalid: true})
+                this.messageService.add({ severity: 'warn', summary: 'Cảnh báo', detail: `Ngày trả phòng không được trước ngày bắt đầu cho thuê`, life: 5000 })
             } else {
                 this.returnRoomForm.get('returnDate')?.setErrors(null)
             }

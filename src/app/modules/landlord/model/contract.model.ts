@@ -1,8 +1,10 @@
+import { User } from "../../model/user.model"
 import { RoomDropdown, Services } from "./accomodation.model"
 import { Tenant } from "./tenant.model"
 
 export class Contract {
     id?: Number
+    lanlord?: Tenant
     duration?: Number
     deposit?: number
     startDate?: Date

@@ -61,6 +61,8 @@ export class AuthComponent implements OnInit {
                         }
                         if (this.rememberLogin) {
                             localStorage.setItem('user', JSON.stringify(this.user))
+                        } else {
+                            sessionStorage.setItem('user', JSON.stringify(this.user))
                         }
                     } else if (!isError){
                         this.messageService.add({ severity: 'error', summary: 'Thất bại', detail: 'Tài khoản bị khoá', life: 5000 })

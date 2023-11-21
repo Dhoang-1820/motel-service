@@ -14,6 +14,9 @@ import { AccomodationService } from '../../service/accomodation.service'
 import { ContractService } from '../../service/contract.service'
 import { RoomService } from '../../service/room.service'
 import { TenantService } from '../../service/tenant.service'
+import { DocumentCreator } from '../../service/docx.service'
+import { Packer } from 'docx'
+import * as saveAs from 'file-saver'
 
 @Component({
     selector: 'app-contract',
@@ -23,7 +26,7 @@ import { TenantService } from '../../service/tenant.service'
 })
 export class ContractComponent implements OnInit {
     addDialog: boolean = false
-    deleteProductDialog: boolean = false
+    deleteContractDialog: boolean = false
     cancelDepositDialog: boolean = false
     accomodations: any[] = []
     selectedAccomodation!: any
@@ -69,6 +72,7 @@ export class ContractComponent implements OnInit {
         private contractService: ContractService,
         private roomService: RoomService,
         private tenantService: TenantService,
+        private documentCreator: DocumentCreator
     ) {
         this.contractForm = new FormGroup({
             startDate: new FormControl(this.contract.startDate, [Validators.required]),
@@ -187,6 +191,83 @@ export class ContractComponent implements OnInit {
                 this.checkRoomCapacity()
             }
         })
+    }
+
+    prepareContractData(contract: Contract) {
+        this.contract = { ...contract }
+        this.contract.preRoom = contract.room?.id
+        this.filterService()
+        this.filterTenant()
+        this.contractForm.get('startDate')?.setValue(moment(this.contract.startDate).toDate())
+        this.contractForm.get('endDate')?.setValue(moment(this.contract.endDate).toDate())
+        this.contractForm.get('deposit')?.setValue(this.contract.deposit)
+        this.contractForm.get('firstElectricNum')?.setValue(this.contract.firstElectricNum)
+        this.contractForm.get('firstWaterNum')?.setValue(this.contract.firstWaterNum)
+        this.contractForm.get('representative')?.setValue(this.contract.representative)
+        this.contractForm.get('duration')?.setValue(this.contract.duration)
+        this.contractForm.get('room')?.setValue(this.contract.room)
+        this.roomPresent = this.contract.room
+        this.rooms.push(this.roomPresent)
+        if (this.contract.representative) {
+            this.selectedTenant = this.contract.representative
+        }
+    }
+
+    printContract(contract: Contract): void {
+        this.prepareContractData(contract)
+        let vnd = new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+        });
+        let lanlord: {fullname?: string, identifyNum?: string, phone?: string, address?: string} = {fullname: this.user?.firstname + ' ' + this.user?.lastname, address: this.selectedAccomodation.address, identifyNum: this.user?.identifyNum, phone: this.user?.phone}
+        let representative : {identifyNum?: string, phone?: string, fullname: string} = {identifyNum:  this.contract.representative?.identifyNum, phone: this.contract.representative?.phone, fullname: this.contract.representative?.firstName + ' ' + this.contract.representative?.lastName}
+        let room: {price: string, deposit?: string} = {price: vnd.format(this.contract.room?.price), deposit: vnd.format(Number(this.contract.deposit))}
+        const contractStartDate = moment(this.contract.startDate)
+        let startDate: {day?: string, month?: string, year?: string} = {day: contractStartDate.format('DD'), month: contractStartDate.format('MM'), year: contractStartDate.format('YYYY')}
+        const contractEndDate = moment(this.contract.endDate)
+        let endDate: {day?: string, month?: string, year?: string} = {day: contractEndDate.format('DD'), month: contractEndDate.format('MM'), year:  contractEndDate.format('YYYY')}
+        const endDayStayedBefor = moment(this.nextMonth).format('DD/MM/YYYY')
+        
+        console.log(vnd.format(this.dayStayedMoney))
+        let docxData = {lanlord: lanlord, representative: representative, room: room, startDate: startDate, endDate: endDate, services: this.contract.services, deposit: vnd.format(Number(this.contract.deposit)), dayStayedBefore: this.contract.dayStayedBefore, dayStayedMoney: vnd.format(this.dayStayedMoney), firstTotalPayment: vnd.format(Number(this.contract.firstComePayment)), holdRoomMoney: vnd.format(Number(this.contract.keepRoomDeposit)), endDayStayedBefor }
+        console.log('docxData',docxData)
+        this.dayStayedMoney
+        const documentCreator = new DocumentCreator();
+        const doc = documentCreator.createContract(docxData);
+    
+        Packer.toBlob(doc).then(blob => {
+          console.log(blob);
+          saveAs(blob, "example.docx");
+          console.log("Document created successfully");
+        });
+      }
+
+    deleteContract(contract: any) {
+        let result: boolean
+        this.contract = {...contract}
+        contract.removeLoading = true
+        this.contractService.isCanRemove(this.contract.id).pipe(
+            finalize(() => {
+                contract.removeLoading = false
+                if (result) {
+                    this.deleteContractDialog = true
+                } else {
+                    this.messageService.add({ severity: 'warn', summary: 'Cảnh báo', detail: 'Hợp đồng đang được sử dụng không thể xoá, vui lòng liên hệ admin để được trợ giúp!', life: 5000 })
+                    this.contract = {}
+                }
+               
+            })
+        ).subscribe(response => result = response.data)
+    }
+
+    confirmDeleteContract() {
+        this.loading = true
+        this.contractService.removeContract(this.contract.id).pipe(
+            finalize(() => {
+                this.deleteContractDialog = false
+                this.initData()
+            })
+        ).subscribe()
     }
 
     checkDuplicated() {
@@ -473,23 +554,7 @@ export class ContractComponent implements OnInit {
 
     editContract(contract: Contract) {
         this.isAddNew = false
-        this.contract = { ...contract }
-        this.contract.preRoom = contract.room?.id
-        this.filterService()
-        this.filterTenant()
-        this.contractForm.get('startDate')?.setValue(moment(this.contract.startDate).toDate())
-        this.contractForm.get('endDate')?.setValue(moment(this.contract.endDate).toDate())
-        this.contractForm.get('deposit')?.setValue(this.contract.deposit)
-        this.contractForm.get('firstElectricNum')?.setValue(this.contract.firstElectricNum)
-        this.contractForm.get('firstWaterNum')?.setValue(this.contract.firstWaterNum)
-        this.contractForm.get('representative')?.setValue(this.contract.representative)
-        this.contractForm.get('duration')?.setValue(this.contract.duration)
-        this.contractForm.get('room')?.setValue(this.contract.room)
-        this.roomPresent = this.contract.room
-        this.rooms.push(this.roomPresent)
-        if (this.contract.representative) {
-            this.selectedTenant = this.contract.representative
-        }
+        this.prepareContractData(contract)
         this.addDialog = true
     }
 

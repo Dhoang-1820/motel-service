@@ -339,24 +339,15 @@
                             class="p-button-text"
                         ></button>
                         <!-- [disabled]="invoice.isPay" -->
-                        <!-- <button
+                        <button
                             *ngIf="!invoice.isPay"
                             pButton
                             pRipple
                             label="In hoá đơn"
-                            icon="pi pi-check"
+                            icon="pi pi-print"
                             class="p-button-text"
-                            (click)="convetToPDF()"
-                        ></button> -->
-                        <!-- <button
-                            *ngIf="isEdit"
-                            pButton
-                            pRipple
-                            label="Lưu"
-                            icon="pi pi-check"
-                            class="p-button-text"
-                            (click)="updateInvoice()"
-                        ></button> -->
+                            (click)="printInvoice(invoice.id)"
+                        ></button>
                     </div>
                 </div>
             </ng-template>

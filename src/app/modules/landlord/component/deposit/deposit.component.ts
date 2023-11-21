@@ -65,7 +65,7 @@ export class DepositComponent implements OnInit {
     isValidating: boolean = false
     oldIdentifyNum: any = ''
     durations: {value: number, display: string}[] = [{value: 6, display: '6 tháng'}, {value: 12, display: '12 tháng'}]
-    oldDeposit: number = 0
+    oldDeposit?: Number = 0
     nextMonth!: Date
     dayStayedMoney!: number
     gender: any = AppConstant.GENDER
@@ -667,6 +667,8 @@ export class DepositComponent implements OnInit {
                 this.contractForm.get('firstElectricNum')?.setValue(null)
                 this.contractForm.get('firstWaterNum')?.setValue(null)
                 this.contractForm.get('room')?.setValue({id: deposit.room?.id, name: deposit.room?.name, price: deposit.room?.price, capacity: deposit.room?.capacity})
+                this.oldDeposit = deposit.deposit
+                this.contractForm.get('holdRoomMoney')?.setValue(this.oldDeposit)
                 this.roomPresent = this.contract.room
                 this.rooms.push(this.roomPresent)
             })

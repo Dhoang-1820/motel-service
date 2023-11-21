@@ -1,3 +1,7 @@
 .no-header ::ng-deep .p-datepicker-header {
     display: none;
 }
+
+.no-header ::ng-deep thead {
+    display: none;
+}
