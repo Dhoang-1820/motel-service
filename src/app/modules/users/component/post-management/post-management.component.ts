@@ -67,11 +67,9 @@ export class PostManagementComponent implements OnInit {
     imageInfos?: Observable<any>
 
     constructor(
-        private accomodationService: AccomodationService,
         private auth: AuthenticationService,
         private messageService: MessageService,
         private postService: PostService,
-        private roomService: RoomService,
         private addressService: AddressService,
         public router: Router,
     ) {
@@ -301,7 +299,7 @@ export class PostManagementComponent implements OnInit {
             this.post.userId = this.user?.id
             const request: FormData = new FormData()
             for (let i = 0; i < this.selectedFiles.length; i++) {
-                request.append('file', this.selectedFiles[i]);
+                request.append('file', this.selectedFiles[i])
             }
             request.append('data', JSON.stringify(this.post))
             console.log(request)

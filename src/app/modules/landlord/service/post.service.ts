@@ -23,8 +23,8 @@ export class PostService {
         return this.http.post<any>(`${environment.apiUrl}/post`, request)
     }
 
-    changeStatusPost(post: any): Observable<any> {
-        return this.http.put<any>(`${environment.apiUrl}/post`, post)
+    changeStatusPost(request: any): Observable<any> {
+        return this.http.put<any>(`${environment.apiUrl}/post`, request)
     }
 
     removePost(postId: any): Observable<any> {
@@ -61,5 +61,9 @@ export class PostService {
 
     searchPost(request: any): Observable<any> {
         return this.http.post<any>(`${environment.apiUrl}/post/search`, request)
+    }
+
+    getPostByStatus(request: any): Observable<any> {
+        return this.http.post<any>(`${environment.apiUrl}/post/status`, request)
     }
 }

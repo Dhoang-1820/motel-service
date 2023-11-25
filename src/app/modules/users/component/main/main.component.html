@@ -6,7 +6,7 @@
                 <p-breadcrumb class="max-w-full" [model]="items" [home]="home"></p-breadcrumb>
             </div>
             <p-dataView #dv [value]="posts" [paginator]="true" filterBy="address, price" [rows]="9"
-                [sortField]="sortField" [sortOrder]="sortOrder" layout="grid">
+                [sortField]="sortField" [sortOrder]="sortOrder" layout="grid" >
                 <ng-template pTemplate="header">
                     <div class="flex flex-column md:flex-row md:justify-content-between gap-2">
                         <div>

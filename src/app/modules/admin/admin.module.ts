@@ -40,6 +40,7 @@ import { MenuitemComponent } from './layout/menuitem/menuitem.component'
 import { HeaderComponent } from './layout/header/header.component'
 import { TagModule } from 'primeng/tag';
 import { PostListComponent } from './components/post-list/post-list.component';
+import { FieldsetModule } from 'primeng/fieldset'
 
 @NgModule({
     declarations: [AdminComponent, UserManagementComponent, SidebarComponent, MenuitemComponent, HeaderComponent, PostListComponent],
@@ -48,6 +49,7 @@ import { PostListComponent } from './components/post-list/post-list.component';
         AdminRoutingModule,
         SharedModule,
         ConfirmPopupModule,
+        FieldsetModule,
         DataViewModule,
         InputTextModule,
         KnobModule,

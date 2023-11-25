@@ -25,11 +25,9 @@ export class UsersComponent implements OnInit, AfterViewInit {
     isLogin: boolean = false
 
     constructor(
-        private messageService: MessageService,
         public bookingService: BookingService,
         public layoutService: LayoutService,
         public router: Router,
-        private postService: PostService,
         private auth: AuthenticationService,
     ) {}
 
@@ -51,7 +49,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
         this.user = this.auth.userValue
         if (this.user) {
             this.isLogin = true
-        }
+        } 
     }
 
     getMenuItems(): MenuItem[] {

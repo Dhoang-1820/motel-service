@@ -32,6 +32,7 @@
                         <th>Số điện thoại</th>
                         <th>Email</th>
                         <th>Số lượng khu trọ</th>
+                        <th>Loại tài khoản</th>
                         <th>Trạng thái</th>
                         <th></th>
                     </tr>
@@ -44,6 +45,11 @@
                         <td>{{user.phone }}</td>
                         <td>{{user.email }}</td>
                         <td>{{user.accomodationNum}}</td>
+                        <ng-container [ngSwitch]="user.userRole">
+                            <td *ngSwitchCase="'ROLE_LANDLORD'">Chủ trọ</td>
+                            <td *ngSwitchCase="'ROLE_POSTER'">Khách đăng tin</td>
+                        </ng-container>
+                        
                         <td *ngIf="user.active; else isActive"><p-tag severity="success" value="Hoạt động"></p-tag></td>
                         <ng-template #isActive>
                             <td><p-tag severity="danger" value="Bị khoá"></p-tag></td>
