@@ -1,31 +1,29 @@
 /** @format */
 
 import { Component, OnInit } from '@angular/core'
-import { FormControl, FormGroup, Validators } from '@angular/forms'
-import { MenuItem, MessageService } from 'primeng/api'
-import { Table } from 'primeng/table'
-import { finalize, forkJoin } from 'rxjs'
+import { FormGroup, FormControl, Validators } from '@angular/forms'
+import { MessageService, MenuItem } from 'primeng/api'
+import { Observable, finalize, forkJoin } from 'rxjs'
 import { AuthenticationService } from 'src/app/modules/auth/service/authentication.service'
 import { AppConstant } from 'src/app/modules/common/Constants'
+import { AccomodationUtilities } from 'src/app/modules/landlord/model/accomodation.model'
+import { Post } from 'src/app/modules/landlord/model/post.model'
+import { AccomodationService } from 'src/app/modules/landlord/service/accomodation.service'
+import { AddressService } from 'src/app/modules/landlord/service/address.service'
+import { PostService } from 'src/app/modules/landlord/service/post.service'
+import { RoomService } from 'src/app/modules/landlord/service/room.service'
 import { User } from 'src/app/modules/model/user.model'
-import { AccomodationUtilities, Room } from '../../model/accomodation.model'
-import { Post } from '../../model/post.model'
-import { AccomodationService } from '../../service/accomodation.service'
-import { PostService } from '../../service/post.service'
-import { RoomService } from '../../service/room.service'
-import { AddressService } from '../../service/address.service'
+import { Table } from 'primeng/table'
+import { Router } from '@angular/router'
 
 @Component({
-    selector: 'app-post',
-    templateUrl: './post.component.html',
-    styleUrls: ['./post.component.scss'],
+    selector: 'app-post-management',
+    templateUrl: './post-management.component.html',
+    styleUrls: ['./post-management.component.scss'],
     providers: [MessageService],
 })
-export class PostComponent implements OnInit {
+export class PostManagementComponent implements OnInit {
     invoiceDialog: boolean = false
-
-    accomodations: any[] = []
-    selectedAccomodation!: any
 
     posts: Post[] = []
     post: Post = {}
@@ -43,11 +41,11 @@ export class PostComponent implements OnInit {
     contractInfoLoading: boolean = false
 
     items: MenuItem[] = []
-    linkUpload: string = "http://localhost:8080/motel-service/api/post/image/"
-    responsiveOptions: any[];
+    linkUpload: string = 'http://localhost:8080/motel-service/api/post/image/'
+    responsiveOptions: any[]
     deleteImageDialog: boolean = false
-    selectedImage: any;
-    deleteLoading: boolean = false;
+    selectedImage: any[] = []
+    deleteLoading: boolean = false
     gender: any = AppConstant.GENDER
 
     provices: any[] = []
@@ -57,11 +55,16 @@ export class PostComponent implements OnInit {
     selectedProvince: any
     selectedDistrict: any
     selectedWard: any
-    existingProvince!: any;
-    existingDistrict!: any;
+    existingProvince!: any
+    existingDistrict!: any
     existingWard: any = {}
 
     addLoading: boolean = false
+    selectedFiles: File[] = []
+    previewImage: any[] = []
+    currentFile?: File
+
+    imageInfos?: Observable<any>
 
     constructor(
         private accomodationService: AccomodationService,
@@ -70,6 +73,7 @@ export class PostComponent implements OnInit {
         private postService: PostService,
         private roomService: RoomService,
         private addressService: AddressService,
+        public router: Router,
     ) {
         this.postForm = new FormGroup({
             title: new FormControl(this.post.title, [Validators.required]),
@@ -87,23 +91,25 @@ export class PostComponent implements OnInit {
         this.responsiveOptions = [
             {
                 breakpoint: '1024px',
-                numVisible: 5
+                numVisible: 5,
             },
             {
                 breakpoint: '768px',
-                numVisible: 3
+                numVisible: 3,
             },
             {
                 breakpoint: '560px',
-                numVisible: 1
-            }
-        ];
-
+                numVisible: 1,
+            },
+        ]
     }
 
     ngOnInit() {
         this.user = this.auth.userValue
-        this.getDropdownAccomodation()
+        if (!this.user) {
+            this.router.navigateByUrl('/auth')
+        }
+        this.initData()
 
         this.postForm.get('title')?.valueChanges.subscribe((data) => {
             this.post.title = data
@@ -112,50 +118,41 @@ export class PostComponent implements OnInit {
             this.post.content = data
         })
 
-        this.postForm.get('price')?.valueChanges.subscribe(data => {
+        this.postForm.get('price')?.valueChanges.subscribe((data) => {
             this.post.price = data
         })
-        this.postForm.get('acreage')?.valueChanges.subscribe(data => {
+        this.postForm.get('acreage')?.valueChanges.subscribe((data) => {
             this.post.acreage = data
         })
-        this.postForm.get('capacity')?.valueChanges.subscribe(data => {
+        this.postForm.get('capacity')?.valueChanges.subscribe((data) => {
             this.post.capacity = data
         })
 
-        this.postForm.get('province')?.valueChanges.subscribe(data => {
+        this.postForm.get('province')?.valueChanges.subscribe((data) => {
             if (data) {
                 this.post.province = data.name
                 this.post.provinceCode = data.code
                 this.selectedProvince = data.code
             }
-        })      
-        this.postForm.get('district')?.valueChanges.subscribe(data => {
+        })
+        this.postForm.get('district')?.valueChanges.subscribe((data) => {
             if (data) {
                 this.post.district = data.name
                 this.post.districtCode = data.code
                 this.selectedDistrict = data.code
             }
-        })        
-        this.postForm.get('ward')?.valueChanges.subscribe(data => {
+        })
+        this.postForm.get('ward')?.valueChanges.subscribe((data) => {
             if (data) {
                 this.post.ward = data.name
                 this.post.wardCode = data.code
             }
-        })       
-        this.postForm.get('addressLine')?.valueChanges.subscribe(data => {
+        })
+        this.postForm.get('addressLine')?.valueChanges.subscribe((data) => {
             if (data) {
                 this.post.addressLine = data
             }
-        })  
-    }
-
-    getAccomodationsByUser() {
-        this.dataLoading = true
-        return this.accomodationService.getAccomodationByUserId(this.user?.id).pipe(
-            finalize(() => {
-                this.dataLoading = false
-            }),
-        )
+        })
     }
 
     getWardByDistrict() {
@@ -166,21 +163,17 @@ export class PostComponent implements OnInit {
     getDistrictByProvince() {
         this.districts = []
         this.wards = []
-        this.addressService
-            .getDistrictByProvince(this.selectedProvince)
-            .subscribe((result) => (this.districts = result.districts))
+        this.addressService.getDistrictByProvince(this.selectedProvince).subscribe((result) => (this.districts = result.districts))
     }
 
     getProvinces() {
-        return this.addressService.getAllProvinces().pipe(
-            finalize(() => this.selectedProvince = this.provices[0])
-        )
+        return this.addressService.getAllProvinces().pipe(finalize(() => (this.selectedProvince = this.provices[0])))
     }
 
     getFullAddress() {
         return forkJoin({
-            districts: this.addressService.getDistrictByProvince(this.selectedAccomodation.provinceCode),
-            wards: this.addressService.getWardByDistrict(this.selectedAccomodation.districtCode)
+            districts: this.addressService.getDistrictByProvince(this.post.provinceCode),
+            wards: this.addressService.getWardByDistrict(this.post.districtCode),
         })
     }
 
@@ -190,26 +183,17 @@ export class PostComponent implements OnInit {
 
     openNew() {
         this.post = {}
-        this.existingProvince = this.findAddressByName(this.selectedAccomodation.provinceCode, this.provices)
-        this.postForm.get('province')?.setValue(this.existingProvince )        
-        this.postForm.get('addressLine')?.setValue(this.selectedAccomodation.addressLine) 
-        this.addLoading = true
-        this.getFullAddress().pipe(
-            finalize(() => {
-                this.existingDistrict = this.findAddressByName(this.selectedAccomodation.districtCode, this.districts)
-                this.existingWard = this.findAddressByName(this.selectedAccomodation.wardCode, this.wards)
-                this.postForm.get('district')?.setValue(this.existingDistrict)  
-                this.postForm.get('ward')?.setValue(this.existingWard)   
-                this.addLoading = false    
-                this.postDialog = true
-            })
-        ).subscribe((response: any) => {
-            this.districts = response.districts.districts
-            this.wards = response.wards.wards
-        })
-       
+        this.postForm.get('title')?.setValue(null)
+        this.postForm.get('content')?.setValue(null)
+        this.postForm.get('price')?.setValue(null)
+        this.postForm.get('acreage')?.setValue(null)
+        this.postForm.get('capacity')?.setValue(null)
+        this.postForm.get('province')?.setValue(null)
+        this.postForm.get('district')?.setValue(null)
+        this.postForm.get('ward')?.setValue(null)
+        this.postForm.get('addressLine')?.setValue(null)
+        this.postDialog = true
     }
-    
 
     onShowMenu(post: Post) {
         this.getMenuItems(post)
@@ -233,7 +217,7 @@ export class PostComponent implements OnInit {
                 label: 'Gỡ bài',
                 visible: post.isActive,
                 command: (e: any) => {
-                    this.post = {...e.item.data}
+                    this.post = { ...e.item.data }
                     this.changeStatusPost(false)
                 },
             },
@@ -242,7 +226,7 @@ export class PostComponent implements OnInit {
                 label: 'Đăng bài',
                 visible: !post.isActive,
                 command: (e: any) => {
-                    this.post = {...e.item.data}
+                    this.post = { ...e.item.data }
                     this.changeStatusPost(true)
                 },
             },
@@ -250,7 +234,7 @@ export class PostComponent implements OnInit {
                 label: 'Xoá',
                 icon: 'pi pi-trash',
                 command: (e) => {
-                    this.post = {...e.item.data}
+                    this.post = { ...e.item.data }
                     this.removePost()
                 },
             },
@@ -267,61 +251,37 @@ export class PostComponent implements OnInit {
 
     removePost() {
         this.loading = true
-        this.postService.removePost(this.post.id).pipe(
-            finalize(() => {
-                this.initData()
-                this.post = {}
-                this.messageService.add({ severity: 'success', summary: 'Thành công', detail: 'Xoá thành công', life: 3000 })
-            }),
-        ).subscribe()
-    }
-
-    getDropdownAccomodation() {
-        this.loading = true
-        this.accomodationService
-            .getDropdownAccomodation(this.user?.id)
+        this.postService
+            .removePost(this.post.id)
             .pipe(
                 finalize(() => {
-                    this.selectedAccomodation = this.accomodations[0]
                     this.initData()
+                    this.post = {}
+                    this.messageService.add({ severity: 'success', summary: 'Thành công', detail: 'Xoá thành công', life: 3000 })
                 }),
             )
-        .subscribe((response) => (this.accomodations = response.data)) 
+            .subscribe()
     }
 
     initData() {
+        this.loading = true
         forkJoin({
-            posts: this.getPostByAccomodation(),
-            services: this.getAccomdationService(),
+            posts: this.getPostByUserId(),
             provinces: this.getProvinces(),
         })
             .pipe(
                 finalize(() => {
                     this.loading = false
-                    this.servicesDisplayed = JSON.parse(JSON.stringify(this.services))
                 }),
             )
             .subscribe((response) => {
                 this.posts = response.posts.data
-                this.services = response.services.data
                 this.provices = response.provinces
             })
     }
 
-    getAccomdationService() {
-        return this.accomodationService.getAccomodationService(this.selectedAccomodation.id)
-    }
-
-    getRoomNoPostAndDeposit() {
-        return this.roomService.getRoomNoPostAndDeposit(this.selectedAccomodation.id)
-    }
-
-    getPostByAccomodation() {
-        return this.postService.getByUserIdAndAccomodation(this.user?.id, this.selectedAccomodation.id)
-    }
-
-    onSelectAccomodation() {
-        this.initData()
+    getPostByUserId() {
+        return this.postService.getByUserId(this.user?.id)
     }
 
     hideDialog() {
@@ -339,12 +299,20 @@ export class PostComponent implements OnInit {
                 message = 'Thêm thành công'
             }
             this.post.userId = this.user?.id
+            const request: FormData = new FormData()
+            for (let i = 0; i < this.selectedFiles.length; i++) {
+                request.append('file', this.selectedFiles[i]);
+            }
+            request.append('data', JSON.stringify(this.post))
+            console.log(request)
             this.postService
-                .savePost(this.post)
+                .savePost(request)
                 .pipe(
                     finalize(() => {
                         this.initData()
                         this.post = {}
+                        this.previewImage = []
+                        this.selectedFiles = []
                         this.postDialog = false
                         this.messageService.add({ severity: 'success', summary: 'Thành công', detail: message, life: 3000 })
                     }),
@@ -365,18 +333,16 @@ export class PostComponent implements OnInit {
             message = 'Đăng bài thành công'
         }
 
-        this.postService.changeStatusPost(this.post).pipe(
-            finalize(() => {
-                this.initData()
-                this.post = {}
-                this.messageService.add({ severity: 'success', summary: 'Thành công', detail: message, life: 3000 })
-            }),
-        ).subscribe()
-    }
-
-    getById(id: any, source: any[]) {
-        let result = Object.assign({}, source.find(item => item.id === id))
-        return result
+        this.postService
+            .changeStatusPost(this.post)
+            .pipe(
+                finalize(() => {
+                    this.initData()
+                    this.post = {}
+                    this.messageService.add({ severity: 'success', summary: 'Thành công', detail: message, life: 3000 })
+                }),
+            )
+            .subscribe()
     }
 
     editPost(post: any) {
@@ -387,57 +353,76 @@ export class PostComponent implements OnInit {
         this.postForm.get('acreage')?.setValue(this.post.acreage)
         this.postForm.get('capacity')?.setValue(this.post.capacity)
         this.postForm.get('status')?.setValue(this.post.status)
-        this.existingProvince = this.findAddressByName(this.selectedAccomodation.provinceCode, this.provices)
-        this.postForm.get('province')?.setValue(this.existingProvince )        
-        this.postForm.get('addressLine')?.setValue(this.selectedAccomodation.addressLine) 
+        this.existingProvince = this.findAddressByName(this.post.provinceCode, this.provices)
+        this.postForm.get('province')?.setValue(this.existingProvince)
+        this.postForm.get('addressLine')?.setValue(this.post.addressLine)
         this.loading = true
-        this.getFullAddress().pipe(
-            finalize(() => {
-                this.existingDistrict = this.findAddressByName(this.selectedAccomodation.districtCode, this.districts)
-                this.existingWard = this.findAddressByName(this.selectedAccomodation.wardCode, this.wards)
-                this.postForm.get('district')?.setValue(this.existingDistrict)  
-                this.postForm.get('ward')?.setValue(this.existingWard)   
-                this.loading = false    
-                this.postDialog = true
+        this.getFullAddress()
+            .pipe(
+                finalize(() => {
+                    this.existingDistrict = this.findAddressByName(this.post.districtCode, this.districts)
+                    this.existingWard = this.findAddressByName(this.post.wardCode, this.wards)
+                    this.postForm.get('district')?.setValue(this.existingDistrict)
+                    this.postForm.get('ward')?.setValue(this.existingWard)
+                    this.loading = false
+                    this.postDialog = true
+                }),
+            )
+            .subscribe((response: any) => {
+                this.districts = response.districts.districts
+                this.wards = response.wards.wards
             })
-        ).subscribe((response: any) => {
-            this.districts = response.districts.districts
-            this.wards = response.wards.wards
-        })
     }
 
     onHideDialog() {
         this.selectedServices = []
         this.servicesDisplayed = JSON.parse(JSON.stringify(this.services))
+        this.previewImage = []
+        this.selectedFiles = []
         this.postForm.reset()
     }
 
-    getImagesByPost() {
-        this.loading = true;
-        this.postService.getImageByPost(this.post.id).pipe(
-            finalize(() => {
-                this.loading = false
-                this.deleteLoading = false
-            }),
-        ).subscribe(res => this.post.images = res.data)
-    }
-
     removeImageByPost(imgId: any) {
-        this.post.images = this.post.images?.filter(item => item.imageId !== imgId)
+        this.post.images = this.post.images?.filter((item) => item.imageId !== imgId)
     }
 
     onDeleteImage(imgId: any) {
         this.deleteLoading = true
-        this.postService.removeImage(imgId).pipe(
-            finalize(() => {
-                this.removeImageByPost(imgId)
-            }),
-        ).subscribe()
+        this.postService
+            .removeImage(imgId)
+            .pipe(
+                finalize(() => {
+                    this.removeImageByPost(imgId)
+                }),
+            )
+            .subscribe()
     }
 
-    onUpload(e: any) {
-        console.log(e)
-        this.getImagesByPost()
+    deleteImage(index: number) {
+        this.previewImage.splice(index, 1)
+        this.selectedFiles.splice(index, 1)
+        if (this.post) {
+            console.log('next')
+        }
+    }
+
+    selectFile(event: any): void {
+        const files = event.target.files
+        if (files) {
+            for (let i = 0; i < files.length; i++) {
+                const file: File = files[i]
+                this.selectedFiles.push(file)
+                if (file) {
+                    this.currentFile = file
+                    const reader = new FileReader()
+
+                    reader.onload = (e: any) => {
+                        this.previewImage.push(e.target.result)
+                    }
+                    reader.readAsDataURL(this.currentFile)
+                }
+            }
+        }
     }
 
     onGlobalFilter(table: Table, event: Event) {

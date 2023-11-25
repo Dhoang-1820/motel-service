@@ -1,4 +1,3 @@
-import { RoomDropdown, Services } from "./accomodation.model";
 
 export class Post {
     id?: number;
@@ -6,9 +5,18 @@ export class Post {
 	content?: string;
 	isActive?: boolean;
 	createdAt?: Date;
+	acreage?: number;
+    capacity?: number;
+    price?: number;
 	lastChange?: Date;
 	userId?: number;
-	room?: RoomDropdown[];
-	services?: Services[];
+	addressLine?: string;
+    district?: string;
+    districtCode?: number;
+    province?: string;
+    provinceCode?: number
+    ward?: string;
+    wardCode?: number;
+	status?: string;
     images?: any[] = []
 }

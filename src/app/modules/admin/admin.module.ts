@@ -39,9 +39,10 @@ import { SidebarComponent } from './layout/sidebar/sidebar.component'
 import { MenuitemComponent } from './layout/menuitem/menuitem.component'
 import { HeaderComponent } from './layout/header/header.component'
 import { TagModule } from 'primeng/tag';
+import { PostListComponent } from './components/post-list/post-list.component';
 
 @NgModule({
-    declarations: [AdminComponent, UserManagementComponent, SidebarComponent, MenuitemComponent, HeaderComponent],
+    declarations: [AdminComponent, UserManagementComponent, SidebarComponent, MenuitemComponent, HeaderComponent, PostListComponent],
     imports: [
         CommonModule,
         AdminRoutingModule,

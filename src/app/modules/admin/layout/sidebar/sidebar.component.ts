@@ -17,8 +17,8 @@ export class SidebarComponent implements OnInit {
             {
                 label: 'Quản lý người dùng',
                 items: [
-                    { label: 'Quản lý người dùng', icon: 'pi pi-fw pi-users', routerLink: ['/admin/user-management'] },
-                    // { label: 'Cấu hình chung', icon: 'pi pi-fw pi-desktop', routerLink: ['/motel-management/config-common'] },
+                    { label: 'Quản lý người dùng', icon: 'pi pi-fw pi-users', routerLink: ['/administration/user-management'] },
+                    { label: 'Quản lý tin đăng', icon: 'pi pi-fw pi-desktop', routerLink: ['/administration/post-management'] },
                 ],
             },
         ]

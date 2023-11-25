@@ -15,6 +15,10 @@ export class PostService {
         return this.http.get<any>(`${environment.apiUrl}/post/${accomodationId}/${userId}`)
     }
 
+    getByUserId(userId: any): Observable<any> {
+        return this.http.get<any>(`${environment.apiUrl}/post/${userId}`)
+    }
+
     savePost(request: any): Observable<any> {
         return this.http.post<any>(`${environment.apiUrl}/post`, request)
     }

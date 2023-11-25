@@ -4,8 +4,6 @@ import { Table } from 'primeng/table'
 import { finalize } from 'rxjs'
 import { AuthenticationService } from 'src/app/modules/auth/service/authentication.service'
 import { Room } from 'src/app/modules/landlord/model/accomodation.model'
-import { AccomodationService } from 'src/app/modules/landlord/service/accomodation.service'
-import { RoomService } from 'src/app/modules/landlord/service/room.service'
 import { User } from 'src/app/modules/model/user.model'
 import { UserManagementService } from '../../services/user-management.service'
 

@@ -1,11 +1,27 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { UsersComponent } from './users.component';
+/** @format */
 
-const routes: Routes = [{ path: '', component: UsersComponent }];
+import { NgModule } from '@angular/core'
+import { RouterModule, Routes } from '@angular/router'
+import { UsersComponent } from './users.component'
+import { UserProfileComponent } from './component/user-profile/user-profile.component'
+import { MainComponent } from './component/main/main.component'
+import { PostManagementComponent } from './component/post-management/post-management.component'
+
+const routes: Routes = [
+    {
+        path: '',
+        component: UsersComponent,
+        children: [
+            { path: '', redirectTo: 'home', pathMatch: 'full' },
+            { path: 'home', component: MainComponent },
+            { path: 'user-profile', component: UserProfileComponent },
+            { path: 'user-post', component: PostManagementComponent },
+        ],
+    },
+]
 
 @NgModule({
-  imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+    imports: [RouterModule.forChild(routes)],
+    exports: [RouterModule],
 })
-export class UsersRoutingModule { }
+export class UsersRoutingModule {}

@@ -6,7 +6,7 @@
             <p-toolbar styleClass="mb-4">
                 <ng-template pTemplate="left">
                     <div class="my-2">
-                        <button pButton pRipple label="Thêm" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
+                        <button pButton [loading]="addLoading" pRipple label="Thêm" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
                     </div>
                 </ng-template>
 
@@ -46,27 +46,26 @@
                 </ng-template>
                 <ng-template pTemplate="header">
                     <tr>
-                        <th pSortableColumn="name">Tên phòng<p-sortIcon field="name"></p-sortIcon></th>
+                        <th pSortableColumn="name">Khu trọ<p-sortIcon field="name"></p-sortIcon></th>
                         <th pSortableColumn="month">Ngày đăng<p-sortIcon field="month"></p-sortIcon></th>
                         <th pSortableColumn="representative">Tiêu đề<p-sortIcon field="representative"></p-sortIcon></th>
                         <th pSortableColumn="isPay">Trạng thái<p-sortIcon field="isPay"></p-sortIcon></th>
-                        <th>Số lượt xem</th>
                         <th></th>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-data>
                     <tr>
-                        <td style="width: 15%">{{ data.room.name }}</td>
+                        <td style="width: 15%">{{ selectedAccomodation.name }}</td>
                         <td style="width: 15%">{{ data.createdAt | date : 'MM/yyyy' }}</td>
                         <td style="width: 40%">{{ data.title }}</td>
 
                         <td style="width: 15%">
-                            <ng-container>
-                                <p-tag *ngIf="data.isActive" severity="success" value="Đang đăng tin"></p-tag>
-                                <p-tag *ngIf="!data.isActive" severity="warning" value="Đã gỡ bài"></p-tag>
+                            <ng-container [ngSwitch]="data.status">
+                                <p-tag *ngSwitchCase="'IN_PROGRESS'" severity="info" value="Đang chờ duyệt"></p-tag>
+                                <p-tag *ngSwitchCase="'APPROVED'" severity="success" value="Đã duyệt bài"></p-tag>
+                                <p-tag *ngSwitchCase="'REJECTED'" severity="danger" value="Đã khoá"></p-tag>
                             </ng-container>
                         </td>
-                        <td></td>
                         <td>
                             <ng-container *ngIf="data.id">
                                 <div class="flex align-items-center" style="position: relative">
@@ -89,46 +88,91 @@
             
         </div>
 
-        <p-dialog (onHide)="onHideDialog()" [(visible)]="postDialog" [style]="{width: '1150px'}" header="Chi tiết hợp đồng" [modal]="true" class="p-fluid">
+        <p-dialog (onHide)="onHideDialog()" [(visible)]="postDialog" [style]="{width: '1150px'}" header="Quản lý bài đăng" [modal]="true" class="p-fluid">
             <ng-template pTemplate="content">
                 <form [formGroup]="postForm">
-                    <div class="formgrid grid">
-                        <div class="field col">
-                            <label for="room">Phòng</label>
-                            <p-dropdown id="room" formControlName="room" optionLabel="name" [options]="rooms" placeholder="Chọn theo phòng" [ngClass]="{'ng-invalid ng-dirty' : postForm.controls['room'].invalid && (postForm.controls['room'].dirty || postForm.controls['room'].touched)}"> </p-dropdown>
-                            <small class="ng-dirty ng-invalid" *ngIf="postForm.get('room')?.hasError('required') && (postForm.controls['room'].dirty || postForm.controls['room'].touched)">Vui lòng chọn phòng.</small>
-                        </div> 
-                        <!-- <div class="field col">
-                            <ng-container *ngIf="contract.room && contract.room.price">
-                                <label>Giá</label>
-                                <p-inputNumber [disabled]="true" [(ngModel)]="contract.room.price" [ngModelOptions]="{standalone: true}"></p-inputNumber>
-                            </ng-container>
-                        </div> -->
-                    </div>
-                    <p-tabView>
-                        <p-tabPanel header="Chọn dịch vụ">
-                            <p-pickList [source]="servicesDisplayed" (onMoveAllToSource)="onMoveBackService($event)" (onMoveToSource)="onMoveBackService($event)" [target]="selectedServices" sourceHeader="Dịch vụ" targetHeader="Dịch vụ đã chọn" [dragdrop]="true" [responsive]="true" 
-                                [sourceStyle]="{ height: '15rem' }" [targetStyle]="{ height: '15rem' }" filterBy="name" sourceFilterPlaceholder="Tìm kiếm..." targetFilterPlaceholder="Tìm kiếm..."  breakpoint="1400px">
-                                <ng-template let-service pTemplate="item">
-                                    <div class="flex flex-wrap p-2 align-items-center gap-3">
-                                        <div class="flex-1 flex flex-column gap-2">
-                                            <span>{{service.name}}</span>
-                                        </div>
-                                        <div class="flex-1 flex flex-column gap-2">
-                                            <span>{{service.price | currency: 'VND':'symbol'}}</span>
-                                        </div>
-                                        <div class="flex-1 flex flex-column gap-2">
-                                            <span>{{service.unit}}</span>
-                                        </div>
-                                    </div>
-                                </ng-template>
-                            </p-pickList>
-                        </p-tabPanel>
-                    </p-tabView>
                     <div class="field">
                         <label for="title">Tiêu đề</label>
                         <textarea type="text" pInputTextarea id="title" formControlName="title"></textarea>
                     </div> 
+                    <div class="formgrid grid">
+                        <div class="field col">
+                            <label for="price">Giá phòng (đồng) <span class="mandatory-sign">*</span></label>
+                            <div class="input-box">
+                                <p-inputNumber id="price" formControlName="price"
+                                    [ngClass]="{'ng-invalid ng-dirty' : postForm.controls['price'].invalid && (postForm.controls['price'].dirty || postForm.controls['price'].touched)}"></p-inputNumber>
+                            </div>
+                            <small class="ng-dirty ng-invalid"
+                                *ngIf="postForm.get('price')?.invalid && (postForm.controls['price'].dirty || postForm.controls['price'].touched)">Vui
+                                lòng nhập giá.</small>
+                        </div>
+                        <div class="field col">
+                            <div class="field col">
+                                <label for="dayNumber">Trạng thái</label>
+                                <div pInputText style="padding-top: 9px; padding-bottom: 9px;">
+                                    <ng-container [ngSwitch]="post.status">
+                                        <p-tag *ngSwitchCase="'IN_PROGRESS'" severity="info" value="Đang chờ duyệt"></p-tag>
+                                        <p-tag *ngSwitchCase="'APPROVED'" severity="success" value="Đã duyệt bài"></p-tag>
+                                        <p-tag *ngSwitchCase="'REJECTED'" severity="danger" value="Đã khoá"></p-tag>
+                                    </ng-container>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="formgrid grid">
+                        <div class="field col">
+                            <label for="price">Diện tích <span class="mandatory-sign">*</span></label>
+                            <div class="input-box">
+                                <p-inputNumber id="price" formControlName="acreage" mode="decimal" suffix="m²"
+                                    [ngClass]="{'ng-invalid ng-dirty' : postForm.controls['acreage'].invalid && (postForm.controls['acreage'].dirty || postForm.controls['acreage'].touched)}"></p-inputNumber>
+                            </div>
+                            <small class="ng-dirty ng-invalid"
+                                *ngIf="postForm.get('acreage')?.invalid && (postForm.controls['acreage'].dirty || postForm.controls['acreage'].touched)">Vui
+                                lòng nhập diện tích.</small>
+                        </div>
+                        <div class="field col">
+                            <label for="price">Số người ở tối đa <span class="mandatory-sign">*</span></label>
+                            <div class="input-box">
+                                <p-inputNumber id="price" formControlName="capacity" [ngClass]="{'ng-invalid ng-dirty' : postForm.controls['capacity'].invalid && (postForm.controls['capacity'].dirty || postForm.controls['capacity'].touched)}"></p-inputNumber>
+                            </div>
+                            <small class="ng-dirty ng-invalid"
+                            *ngIf="postForm.get('capacity')?.invalid && (postForm.controls['capacity'].dirty || postForm.controls['capacity'].touched)">Vui
+                            lòng nhập số người ở tối đa.</small>
+                        </div>
+                    </div>
+                    <div class="formgrid grid">
+                        <div class="field col">
+                            <label for="province">Tỉnh/Thành phố <span class="mandatory-sign">*</span></label>
+                            <div class="input-box">
+                                <p-dropdown [readonly]="true" appendTo="body" (onChange)="getDistrictByProvince()" placeholder="Tỉnh/Thành phố" [options]="provices" formControlName="province" optionLabel="name" [ngClass]="{'ng-invalid ng-dirty' : postForm.controls['province'].invalid && (postForm.controls['province'].dirty || postForm.controls['province'].touched)}">
+                                </p-dropdown>
+                            </div>
+                            <small class="ng-dirty ng-invalid" *ngIf="postForm.get('province')?.invalid && (postForm.controls['province'].dirty || postForm.controls['province'].touched)">Vui lòng chọn địa chỉ.</small>
+                        </div>
+                        <div class="field col">
+                            <label for="district">Quận/Huyện <span class="mandatory-sign">*</span></label>
+                            <div class="input-box">
+                                <p-dropdown [readonly]="true" appendTo="body" (onChange)="getWardByDistrict()" placeholder="Quận/Huyện" formControlName="district" [options]="districts" optionLabel="name" [ngClass]="{'ng-invalid ng-dirty' : postForm.controls['district'].invalid && (postForm.controls['district'].dirty || postForm.controls['district'].touched)}"></p-dropdown>
+                            </div>
+                            <small class="ng-dirty ng-invalid" *ngIf="postForm.get('district')?.invalid && (postForm.controls['district'].dirty || postForm.controls['district'].touched)">Vui lòng chọn địa chỉ.</small>
+                        </div>
+                    </div>
+                    <div class="formgrid grid">
+                        <div class="field col">
+                            <label for="ward">Phường/Xã <span class="mandatory-sign">*</span></label>
+                            <div class="input-box">
+                                <p-dropdown [readonly]="true" appendTo="body" [options]="wards" formControlName="ward" placeholder="Phường/Xã" optionLabel="name" [ngClass]="{'ng-invalid ng-dirty' : postForm.controls['ward'].invalid && (postForm.controls['ward'].dirty || postForm.controls['ward'].touched)}"></p-dropdown>
+                            </div>
+                            <small class="ng-dirty ng-invalid" *ngIf="postForm.get('ward')?.invalid && (postForm.controls['ward'].dirty || postForm.controls['ward'].touched)">Vui lòng nhập chọn địa chỉ.</small>
+                        </div>
+                        <div class="field col">
+                            <label for="address_line">Số nhà, tên đường <span class="mandatory-sign">*</span></label>
+                            <div class="input-box">
+                                <input pInputText [readonly]="true" formControlName="addressLine"  [ngClass]="{'ng-invalid ng-dirty' : postForm.controls['addressLine'].invalid && (postForm.controls['addressLine'].dirty || postForm.controls['addressLine'].touched)}"/>
+                            </div>
+                            <small class="ng-dirty ng-invalid" *ngIf="postForm.get('addressLine')?.invalid && (postForm.controls['addressLine'].dirty || postForm.controls['addressLine'].touched)">Vui lòng nhập chọn địa chỉ.</small>
+                        </div>
+                    </div>
                     <div class="field">
                         <label>Nội dung</label>
                         <div class="card">

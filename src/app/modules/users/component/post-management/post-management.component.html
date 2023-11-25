@@ -1,0 +1,243 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toast></p-toast>
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button pButton [loading]="addLoading" pRipple label="Thêm" icon="pi pi-plus"
+                            class="p-button-success mr-2" (click)="openNew()"></button>
+                    </div>
+                </ng-template>
+            </p-toolbar>
+            <p-table #dt [value]="posts" responsiveLayout="scroll" [rows]="10"
+                [globalFilterFields]="['address', 'createdAt', 'title', 'status']" [paginator]="true"
+                [rowsPerPageOptions]="[10, 20, 30]" [rowHover]="true" dataKey="id">
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <h5 class="m-0">Quản lý bài đăng</h5>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Tìm kiếm..."
+                                class="w-full sm:w-auto" />
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pSortableColumn="address">Địa chỉ<p-sortIcon field="address"></p-sortIcon></th>
+                        <th pSortableColumn="createdAt">Ngày đăng<p-sortIcon field="createdAt"></p-sortIcon></th>
+                        <th pSortableColumn="title">Tiêu đề<p-sortIcon field="title"></p-sortIcon>
+                        </th>
+                        <th pSortableColumn="status">Trạng thái<p-sortIcon field="status"></p-sortIcon></th>
+                        <th></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-data>
+                    <tr>
+                        <td style="width: 25%">{{ data.address }}</td>
+                        <td style="width: 15%">{{ data.createdAt | date : 'dd/MM/yyyy' }}</td>
+                        <td style="width: 30%">{{ data.title }}</td>
+
+                        <td style="width: 15%" *ngIf="data.status">
+                            <ng-container [ngSwitch]="data.status">
+                                <p-tag *ngSwitchCase="'IN_PROGRESS'" severity="info" value="Đang chờ duyệt"></p-tag>
+                                <p-tag *ngSwitchCase="'APPROVED'" severity="success" value="Đã duyệt bài"></p-tag>
+                                <p-tag *ngSwitchCase="'REJECTED'" severity="danger" value="Đã khoá"></p-tag>
+                            </ng-container>
+                        </td>
+                        <td style="width: 15%" *ngIf="!data.status">
+
+                        </td>
+                        <td>
+                            <ng-container *ngIf="data.id">
+                                <div class="flex align-items-center" style="position: relative">
+                                    <p-menu  appendTo="body"  (onShow)="onShowMenu(data)" #menu [model]="items" [popup]="true"></p-menu>
+                                    <button pButton type="button" pTooltip="Tác vụ" tooltipPosition="top"
+                                        class="p-button-rounded" (click)="toggleMenu(menu, $event)"
+                                        icon="pi pi-bars"></button>
+                                </div>
+                            </ng-container>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+
+        </div>
+
+        <p-dialog (onHide)="onHideDialog()" [(visible)]="postDialog" [style]="{width: '1150px'}"
+            header="Quản lý bài đăng" [modal]="true" class="p-fluid">
+            <ng-template pTemplate="content">
+                <form [formGroup]="postForm">
+                    <div class="field">
+                        <label for="title">Tiêu đề</label>
+                        <textarea type="text" pInputTextarea id="title" formControlName="title"></textarea>
+                    </div>
+                    <div class="formgrid grid">
+                        <div class="field col">
+                            <label for="price">Giá phòng (đồng) <span class="mandatory-sign">*</span></label>
+                            <div class="input-box">
+                                <p-inputNumber id="price" formControlName="price"
+                                    [ngClass]="{'ng-invalid ng-dirty' : postForm.controls['price'].invalid && (postForm.controls['price'].dirty || postForm.controls['price'].touched)}"></p-inputNumber>
+                            </div>
+                            <small class="ng-dirty ng-invalid"
+                                *ngIf="postForm.get('price')?.invalid && (postForm.controls['price'].dirty || postForm.controls['price'].touched)">Vui
+                                lòng nhập giá.</small>
+                        </div>
+                        <div class="field col">
+                            <div class="field col">
+                                <label for="dayNumber">Trạng thái</label>
+                                <div pInputText style="padding-top: 9px; padding-bottom: 9px;">
+                                    <ng-container [ngSwitch]="post.status">
+                                        <p-tag *ngSwitchCase="'IN_PROGRESS'" severity="info"
+                                            value="Đang chờ duyệt"></p-tag>
+                                        <p-tag *ngSwitchCase="'APPROVED'" severity="success"
+                                            value="Đã duyệt bài"></p-tag>
+                                        <p-tag *ngSwitchCase="'REJECTED'" severity="danger" value="Đã khoá"></p-tag>
+                                        <p-tag *ngSwitchDefault severity="info" value="Đang chờ duyệt"></p-tag>
+                                    </ng-container>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="formgrid grid">
+                        <div class="field col">
+                            <label for="price">Diện tích <span class="mandatory-sign">*</span></label>
+                            <div class="input-box">
+                                <p-inputNumber id="price" formControlName="acreage" mode="decimal" suffix="m²"
+                                    [ngClass]="{'ng-invalid ng-dirty' : postForm.controls['acreage'].invalid && (postForm.controls['acreage'].dirty || postForm.controls['acreage'].touched)}"></p-inputNumber>
+                            </div>
+                            <small class="ng-dirty ng-invalid"
+                                *ngIf="postForm.get('acreage')?.invalid && (postForm.controls['acreage'].dirty || postForm.controls['acreage'].touched)">Vui
+                                lòng nhập diện tích.</small>
+                        </div>
+                        <div class="field col">
+                            <label for="price">Số người ở tối đa <span class="mandatory-sign">*</span></label>
+                            <div class="input-box">
+                                <p-inputNumber id="price" formControlName="capacity"
+                                    [ngClass]="{'ng-invalid ng-dirty' : postForm.controls['capacity'].invalid && (postForm.controls['capacity'].dirty || postForm.controls['capacity'].touched)}"></p-inputNumber>
+                            </div>
+                            <small class="ng-dirty ng-invalid"
+                                *ngIf="postForm.get('capacity')?.invalid && (postForm.controls['capacity'].dirty || postForm.controls['capacity'].touched)">Vui
+                                lòng nhập số người ở tối đa.</small>
+                        </div>
+                    </div>
+                    <div class="formgrid grid">
+                        <div class="field col">
+                            <label for="province">Tỉnh/Thành phố <span class="mandatory-sign">*</span></label>
+                            <div class="input-box">
+                                <p-dropdown appendTo="body" (onChange)="getDistrictByProvince()"
+                                    placeholder="Tỉnh/Thành phố" [options]="provices" formControlName="province"
+                                    optionLabel="name"
+                                    [ngClass]="{'ng-invalid ng-dirty' : postForm.controls['province'].invalid && (postForm.controls['province'].dirty || postForm.controls['province'].touched)}">
+                                </p-dropdown>
+                            </div>
+                            <small class="ng-dirty ng-invalid"
+                                *ngIf="postForm.get('province')?.invalid && (postForm.controls['province'].dirty || postForm.controls['province'].touched)">Vui
+                                lòng chọn địa chỉ.</small>
+                        </div>
+                        <div class="field col">
+                            <label for="district">Quận/Huyện <span class="mandatory-sign">*</span></label>
+                            <div class="input-box">
+                                <p-dropdown appendTo="body" (onChange)="getWardByDistrict()" placeholder="Quận/Huyện"
+                                    formControlName="district" [options]="districts" optionLabel="name"
+                                    [ngClass]="{'ng-invalid ng-dirty' : postForm.controls['district'].invalid && (postForm.controls['district'].dirty || postForm.controls['district'].touched)}"></p-dropdown>
+                            </div>
+                            <small class="ng-dirty ng-invalid"
+                                *ngIf="postForm.get('district')?.invalid && (postForm.controls['district'].dirty || postForm.controls['district'].touched)">Vui
+                                lòng chọn địa chỉ.</small>
+                        </div>
+                    </div>
+                    <div class="formgrid grid">
+                        <div class="field col">
+                            <label for="ward">Phường/Xã <span class="mandatory-sign">*</span></label>
+                            <div class="input-box">
+                                <p-dropdown appendTo="body" [options]="wards" formControlName="ward"
+                                    placeholder="Phường/Xã" optionLabel="name"
+                                    [ngClass]="{'ng-invalid ng-dirty' : postForm.controls['ward'].invalid && (postForm.controls['ward'].dirty || postForm.controls['ward'].touched)}"></p-dropdown>
+                            </div>
+                            <small class="ng-dirty ng-invalid"
+                                *ngIf="postForm.get('ward')?.invalid && (postForm.controls['ward'].dirty || postForm.controls['ward'].touched)">Vui
+                                lòng nhập chọn địa chỉ.</small>
+                        </div>
+                        <div class="field col">
+                            <label for="address_line">Số nhà, tên đường <span class="mandatory-sign">*</span></label>
+                            <div class="input-box">
+                                <input pInputText formControlName="addressLine"
+                                    [ngClass]="{'ng-invalid ng-dirty' : postForm.controls['addressLine'].invalid && (postForm.controls['addressLine'].dirty || postForm.controls['addressLine'].touched)}" />
+                            </div>
+                            <small class="ng-dirty ng-invalid"
+                                *ngIf="postForm.get('addressLine')?.invalid && (postForm.controls['addressLine'].dirty || postForm.controls['addressLine'].touched)">Vui
+                                lòng nhập chọn địa chỉ.</small>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Nội dung</label>
+                        <div class="card">
+                            <p-editor formControlName="content" [style]="{ height: '320px' }"></p-editor>
+                        </div>
+                    </div>
+                    <div class="formgrid grid" >
+                        <div class="field col">
+                            <div class="card">
+                                <ng-container *ngIf="post.images?.length">
+                                    <div class="card m-3 border-1 surface-border" 
+                                        *ngFor="let img of post.images; index as i">
+                                        <div class="flex flex-column align-items-center text-center mb-3">
+                                            <img [src]="img.imgUrl" [alt]="img" class="w-4 shadow-2 my-3 mx-0" />
+                                        </div>
+                                        <p-divider></p-divider>
+                                        <div class="flex justify-content-center">
+                                            <div class="flex">
+                                                <div>
+                                                    <button pButton pRipple label="Xoá" (click)="onDeleteImage(img.imageId)"
+                                                        icon="pi pi-delete-left" class="p-button-text"></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </ng-container>
+                                <ng-container *ngIf="previewImage.length > 0">
+                                    <div class="card m-3 border-1 surface-border" 
+                                        *ngFor="let img of previewImage; index as i">
+                                        <div class="flex flex-column align-items-center text-center mb-3">
+                                            <img [src]="img" [alt]="img" class="w-4 shadow-2 my-3 mx-0" />
+                                        </div>
+                                        <p-divider></p-divider>
+                                        <div class="flex justify-content-center">
+                                            <div class="flex">
+                                                <div>
+                                                    <button pButton pRipple label="Xoá" (click)="deleteImage(i)"
+                                                        icon="pi pi-delete-left" class="p-button-text"></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </ng-container>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="formbold-mb-5 formbold-file-input">
+                            <input type="file" name="file" (change)="selectFile($event)" [multiple]="true" id="file" />
+                            <label for="file">
+                                <div>
+                                    <span class="formbold-browse"> Thêm ảnh </span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text"
+                    (click)="postDialog = false"></button>
+                <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"
+                    (click)="savePost()"></button>
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>
+<div class="progress-spinner" *ngIf="loading">
+    <p-progressSpinner></p-progressSpinner>
+</div>

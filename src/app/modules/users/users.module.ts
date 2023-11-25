@@ -41,17 +41,29 @@ import { ChipModule } from 'primeng/chip';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { ListboxModule } from 'primeng/listbox';
+import { MenuModule } from 'primeng/menu';
+import { UserProfileComponent } from './component/user-profile/user-profile.component';
+import { MainComponent } from './component/main/main.component';
+import { PostManagementComponent } from './component/post-management/post-management.component';
+import { TagModule } from 'primeng/tag';
+import { EditorModule } from 'primeng/editor';
 
 @NgModule({
   declarations: [
-    UsersComponent
+    UsersComponent,
+    UserProfileComponent,
+    MainComponent,
+    PostManagementComponent
   ],
   imports: [
     CommonModule,
     UsersRoutingModule,
     SharedModule,
+    TagModule,
     SliderModule,
+    EditorModule,
     ListboxModule,
+    MenuModule,
     SelectButtonModule,
     BreadcrumbModule,
     ChipModule,
