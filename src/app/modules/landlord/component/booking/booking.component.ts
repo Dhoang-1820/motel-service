@@ -83,6 +83,10 @@ export class BookingComponent implements OnInit {
     nextMonth!: Date
     dayStayedMoney!: number
     durations: {value: number, display: string}[] = [{value: 6, display: '6 tháng'}, {value: 12, display: '12 tháng'}]
+    depositor: Tenant = {}
+    oldDeposit: number = 0
+    emailLoading: boolean = false
+    phoneLoading: boolean = false
 
     constructor(
         private accomodationService: AccomodationService,
@@ -155,6 +159,7 @@ export class BookingComponent implements OnInit {
     ngOnInit() {
         this.user = this.auth.userValue
         this.getAllBookedRoomByUserId()
+        this.getDropdownAccomodation().subscribe((response) => (this.accomodations = response.data))
 
         this.contractForm.get('representative')?.valueChanges.subscribe((data) => {
             this.selectedTenant = data
@@ -196,6 +201,7 @@ export class BookingComponent implements OnInit {
         })
         this.contractForm.get('holdRoomMoney')?.valueChanges.subscribe((data) => {
             this.contract.keepRoomDeposit = data
+            this.getTotalFirstPayment()
         })
         this.contractForm.get('duration')?.valueChanges.subscribe((data) => {
             this.contract.duration = data
@@ -208,6 +214,7 @@ export class BookingComponent implements OnInit {
             this.contract.room = data
             if (this.contract.room) {
                 this.checkRoomCapacity()
+                this.checkIsRoomHasDeposit()
                 this.onChangeRoomContract()
             }
         })
@@ -222,29 +229,25 @@ export class BookingComponent implements OnInit {
             if (data) {
                 this.tentant.identifyNum = data
                 if (this.oldIdentifyNum !== this.tentant.identifyNum) {
-                    this.checkDuplicated()
+                    this.checkDuplicatedTenantIdentify()
                 }
             }
         })
         this.tenantForm.get('phone')?.valueChanges.subscribe((data) => {
             if (data) {
+                this.validatePhoneNumber(data)
                 this.tentant.phone = data
-                let isValid = this.validatePhoneNumber(data)
-                if (!isValid) {
-                    this.tenantForm.get('phone')?.setErrors({phoneInvalid: true})
-                } else {
-                    this.tenantForm.get('phone')?.setErrors(null)
+                if (this.tenantForm.get('phone')?.valid) {
+                    this.checkDuplicatedTenantPhone()
                 }
             }
         })
         this.tenantForm.get('email')?.valueChanges.subscribe((data) => {
             if (data) {
+                this.validateGmail(data)
                 this.tentant.email = data
-                let isValid = this.validateGmail(data)
-                if (!isValid) {
-                    this.tenantForm.get('email')?.setErrors({mailInvalid: true})
-                } else {
-                    this.tenantForm.get('email')?.setErrors(null)
+                if (this.tenantForm.get('email')?.valid) {
+                    this.checkDuplicatedTenantEmail()
                 }
             }
         })
@@ -339,6 +342,45 @@ export class BookingComponent implements OnInit {
         ).subscribe(response => isDuplicated = response.data)
     }
 
+    checkDuplicatedTenantIdentify() {
+        let isDuplicated = false;
+        this.isValidating = true
+        this.tenantService.checkDuplicatedIdentify(this.tentant.identifyNum).pipe(
+            finalize(() => {
+                this.isValidating = false
+                if (isDuplicated) {
+                    this.tenantForm.get('identifyNum')?.setErrors({duplicated: true})
+                }
+            })
+        ).subscribe(response => isDuplicated = response.data)
+    }
+
+    checkDuplicatedTenantEmail() {
+        let isDuplicated = false;
+        this.emailLoading = true
+        this.tenantService.checkDuplicatedEmail(this.tentant.email).pipe(
+            finalize(() => {
+                this.emailLoading = false
+                if (isDuplicated) {
+                    this.tenantForm.get('email')?.setErrors({duplicated: true})
+                }
+            })
+        ).subscribe(response => isDuplicated = response.data)
+    }
+
+    checkDuplicatedTenantPhone() {
+        let isDuplicated = false;
+        this.phoneLoading = true
+        this.tenantService.checkDuplicatedPhone(this.tentant.phone).pipe(
+            finalize(() => {
+                this.phoneLoading = false
+                if (isDuplicated) {
+                    this.tenantForm.get('phone')?.setErrors({duplicated: true})
+                }
+            })
+        ).subscribe(response => isDuplicated = response.data)
+    }
+
     validatePhoneNumber(phone: string) {
         const isValid = phone.toLowerCase().match(
             /(84|0[3|5|7|8|9])+([0-9]{8})\b/g
@@ -356,6 +398,31 @@ export class BookingComponent implements OnInit {
 
     onChangeRoomContract() {
         this.contractForm.get('deposit')?.setValue(this.contract.room?.price)
+    }
+
+    checkIsRoomHasDeposit() {
+        this.loading = true
+        let result: any ;
+        this.roomService.checkRoomNotDeposit(this.contract.room?.id).pipe(
+            finalize(() => {
+                this.loading = false
+                if (result.isBooked) {
+                    this.depositor = result.depositor
+                    this.oldDeposit = result.depositMoney
+                    
+                    let tenant =  this.selectedTenants.find((item: any) => item.id === this.depositor.id)
+                    if (!tenant) {
+                        this.selectedTenants.push(this.depositor)
+                        this.tenantsDisplayed = this.tenantsDisplayed.filter(tenant => tenant.id !== this.depositor.id)
+                    }
+                }  else {
+                    this.depositor = {}
+                    this.oldDeposit = 0
+                }
+                this.contractForm.get('holdRoomMoney')?.setValue(this.oldDeposit)
+                
+            })
+        ).subscribe(response => result = response.data)
     }
 
     getNumberDayStayed() {
@@ -403,7 +470,7 @@ export class BookingComponent implements OnInit {
         this.tenantForm.get('phone')?.setValue(this.booking.phone)
         this.tenantForm.get('email')?.setValue(this.booking.email)
         this.tenantForm.get('gender')?.setValue({key: 'UNKNOWN', value: 'Chưa biết'})
-        this.tentant.accomodationId = this.booking.accomodationId;
+        this.tentant.accomodationId = this.selectedAccomodation.id;
         this.tenantDialog = true
     }
 
@@ -449,14 +516,14 @@ export class BookingComponent implements OnInit {
                     this.createContract()
                 },
             },
-            {
-                label: 'Xoá',
-                icon: 'pi pi-trash',
-                command: (e) => {
-                    this.booking = {...e.item.data}
-                    // this.removePost()
-                },
-            },
+            // {
+            //     label: 'Xoá',
+            //     icon: 'pi pi-trash',
+            //     command: (e) => {
+            //         this.booking = {...e.item.data}
+            //         this.removePost()
+            //     },
+            // },
         ]
         this.items.forEach((menuItem: any) => {
             menuItem.data = post
@@ -476,41 +543,35 @@ export class BookingComponent implements OnInit {
     }
 
     newDeposit() {
-        this.depositInfoLoading = true
-        this.getDepositByAccomodation().pipe(
+        this.loading = true
+        this.addDepositDialog = true
+        this.getRoomByAccomodation().pipe(
             finalize(() => {
-                this.depositInfoLoading = false
-                let isValidDeposit = this.findDeposit(this.booking.roomId)
-                if (isValidDeposit) {
-                    this.addDepositDialog = true
-                    let fullName = this.splitName(this.booking.name || '')
-                    this.depositForm.get('startDate')?.setValue(null)
-                    this.depositForm.get('dueDate')?.setValue(null)
-                    this.depositForm.get('note')?.setValue(null)
-                    this.depositForm.get('deposit')?.setValue(null)
-                    this.depositForm.get('firstName')?.setValue(fullName.firstName?.trim())
-                    this.depositForm.get('lastName')?.setValue(fullName.lastName?.trim())
-                    this.depositForm.get('identifyNum')?.setValue(null)
-                    this.depositForm.get('phone')?.setValue(this.booking.phone)
-                    this.depositForm.get('email')?.setValue(this.booking.email)
-                    this.depositForm.get('room')?.setValue({id: this.booking.roomId, name: this.booking.room, price: null})
-                } else {
-                    this.messageService.add({ severity: 'error', summary: 'Thất bại', detail: 'Phòng đã được đặt cọc trước đó', life: 5000 })
-                }
+                this.loading = false
+                let fullName = this.splitName(this.booking.name || '')
+                this.depositForm.get('startDate')?.setValue(null)
+                this.depositForm.get('dueDate')?.setValue(null)
+                this.depositForm.get('note')?.setValue(null)
+                this.depositForm.get('deposit')?.setValue(null)
+                this.depositForm.get('firstName')?.setValue(fullName.firstName?.trim())
+                this.depositForm.get('lastName')?.setValue(fullName.lastName?.trim())
+                this.depositForm.get('identifyNum')?.setValue(null)
+                this.depositForm.get('phone')?.setValue(this.booking.phone)
+                this.depositForm.get('email')?.setValue(this.booking.email)
+                this.depositForm.get('room')?.setValue(null)
             })
-        ).subscribe(response => this.deposits = response.data)
-        
+        ).subscribe(response => this.rooms = response.data)
     }
 
     getTenantByAccomodation() {
-        return this.tenantService.getTenantWithoutContract(this.booking.accomodationId)
+        return this.tenantService.getTenantWithoutContract(this.selectedAccomodation.id)
     }
 
     initContractData() {
         return forkJoin({
             rooms: this.getRoomByAccomodation(),
             tenants: this.getTenantByAccomodation(),
-            services: this.getAccomdationService(),
+            services: this.getAccomdationService()
         })
             .pipe(
                 finalize(() => {
@@ -519,32 +580,27 @@ export class BookingComponent implements OnInit {
                     this.tenantsDisplayed = JSON.parse(JSON.stringify(this.tenants))
                 }),
             )
-            
-    }
-
-    findRoom(roomId: any) {
-        let result = false
-        if (this.rooms.length > 0) {
-            let room = this.rooms.find(room => room.id === roomId)
-            result = !!room
-        } else {
-            result = true
-        }
-        return result
     }
 
     deativateBooking() {
         return this.bookingService.deactivateBooking(this.booking.id)
     }
 
+    getDropdownAccomodation() {
+        this.loading = true
+        return this.accomodationService.getDropdownAccomodation(this.user?.id).pipe(
+            finalize(() => {
+                this.selectedAccomodation = this.accomodations[0]
+            }),
+        )
+    }
+
     createContract() {
-        this.contractInfoLoading = true
+        this.loading = true
         this.initContractData().pipe(
             finalize(() => {
-                let isValidRoom = this.findRoom(this.booking.roomId)
-                if (isValidRoom) {
-                    this.contract = {}
-                    this.contractInfoLoading = false
+                this.contract = {}
+                    this.loading = false
                     this.contractDialog = true
                     this.contractForm.get('startDate')?.setValue(moment(new Date()).toDate())
                     this.contractForm.get('endDate')?.setValue(moment(new Date()).toDate())
@@ -553,12 +609,8 @@ export class BookingComponent implements OnInit {
                     this.contractForm.get('duration')?.setValue(null)
                     this.contractForm.get('firstElectricNum')?.setValue(null)
                     this.contractForm.get('firstWaterNum')?.setValue(null)
-                    this.contractForm.get('room')?.setValue({id: this.booking.room?.id, name: this.booking.room?.name, price: this.booking.room?.price, capacity: this.booking.room?.capacity})
-                    this.checkRoomCapacity()
-                    this.onChangeRoomContract()
-                } else {
-                    this.messageService.add({ severity: 'error', summary: 'Thất bại', detail: 'Phòng đã được tạo hợp đồng hoặc đặt cọc', life: 5000 })
-                }
+                    this.contractForm.get('room')?.setValue(null)
+                    this.contractForm.get('holdRoomMoney')?.setValue(null)
             })
         )
         .subscribe((response: any) => {
@@ -582,14 +634,10 @@ export class BookingComponent implements OnInit {
         }
     }
 
-    getDepositByAccomodation() {
-        return this.depositService.getDepositByAccomodation(this.booking.accomodationId)
-    }
-
     saveDeposit() {
         if (!this.depositForm.invalid) {
             this.loading = true
-            this.deposit.accomodationId = this.booking.accomodationId
+            this.deposit.accomodationId = this.selectedAccomodation.id
             this.depositService
                 .saveDeposit(this.deposit)
                 .pipe(
@@ -669,34 +717,29 @@ export class BookingComponent implements OnInit {
     }
 
     initData() {
+        this.loading = true
         forkJoin({
             rooms: this.getRoomByAccomodation(),
-            posts: this.getPostByAccomodation(),
             services: this.getAccomdationService(),
         })
             .pipe(
                 finalize(() => {
                     this.loading = false
-                    // this.servicesDisplayed = JSON.parse(JSON.stringify(this.services))
+                    this.servicesDisplayed = JSON.parse(JSON.stringify(this.services))
                 }),
             )
             .subscribe((response) => {
                 this.rooms = response.rooms.data
-                this.bookedList = response.posts.data
-                // this.services = response.services.data
+                this.services = response.services.data
             })
     }
 
     getAccomdationService() {
-        return this.accomodationService.getAccomodationService(this.booking.accomodationId)
+        return this.accomodationService.getAccomodationService(this.selectedAccomodation.id)
     }
 
     getRoomByAccomodation() {
-        return this.roomService.getRoomNotRented(this.booking.accomodationId)
-    }
-
-    getPostByAccomodation() {
-        return this.postService.getByUserIdAndAccomodation(this.user?.id, this.booking.accomodationId)
+        return this.roomService.getRoomNotRented(this.selectedAccomodation.id)
     }
 
     onSelectAccomodation() {

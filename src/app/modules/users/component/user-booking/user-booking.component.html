@@ -1,0 +1,51 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toast></p-toast>
+            <p-table
+                #dt
+                [value]="bookedList"
+                responsiveLayout="scroll"
+                [rows]="10"
+                [globalFilterFields]="['accomodation', 'name', 'phone', 'email', 'reviewDate']"
+                [paginator]="true"
+                [rowsPerPageOptions]="[10, 20, 30]"
+                [rowHover]="true"
+                dataKey="id"
+            >
+                <ng-template pTemplate="caption">
+                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                        <h5 class="m-0">Thông báo đặt phòng</h5>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Tìm kiếm..." class="w-full sm:w-auto" />
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pSortableColumn="accomodation">Khu trọ<p-sortIcon field="accomodation"></p-sortIcon></th>
+                        <th pSortableColumn="name">Người đặt<p-sortIcon field="name"></p-sortIcon></th>
+                        <th pSortableColumn="email">Email<p-sortIcon field="email"></p-sortIcon></th>
+                        <th pSortableColumn="phone">Số điện thoại<p-sortIcon field="phone"></p-sortIcon></th>
+                        <th pSortableColumn="reviewDate">Ngày xem phòng<p-sortIcon field="reviewDate"></p-sortIcon></th>
+                        <th pSortableColumn="createdDate">Ngày đặt<p-sortIcon field="createdDate"></p-sortIcon></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-data>
+                    <tr>
+                        <td>{{ data.accomodation }}</td>
+                        <td>{{ data.name }}</td>
+                        <td>{{ data.email }}</td>
+                        <td>{{ data.phone }}</td>
+                        <td>{{ data.reviewDate | date : 'dd/MM/yyyy, HH:mm' }}</td>
+                        <td>{{ data.createdDate | date : 'dd/MM/yyyy, HH:mm' }}</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+<div class="progress-spinner" *ngIf="loading">
+    <p-progressSpinner></p-progressSpinner>
+</div>

@@ -48,13 +48,15 @@ import { PostManagementComponent } from './component/post-management/post-manage
 import { TagModule } from 'primeng/tag';
 import { EditorModule } from 'primeng/editor';
 import { OnlyNumberDirective } from '../directive/only-number.directive';
+import { UserBookingComponent } from './component/user-booking/user-booking.component';
 
 @NgModule({
   declarations: [
     UsersComponent,
     UserProfileComponent,
     MainComponent,
-    PostManagementComponent
+    PostManagementComponent,
+    UserBookingComponent
   ],
   imports: [
     CommonModule,

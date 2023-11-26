@@ -40,6 +40,7 @@
                                                 value="Đã duyệt bài"></p-tag>
                                             <p-tag *ngSwitchCase="'REJECTED'" severity="danger"
                                                 value="Đã khoá"></p-tag>
+                                            <p-tag *ngSwitchCase="'REMOVED'" severity="info" value="Đã gỡ bài"></p-tag>
                                         </ng-container>
                                     </div>
                                     <div class="flex align-items-center gap-3">
@@ -132,6 +133,7 @@
                                         <p-tag *ngSwitchCase="'IN_PROGRESS'" severity="info" value="Đang chờ duyệt"></p-tag>
                                         <p-tag *ngSwitchCase="'APPROVED'" severity="success" value="Đã duyệt bài"></p-tag>
                                         <p-tag *ngSwitchCase="'REJECTED'" severity="danger" value="Đã khoá"></p-tag>
+                                        <p-tag *ngSwitchCase="'REMOVED'" severity="info" value="Đã gỡ bài"></p-tag>
                                         <p-tag *ngSwitchDefault severity="info" value="Đang chờ duyệt"></p-tag>
                                     </ng-container>
                                 </div>

@@ -26,7 +26,6 @@
                 <ng-template pTemplate="header">
                     <tr>
                         <th pSortableColumn="accomodation">Khu trọ<p-sortIcon field="accomodation"></p-sortIcon></th>
-                        <th pSortableColumn="room.name">Tên phòng<p-sortIcon field="room.name"></p-sortIcon></th>
                         <th pSortableColumn="name">Người đặt<p-sortIcon field="name"></p-sortIcon></th>
                         <th pSortableColumn="email">Email<p-sortIcon field="email"></p-sortIcon></th>
                         <th pSortableColumn="phone">Số điện thoại<p-sortIcon field="phone"></p-sortIcon></th>
@@ -38,19 +37,16 @@
                 <ng-template pTemplate="body" let-data>
                     <tr>
                         <td>{{ data.accomodation }}</td>
-                        <td>{{ data.room.name }}</td>
                         <td>{{ data.name }}</td>
                         <td>{{ data.email }}</td>
                         <td>{{ data.phone }}</td>
                         <td>{{ data.reviewDate | date : 'dd/MM/yyyy, HH:mm' }}</td>
                         <td>{{ data.createdDate | date : 'dd/MM/yyyy, HH:mm' }}</td>
-
                         <td>
                             <ng-container *ngIf="data.id">
                                 <div class="flex align-items-center" style="position: relative">
                                     <p-menu appendTo="body" (onShow)="onShowMenu(data)" #menu [model]="items" [popup]="true"></p-menu>
                                     <button
-                                        [loading]="contractInfoLoading || depositInfoLoading"
                                         pButton
                                         type="button"
                                         pTooltip="Tác vụ"
@@ -66,175 +62,43 @@
                 </ng-template>
             </p-table>
         </div>
-
-        <p-dialog (onHide)="onDialogTenantHide()" [(visible)]="tenantDialog" [style]="{width: '450px'}" header="Chi tiết khách thuê trọ" [modal]="true" class="p-fluid">
-            <ng-template pTemplate="content">
-                <form [formGroup]="tenantForm">
-                    <div class="formgrid grid w-full">
-                        <div class="field col-7">
-                            <label for="firstName">Họ <span class="mandatory-sign">*</span></label>
-                             <div class="input-box">
-                                 <input formControlName="firstName" type="text" pInputText id="firstName" [ngClass]="{'ng-invalid ng-dirty' : tenantForm.controls['firstName'].invalid && (tenantForm.controls['firstName'].dirty || tenantForm.controls['firstName'].touched)}"/>
-                             </div>
-                            <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('firstName')?.getError('required') && (tenantForm.controls['firstName'].dirty || tenantForm.controls['firstName'].touched)">Vui lòng nhập họ.</small>
-                        </div>
-                        <div class="field col-5">
-                            <label for="lastName">Tên <span class="mandatory-sign">*</span></label>
-                             <div class="input-box">
-                                 <input formControlName="lastName" pInputText type="text" id="lastName" [ngClass]="{'ng-invalid ng-dirty' : tenantForm.controls['lastName'].invalid && (tenantForm.controls['lastName'].dirty || tenantForm.controls['lastName'].touched)}"/>
-                             </div>
-                            <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('lastName')?.getError('required') && (tenantForm.controls['lastName'].dirty || tenantForm.controls['lastName'].touched)">Vui lòng nhập tên.</small>
-                        </div>
-                    </div>
-                    <div class="field">
-                        <label for="identifyNum">Số CCCD <span class="mandatory-sign">*</span></label>
-                        <span class="p-input-icon-right">
-                            <i class="pi pi-spin pi-spinner" *ngIf="isValidating"></i>
-                            <div class="input-box">
-                                <input formControlName="identifyNum" onlyNumber type="text" pInputText id="identifyNum" [ngClass]="{'ng-invalid ng-dirty' : tenantForm.controls['identifyNum'].invalid && (tenantForm.controls['identifyNum'].dirty || tenantForm.controls['identifyNum'].touched)}"/>
-                            </div>
-                        </span>
-                        <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('identifyNum')?.getError('required') && (tenantForm.controls['identifyNum'].dirty || tenantForm.controls['identifyNum'].touched)">Vui lòng nhập số CCCD.</small>
-                        <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('identifyNum')?.getError('duplicated') && (tenantForm.controls['identifyNum'].dirty || tenantForm.controls['identifyNum'].touched)">Số CCCD đã tồn tại.</small>
-                    </div>
-                    <div class="field">
-                        <label for="gender">Giới tính</label>
-                         <div class="input-box">
-                             <p-dropdown id="gender" formControlName="gender" optionLabel="value" [options]="gender" placeholder="Chọn giới tính"></p-dropdown>
-                         </div>
-                    </div>
-                    <div class="field">
-                        <label for="email">Email <span class="mandatory-sign">*</span></label>
-                         <div class="input-box">
-                             <input formControlName="email" type="text" pInputText id="email" [ngClass]="{'ng-invalid ng-dirty' : tenantForm.controls['email'].invalid && (tenantForm.controls['email'].dirty || tenantForm.controls['email'].touched)}"/>
-                         </div>
-                        <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('email')?.getError('required') && (tenantForm.controls['email'].dirty || tenantForm.controls['email'].touched)">Vui lòng nhập email.</small>
-                        <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('email')?.getError('mailInvalid') && (tenantForm.controls['email'].dirty || tenantForm.controls['email'].touched)">Email không hợp lệ.</small>
-                    </div>
-                    <div class="field">
-                        <label for="phone">Số điện thoại <span class="mandatory-sign">*</span></label>
-                         <div class="input-box">
-                             <input formControlName="phone" onlyNumber type="text" pInputText id="phone" [ngClass]="{'ng-invalid ng-dirty' : tenantForm.controls['phone'].invalid && (tenantForm.controls['phone'].dirty || tenantForm.controls['phone'].touched)}"/>
-                         </div>
-                        <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('phone')?.getError('required') && (tenantForm.controls['phone'].dirty || tenantForm.controls['phone'].touched)">Vui lòng nhập số điện thoại.</small>
-                        <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('phone')?.getError('phoneInvalid') && (tenantForm.controls['phone'].dirty || tenantForm.controls['phone'].touched)">Số điện thoại không hợp lệ.</small>
-                    </div>
-                    <div class="field">
-                        <label for="name">Ngày bắt đầu ở</label>
-                         <div class="input-box">
-                             <p-calendar formControlName="startDate" dateFormat="dd/mm/yy" [touchUI]="true"></p-calendar>
-                         </div>
-                    </div>
-                </form>
-            </ng-template>
-
-            <ng-template pTemplate="footer">
-                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="tenantDialog = false"></button>
-                <button pButton pRipple label="Save" [disabled]="tenantForm.invalid" icon="pi pi-check"  class="p-button-text" (click)="saveTenant()"></button>
-            </ng-template>
-        </p-dialog>
-
-        <p-dialog (onHide)="onDialogHide()" [(visible)]="addDepositDialog" [style]="{width: '650px'}" header="Chi tiết thông tin đặt cọc phòng" [modal]="true" class="p-fluid">
-            <ng-template pTemplate="content">
-                <form [formGroup]="depositForm">
-                    <div class="formgrid grid">
-                        <div class="field col mr-3">
-                            <div class="field">
-                                <label for="name">Khu/Toà nhà</label>
-                                <input type="text" pInputText readonly [value]="booking.accomodation">
-                            </div>
-                            <div class="field">
-                                <label for="description">Phòng</label>
-                                <input type="text" pInputText readonly [value]="booking.room">
-                            </div> 
-                            <div class="field">
-                                <label for="startDate">Ngày đặt cọc <span class="mandatory-sign">*</span></label>
-                                <p-calendar appendTo="body" id="startDate" [minDate]="minDate" [maxDate]="maxDate" formControlName="startDate" dateFormat="dd/mm/yy" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['startDate'].invalid && (depositForm.controls['startDate'].dirty || depositForm.controls['startDate'].touched)}"></p-calendar>
-                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('startDate')?.invalid && (depositForm.controls['startDate'].dirty || depositForm.controls['startDate'].touched)">Vui lòng chọn ngày đặt cọc.</small>
-                            </div> 
-                            <div class="field">
-                                <label for="dueDate">Ngày hết hạn <span class="mandatory-sign">*</span></label>
-                                <p-calendar appendTo="body" id="dueDate" [minDate]="minEndDate" [maxDate]="maxEndDate" formControlName="dueDate" dateFormat="dd/mm/yy" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['dueDate'].invalid && (depositForm.controls['dueDate'].dirty || depositForm.controls['dueDate'].touched)}"></p-calendar>
-                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('dueDate')?.hasError('required') && (depositForm.controls['dueDate'].dirty || depositForm.controls['dueDate'].touched)">Vui lòng chọn ngày hết hạn.</small>
-                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('dueDate')?.hasError('dateInvalid') && (depositForm.controls['dueDate'].dirty || depositForm.controls['dueDate'].touched)">Ngày hết hạn cần sau ngày đặt cọc.</small>
-                            </div> 
-                            <div class="field">
-                                <label for="deposit">Tiền đặt cọc (đồng) <span class="mandatory-sign">*</span></label>
-                                <p-inputNumber id="deposit" formControlName="deposit" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['deposit'].invalid && (depositForm.controls['deposit'].dirty || depositForm.controls['deposit'].touched)}"></p-inputNumber>
-                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('deposit')?.invalid && (depositForm.controls['deposit'].dirty || depositForm.controls['deposit'].touched)">Vui lòng nhập tiền đặt cọc.</small>
-                            </div>   
-                            <div class="field">
-                                <label for="note">Ghi chú</label>
-                                <input type="text" pInputText id="note" formControlName="note" />
-                            </div> 
-                        </div>
-                        <div class="field col">
-                            <div class="formgrid grid">
-                                <div class="field col-8">
-                                    <label for="firstName">Họ <span class="mandatory-sign">*</span></label>
-                                    <input type="text" pInputText id="firstName" formControlName="firstName" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['firstName'].invalid && (depositForm.controls['firstName'].dirty || depositForm.controls['firstName'].touched)}"/>
-                                    <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('firstName')?.invalid && (depositForm.controls['firstName'].dirty || depositForm.controls['firstName'].touched)">Vui lòng nhập họ.</small>
-                                </div>
-                                <div class="field col-4">
-                                    <label for="lastName">Tên <span class="mandatory-sign">*</span></label>
-                                    <input type="text" pInputText id="lastName" formControlName="lastName" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['lastName'].invalid && (depositForm.controls['lastName'].dirty || depositForm.controls['lastName'].touched)}"/>
-                                    <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('lastName')?.invalid && (depositForm.controls['lastName'].dirty || depositForm.controls['lastName'].touched)">Vui lòng nhập nhập tên.</small>
-                                </div>
-                            </div>   
-                            <div class="field">
-                                <label for="identifyNum">Số CCCD <span class="mandatory-sign">*</span></label>
-                                <span class="p-input-icon-right">
-                                    <i class="pi pi-spin pi-spinner" *ngIf="isValidating"></i>
-                                    <div class="input-box">
-                                        <input type="text" onlyNumber pInputText id="identifyNum" formControlName="identifyNum" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['identifyNum'].invalid && (depositForm.controls['identifyNum'].dirty || depositForm.controls['identifyNum'].touched)}"/>
-                                    </div>
-                                </span>
-                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('identifyNum')?.getError('required') && (depositForm.controls['identifyNum'].dirty || depositForm.controls['identifyNum'].touched)">Vui lòng nhập số CCCD.</small>
-                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('identifyNum')?.getError('duplicated') && (depositForm.controls['identifyNum'].dirty || depositForm.controls['identifyNum'].touched)">Số CCCD đã tồn tại.</small>
-                            </div> 
-                            <div class="field">
-                                <label for="phone">Số điện thoại <span class="mandatory-sign">*</span></label>
-                                <div class="input-box">
-                                    <input type="text" onlyNumber pInputText id="phone" formControlName="phone" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['phone'].invalid && (depositForm.controls['phone'].dirty || depositForm.controls['phone'].touched)}"/>
-                                </div>
-                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('phone')?.getError('required') && (depositForm.controls['phone'].dirty || depositForm.controls['phone'].touched)">Vui lòng nhập số điện thoại.</small>
-                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('phone')?.getError('phoneInvalid') && (depositForm.controls['phone'].dirty || depositForm.controls['phone'].touched)">Số điện thoại không hợp lệ.</small>
-                            </div> 
-                            <div class="field">
-                                <label for="email">Email <span class="mandatory-sign">*</span></label>
-                                <div class="input-box">
-                                    <input formControlName="email" type="text" pInputText id="email" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['email'].invalid && (depositForm.controls['email'].dirty || depositForm.controls['email'].touched)}"/>
-                                </div>
-                                <small class="ng-dirty ng-invalid" *ngIf="this.depositForm.get('email')?.getError('required') && (depositForm.controls['email'].dirty || depositForm.controls['email'].touched)">Vui lòng nhập email.</small>
-                                <small class="ng-dirty ng-invalid" *ngIf="this.depositForm.get('email')?.getError('mailInvalid') && (depositForm.controls['email'].dirty || depositForm.controls['email'].touched)">Email không hợp lệ.</small>
-                            </div> 
-                        </div>
-                    </div>
-                </form>            
-            </ng-template>
-            <ng-template pTemplate="footer">
-                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="addDepositDialog = false"></button>
-                <button pButton pRipple label="Save" icon="pi pi-check" [disabled]="depositForm.invalid" class="p-button-text" (click)="saveDeposit()"></button>
-            </ng-template>
-        </p-dialog>
-
         <p-dialog (onHide)="onDialogContractHide()" [(visible)]="contractDialog" [style]="{width: '1150px'}" header="Chi tiết hợp đồng" [modal]="true" position="top" class="p-fluid">
             <ng-template pTemplate="content">
                 <form [formGroup]="contractForm">
                     <div class="formgrid grid">
                         <div class="field col">
-                            <label for="room">Phòng</label>
-                            <input type="text" pInputText readonly [value]="booking.room?.name">
+                            <label for="room">Khu trọ <span class="mandatory-sign">*</span></label>
+                            <p-dropdown
+                                [options]="accomodations"
+                                (onChange)="onSelectAccomodation()"
+                                [(ngModel)]="selectedAccomodation"
+                                optionLabel="name"
+                                autoWidth="false"
+                                [ngModelOptions]="{standalone: true}"
+                                [style]="{ width: '100%' }"
+                            ></p-dropdown>
+                        </div>
+                        <div class="field col">
+                            <label for="room">Phòng <span class="mandatory-sign">*</span></label>
+                            <div class="input-box">
+                                <p-dropdown appendTo="body" id="room" formControlName="room" (onChange)="onChangeRoom()" optionLabel="name" [options]="rooms" placeholder="Chọn theo phòng" [ngClass]="{'ng-invalid ng-dirty' : contractForm.controls['room'].invalid && (contractForm.controls['room'].dirty || contractForm.controls['room'].touched)}"> </p-dropdown>
+                            </div>
                             <small class="ng-dirty ng-invalid" *ngIf="contractForm.get('room')?.hasError('required') && (contractForm.controls['room'].dirty || contractForm.controls['room'].touched)">Vui lòng chọn phòng.</small>
                             <small class="ng-dirty ng-invalid" *ngIf="contractForm.get('room')?.hasError('roomBooked') && (contractForm.controls['room'].dirty || contractForm.controls['room'].touched)">Phòng đã được đặt cọc, khách thuê đã đặt cọc cần trong mục khách thuê được chọn.</small>
                             <small class="ng-dirty ng-invalid" *ngIf="contractForm.get('room')?.hasError('overCapacity') && (contractForm.controls['room'].dirty || contractForm.controls['room'].touched)">Số lượng khách thuê vượt quá số lượng khách ở tối đa trong phòng.</small>
                         </div> 
                         <div class="field col">
                             <ng-container *ngIf="contract.room && contract.room.price">
-                                <label>Giá</label>
-                                <p-inputNumber [disabled]="true" [(ngModel)]="contract.room.price" [ngModelOptions]="{standalone: true}"></p-inputNumber>
+                                 <label>Giá</label> 
+                                 <div pInputText>{{contract.room.price | currency:'VND'}}</div>
                             </ng-container>
-                        </div>
+                        </div> 
+                        <div class="field col">
+                            <ng-container *ngIf="contract.room && contract.room.price">
+                                 <label>Số người ở tối đa</label> 
+                                 <div pInputText>{{contract.room.capacity}}</div>
+                            </ng-container>
+                        </div> 
                     </div>
                     
                     <p-tabView>
@@ -403,7 +267,193 @@
             </ng-template>
         </p-dialog>
 
-        
+        <p-dialog (onHide)="onDialogTenantHide()" [(visible)]="tenantDialog" [style]="{width: '450px'}" header="Chi tiết khách thuê trọ" [modal]="true" class="p-fluid">
+            <ng-template pTemplate="content">
+                <form [formGroup]="tenantForm">
+                    <div class="field">
+                        <label for="room">Khu trọ <span class="mandatory-sign">*</span></label>
+                        <p-dropdown
+                            [options]="accomodations"
+                            [(ngModel)]="selectedAccomodation"
+                            optionLabel="name"
+                            autoWidth="false"
+                            [ngModelOptions]="{standalone: true}"
+                            [style]="{ width: '100%' }"
+                        ></p-dropdown>
+                    </div>
+                    <div class="formgrid grid w-full">
+                        <div class="field col-7">
+                            <label for="firstName">Họ <span class="mandatory-sign">*</span></label>
+                             <div class="input-box">
+                                 <input formControlName="firstName" type="text" pInputText id="firstName" [ngClass]="{'ng-invalid ng-dirty' : tenantForm.controls['firstName'].invalid && (tenantForm.controls['firstName'].dirty || tenantForm.controls['firstName'].touched)}"/>
+                             </div>
+                            <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('firstName')?.getError('required') && (tenantForm.controls['firstName'].dirty || tenantForm.controls['firstName'].touched)">Vui lòng nhập họ.</small>
+                        </div>
+                        <div class="field col-5">
+                            <label for="lastName">Tên <span class="mandatory-sign">*</span></label>
+                             <div class="input-box">
+                                 <input formControlName="lastName" pInputText type="text" id="lastName" [ngClass]="{'ng-invalid ng-dirty' : tenantForm.controls['lastName'].invalid && (tenantForm.controls['lastName'].dirty || tenantForm.controls['lastName'].touched)}"/>
+                             </div>
+                            <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('lastName')?.getError('required') && (tenantForm.controls['lastName'].dirty || tenantForm.controls['lastName'].touched)">Vui lòng nhập tên.</small>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="identifyNum">Số CCCD <span class="mandatory-sign">*</span></label>
+                        <span class="p-input-icon-right">
+                            <i class="pi pi-spin pi-spinner" *ngIf="isValidating"></i>
+                            <div class="input-box">
+                                <input formControlName="identifyNum" onlyNumber type="text" pInputText id="identifyNum" [ngClass]="{'ng-invalid ng-dirty' : tenantForm.controls['identifyNum'].invalid && (tenantForm.controls['identifyNum'].dirty || tenantForm.controls['identifyNum'].touched)}"/>
+                            </div>
+                        </span>
+                        <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('identifyNum')?.getError('required') && (tenantForm.controls['identifyNum'].dirty || tenantForm.controls['identifyNum'].touched)">Vui lòng nhập số CCCD.</small>
+                        <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('identifyNum')?.getError('duplicated') && (tenantForm.controls['identifyNum'].dirty || tenantForm.controls['identifyNum'].touched)">Số CCCD đã tồn tại.</small>
+                    </div>
+                    <div class="field">
+                        <label for="gender">Giới tính</label>
+                         <div class="input-box">
+                             <p-dropdown id="gender" formControlName="gender" optionLabel="value" [options]="gender" placeholder="Chọn giới tính"></p-dropdown>
+                         </div>
+                    </div>
+                    <div class="field">
+                        <label for="email">Email <span class="mandatory-sign">*</span></label>
+                        <span class="p-input-icon-right">
+                            <i class="pi pi-spin pi-spinner" *ngIf="emailLoading"></i>
+                            <div class="input-box">
+                             <input formControlName="email" type="text" pInputText id="email" [ngClass]="{'ng-invalid ng-dirty' : tenantForm.controls['email'].invalid && (tenantForm.controls['email'].dirty || tenantForm.controls['email'].touched)}"/>
+                            </div>
+                        </span>
+                        <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('email')?.getError('required') && (tenantForm.controls['email'].dirty || tenantForm.controls['email'].touched)">Vui lòng nhập email.</small>
+                        <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('email')?.getError('mailInvalid') && (tenantForm.controls['email'].dirty || tenantForm.controls['email'].touched)">Email không hợp lệ.</small>
+                        <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('email')?.getError('duplicated') && (tenantForm.controls['email'].dirty || tenantForm.controls['email'].touched)">Email đã tồn tại.</small>
+                    </div>
+                    <div class="field">
+                        <label for="phone">Số điện thoại <span class="mandatory-sign">*</span></label>
+                        <span class="p-input-icon-right">
+                            <i class="pi pi-spin pi-spinner" *ngIf="phoneLoading"></i>
+                            <div class="input-box">
+                             <input formControlName="phone" onlyNumber type="text" pInputText id="phone" [ngClass]="{'ng-invalid ng-dirty' : tenantForm.controls['phone'].invalid && (tenantForm.controls['phone'].dirty || tenantForm.controls['phone'].touched)}"/>
+                            </div>
+                        </span>
+                        <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('phone')?.getError('required') && (tenantForm.controls['phone'].dirty || tenantForm.controls['phone'].touched)">Vui lòng nhập số điện thoại.</small>
+                        <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('phone')?.getError('phoneInvalid') && (tenantForm.controls['phone'].dirty || tenantForm.controls['phone'].touched)">Số điện thoại không hợp lệ.</small>
+                        <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('phone')?.getError('duplicated') && (tenantForm.controls['phone'].dirty || tenantForm.controls['phone'].touched)">Số điện thoại đã tồn tại.</small>
+                    </div>
+                    <div class="field">
+                        <label for="name">Ngày bắt đầu ở</label>
+                         <div class="input-box">
+                             <p-calendar formControlName="startDate" dateFormat="dd/mm/yy" [touchUI]="true"></p-calendar>
+                         </div>
+                    </div>
+                </form>
+            </ng-template>
+
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="tenantDialog = false"></button>
+                <button pButton pRipple label="Save" [disabled]="tenantForm.invalid" icon="pi pi-check"  class="p-button-text" (click)="saveTenant()"></button>
+            </ng-template>
+        </p-dialog>
+
+        <p-dialog (onHide)="onDialogHide()" [(visible)]="addDepositDialog" [style]="{width: '650px'}" header="Chi tiết thông tin đặt cọc phòng" [modal]="true" class="p-fluid">
+            <ng-template pTemplate="content">
+                <form [formGroup]="depositForm">
+                    <div class="formgrid grid">
+                        <div class="field col mr-3">
+                            <div class="field">
+                                <label for="room">Khu trọ <span class="mandatory-sign">*</span></label>
+                                <p-dropdown
+                                    [options]="accomodations"
+                                    (onChange)="onSelectAccomodation()"
+                                    [(ngModel)]="selectedAccomodation"
+                                    optionLabel="name"
+                                    autoWidth="false"
+                                    [ngModelOptions]="{standalone: true}"
+                                    [style]="{ width: '100%' }"
+                                ></p-dropdown>
+                            </div>
+                            <div class="field">
+                                <label for="description">Phòng <span class="mandatory-sign">*</span></label>
+                                <p-dropdown appendTo="body" id="description" formControlName="room" (onChange)="onChangeRoom()" optionLabel="name" [options]="rooms" placeholder="Chọn theo phòng" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['room'].invalid && (depositForm.controls['room'].dirty || depositForm.controls['room'].touched)}"> </p-dropdown>
+                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('room')?.hasError('required') && (depositForm.controls['room'].dirty || depositForm.controls['room'].touched)">Vui lòng chọn phòng.</small>
+                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('room')?.hasError('roomInvalid') && (depositForm.controls['room'].dirty || depositForm.controls['room'].touched)">Phòng đã được đặt cọc.</small>
+                            </div> 
+                            <div class="field">
+                                <label for="startDate">Ngày đặt cọc <span class="mandatory-sign">*</span></label>
+                                <p-calendar appendTo="body" id="startDate" [minDate]="minDate" [maxDate]="maxDate" formControlName="startDate" dateFormat="dd/mm/yy" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['startDate'].invalid && (depositForm.controls['startDate'].dirty || depositForm.controls['startDate'].touched)}"></p-calendar>
+                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('startDate')?.invalid && (depositForm.controls['startDate'].dirty || depositForm.controls['startDate'].touched)">Vui lòng chọn ngày đặt cọc.</small>
+                            </div> 
+                            <div class="field">
+                                <label for="dueDate">Ngày hết hạn <span class="mandatory-sign">*</span></label>
+                                <p-calendar appendTo="body" id="dueDate" [minDate]="minEndDate" [maxDate]="maxEndDate" formControlName="dueDate" dateFormat="dd/mm/yy" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['dueDate'].invalid && (depositForm.controls['dueDate'].dirty || depositForm.controls['dueDate'].touched)}"></p-calendar>
+                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('dueDate')?.hasError('required') && (depositForm.controls['dueDate'].dirty || depositForm.controls['dueDate'].touched)">Vui lòng chọn ngày hết hạn.</small>
+                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('dueDate')?.hasError('dateInvalid') && (depositForm.controls['dueDate'].dirty || depositForm.controls['dueDate'].touched)">Ngày hết hạn cần sau ngày đặt cọc.</small>
+                            </div> 
+                            <div class="field">
+                                <label for="deposit">Tiền đặt cọc (đồng) <span class="mandatory-sign">*</span></label>
+                                <p-inputNumber id="deposit" formControlName="deposit" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['deposit'].invalid && (depositForm.controls['deposit'].dirty || depositForm.controls['deposit'].touched)}"></p-inputNumber>
+                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('deposit')?.invalid && (depositForm.controls['deposit'].dirty || depositForm.controls['deposit'].touched)">Vui lòng nhập tiền đặt cọc.</small>
+                            </div>   
+                            <div class="field">
+                                <label for="note">Ghi chú</label>
+                                <input type="text" pInputText id="note" formControlName="note" />
+                            </div> 
+                        </div>
+                        <div class="field col">
+                            <div class="formgrid grid">
+                                <div class="field col-7">
+                                    <label for="firstName">Họ <span class="mandatory-sign">*</span></label>
+                                    <input type="text" pInputText id="firstName" formControlName="firstName" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['firstName'].invalid && (depositForm.controls['firstName'].dirty || depositForm.controls['firstName'].touched)}"/>
+                                    <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('firstName')?.invalid && (depositForm.controls['firstName'].dirty || depositForm.controls['firstName'].touched)">Vui lòng nhập họ.</small>
+                                </div>
+                                <div class="field col-5">
+                                    <label for="lastName">Tên <span class="mandatory-sign">*</span></label>
+                                    <input type="text" pInputText id="lastName" formControlName="lastName" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['lastName'].invalid && (depositForm.controls['lastName'].dirty || depositForm.controls['lastName'].touched)}"/>
+                                    <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('lastName')?.invalid && (depositForm.controls['lastName'].dirty || depositForm.controls['lastName'].touched)">Vui lòng nhập nhập tên.</small>
+                                </div>
+                            </div>   
+                            <div class="field">
+                                <label for="identifyNum">Số CCCD <span class="mandatory-sign">*</span></label>
+                                <span class="p-input-icon-right">
+                                    <i class="pi pi-spin pi-spinner" *ngIf="isValidating"></i>
+                                    <div class="input-box">
+                                        <input type="text" onlyNumber pInputText id="identifyNum" formControlName="identifyNum" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['identifyNum'].invalid && (depositForm.controls['identifyNum'].dirty || depositForm.controls['identifyNum'].touched)}"/>
+                                    </div>
+                                </span>
+                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('identifyNum')?.getError('required') && (depositForm.controls['identifyNum'].dirty || depositForm.controls['identifyNum'].touched)">Vui lòng nhập số CCCD.</small>
+                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('identifyNum')?.getError('duplicated') && (depositForm.controls['identifyNum'].dirty || depositForm.controls['identifyNum'].touched)">Số CCCD đã tồn tại.</small>
+                            </div> 
+                            <div class="field">
+                                <label for="phone">Số điện thoại <span class="mandatory-sign">*</span></label>
+                                <span class="p-input-icon-right">
+                                    <i class="pi pi-spin pi-spinner" *ngIf="phoneLoading"></i>
+                                    <div class="input-box">
+                                    <input type="text" onlyNumber pInputText id="phone" formControlName="phone" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['phone'].invalid && (depositForm.controls['phone'].dirty || depositForm.controls['phone'].touched)}"/>
+                                    </div>
+                                </span>
+                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('phone')?.getError('required') && (depositForm.controls['phone'].dirty || depositForm.controls['phone'].touched)">Vui lòng nhập số điện thoại.</small>
+                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('phone')?.getError('phoneInvalid') && (depositForm.controls['phone'].dirty || depositForm.controls['phone'].touched)">Số điện thoại không hợp lệ.</small>
+                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('phone')?.getError('duplicated') && (depositForm.controls['phone'].dirty || depositForm.controls['phone'].touched)">Số điện thoại đã tồn tại.</small>
+                            </div> 
+                            <div class="field">
+                                <label for="email">Email <span class="mandatory-sign">*</span></label>
+                                <span class="p-input-icon-right">
+                                    <i class="pi pi-spin pi-spinner" *ngIf="emailLoading"></i>
+                                    <div class="input-box">
+                                        <input formControlName="email" type="text" pInputText id="email" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['email'].invalid && (depositForm.controls['email'].dirty || depositForm.controls['email'].touched)}"/>
+                                    </div>
+                                </span>
+                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('email')?.getError('required') && (depositForm.controls['email'].dirty || depositForm.controls['email'].touched)">Vui lòng nhập email.</small>
+                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('email')?.getError('mailInvalid') && (depositForm.controls['email'].dirty || depositForm.controls['email'].touched)">Email không hợp lệ.</small>
+                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('email')?.getError('duplicated') && (depositForm.controls['email'].dirty || depositForm.controls['email'].touched)">Số điện thoại đã tồn tại.</small>
+                            </div> 
+                        </div>
+                    </div>
+                </form>            
+            </ng-template>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="addDepositDialog = false"></button>
+                <button pButton pRipple label="Save" icon="pi pi-check" [disabled]="depositForm.invalid" class="p-button-text" (click)="saveDeposit()"></button>
+            </ng-template>
+        </p-dialog>
     </div>
 </div>
 <div class="progress-spinner" *ngIf="loading">

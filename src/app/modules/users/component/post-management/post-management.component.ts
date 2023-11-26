@@ -104,7 +104,7 @@ export class PostManagementComponent implements OnInit {
 
     ngOnInit() {
         this.user = this.auth.userValue
-        if (!this.user) {
+        if (!(this.user && this.user.roles === 'ROLE_POSTER')) {
             this.router.navigateByUrl('/auth')
         }
         this.initData()

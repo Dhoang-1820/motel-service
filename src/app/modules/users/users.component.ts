@@ -47,7 +47,7 @@ export class UsersComponent implements OnInit, AfterViewInit {
 
     ngOnInit(): void {
         this.user = this.auth.userValue
-        if (this.user) {
+        if (this.user && this.user.roles === 'ROLE_POSTER') {
             this.isLogin = true
         } 
     }
@@ -72,6 +72,11 @@ export class UsersComponent implements OnInit, AfterViewInit {
                         label: 'Quản lý tin đăng',
                         icon: 'pi pi-server',
                         routerLink: '/user-post',
+                    },
+                    {
+                        label: 'Thông báo đặt phòng',
+                        icon: 'pi pi-envelope',
+                        routerLink: ['/user-booking'],
                     },
                     {
                         label: 'Đăng xuất',

@@ -1,4 +1,4 @@
-<div class="surface-0 flex justify-content-center" style="height: 100%;">
+<div class="surface-0 flex justify-content-center">
     <p-toast></p-toast>
     <div id="home" class="landing-wrapper" style="width: 100%; margin-top: 55px;">
         <div class="layout-topbar">
@@ -43,6 +43,7 @@
 
             <div #topbarmenu class="layout-topbar-menu"
                 [ngClass]="{'layout-topbar-menu-mobile-active': layoutService.state.profileSidebarVisible}">
+                    
                 <button pButton pRipple label="Đăng tin" icon="pi pi-external-link" (click)="post()"
                     class="p-button-rounded border-none ml-5 font-light line-height-2 bg-blue-500 text-white"></button>
                 <button class="p-link layout-topbar-button" (click)="menu.toggle($event)">

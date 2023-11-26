@@ -328,10 +328,9 @@ export class ContractComponent implements OnInit {
         const oldDeposit: number = this.contract.keepRoomDeposit || 0
         this.dayStayedMoney = pricePerday * numDay;
         let total =  this.dayStayedMoney - oldDeposit + roomDeposit || 0
-         if (total < 0) {
+        if (total < 0) {
             total = 0
-         }
-        console.log('total',total)
+        }
         this.contractForm.get('firstTotalPayment')?.setValue(total)
     }
 
@@ -344,7 +343,6 @@ export class ContractComponent implements OnInit {
                 if (result.isBooked) {
                     this.depositor = result.depositor
                     this.oldDeposit = result.depositMoney
-                    this.contractForm.get('holdRoomMoney')?.setValue(this.oldDeposit)
                     let tenant =  this.selectedTenants.find((item: any) => item.id === this.depositor.id)
                     if (!tenant) {
                         this.selectedTenants.push(this.depositor)
@@ -354,6 +352,7 @@ export class ContractComponent implements OnInit {
                     this.depositor = {}
                     this.oldDeposit = 0
                 }
+                this.contractForm.get('holdRoomMoney')?.setValue(this.oldDeposit)
                 
             })
         ).subscribe(response => result = response.data)
@@ -446,9 +445,9 @@ export class ContractComponent implements OnInit {
         this.contractForm.get('firstElectricNum')?.setValue(null)
         this.contractForm.get('firstWaterNum')?.setValue(null)
         this.contractForm.get('room')?.setValue(null)
+        this.contractForm.get('holdRoomMoney')?.setValue(null)
         // this.contractForm.get('dayNumber')?.setValue(null)
         // this.contractForm.get('firstTotalPayment')?.setValue(null)
-        this.contractForm.get('holdRoomMoney')?.setValue(null)
         // this.defaultService();
     }
 

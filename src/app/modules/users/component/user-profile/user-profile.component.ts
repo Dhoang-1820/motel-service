@@ -64,7 +64,7 @@ export class UserProfileComponent implements OnInit {
 
     ngOnInit(): void {
         this.user = this.authenticationService.userValue
-        if (!this.user) {
+        if (!(this.user && this.user.roles === 'ROLE_POSTER')) {
             this.router.navigateByUrl('/auth')
         } else {
             this.getUser()
