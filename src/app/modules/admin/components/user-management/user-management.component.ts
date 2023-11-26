@@ -78,7 +78,7 @@ export class UserManagementComponent implements OnInit {
         console.log(this.userSelected)
     }
 
-    saveRoom() {
+    saveUser() {
         this.loading = true
         console.log(this.userSelected)
         let message: string

@@ -182,6 +182,10 @@ export class ElectricityWaterComponent implements OnInit {
         )
     }
 
+    isCanDelete() {
+        
+    }
+
     checkIsRoomInputElectricWater() {
         let request: any = { id: this.electricWater.room?.id, month: this.selectedMonth }
         let result: any
@@ -200,15 +204,6 @@ export class ElectricityWaterComponent implements OnInit {
     getElectricWatersByMonth() {
         this.dataLoading = true
         this.initData()
-        // this.commonRequest = { id: this.selectedAccomodation.id, month: this.selectedMonth }
-        // this.billService
-        //     .getElectricWaterByAccomodation(this.commonRequest)
-        //     .pipe(
-        //         finalize(() => {
-        //             this.dataLoading = false
-        //         }),
-        //     )
-        //     .subscribe((response) => (this.electricWaters = response.data))
     }
 
     initData() {

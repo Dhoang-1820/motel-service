@@ -166,6 +166,7 @@ export class InvoiceComponent implements OnInit {
             {
                 icon: 'pi pi-print',
                 label: 'In hoá đơn',
+                visible: !!invoice.id,
                 command: (e: any) => {
                     this.printInvoice(e.item.data.id)
                 },
@@ -342,7 +343,7 @@ export class InvoiceComponent implements OnInit {
 
     issueInvoice() {
         this.loading = true
-        this.invoice.billDate = moment(new Date()).toDate()
+        this.invoice.billDate = moment(this.selectedMonth).toDate()
         this.billService
             .issueInvoice(this.invoice)
             .pipe(

@@ -140,7 +140,7 @@
                         </div>
                         <div class="field col">
                             <label for="price">Tháng</label>
-                            <div pInputText>{{ selectedMonth | date : 'MM/yyyy'}}</div>
+                            <div pInputText>{{ selectedMonth | date : 'mm/yyyy'}}</div>
                         </div>
                     </div>
                     <div class="field">
@@ -340,7 +340,7 @@
                         ></button>
                         <!-- [disabled]="invoice.isPay" -->
                         <button
-                            *ngIf="!invoice.isPay"
+                            *ngIf="!invoice.isPay && invoice.id"
                             pButton
                             pRipple
                             label="In hoá đơn"

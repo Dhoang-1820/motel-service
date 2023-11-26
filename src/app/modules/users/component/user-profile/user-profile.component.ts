@@ -53,8 +53,8 @@ export class UserProfileComponent implements OnInit {
         })
 
         this.userForm = new FormGroup({
-            firstname: new FormControl(this.userResult?.firstname, [Validators.required]),
-            lastname: new FormControl(this.userResult?.lastname, [Validators.required]),
+            firstname: new FormControl(this.userResult?.firstName, [Validators.required]),
+            lastname: new FormControl(this.userResult?.lastName, [Validators.required]),
             phone: new FormControl(this.userResult?.phone, []),
             identifyNum: new FormControl(this.userResult?.identifyNum, []),
             email: new FormControl(this.userResult?.email, [Validators.required]),

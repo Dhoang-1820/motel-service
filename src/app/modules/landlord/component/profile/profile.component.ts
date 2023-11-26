@@ -142,8 +142,8 @@ export class ProfileManagement implements OnInit {
     }
 
     fillData() {
-        this.userForm.get('firstname')?.setValue(this.userResult.firstname)
-        this.userForm.get('lastname')?.setValue(this.userResult.lastname)
+        this.userForm.get('firstname')?.setValue(this.userResult.firstName)
+        this.userForm.get('lastname')?.setValue(this.userResult.lastName)
         this.userForm.get('phone')?.setValue(this.userResult.phone)
         this.userForm.get('identifyNum')?.setValue(this.userResult.identifyNum)
         this.userForm.get('email')?.setValue(this.userResult.email)
