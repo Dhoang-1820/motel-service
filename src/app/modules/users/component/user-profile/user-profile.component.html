@@ -18,7 +18,6 @@
                                 <i class="pi pi-pencil" style="cursor: pointer; margin-top: 3px;" ></i>
                                 <input type='file' hidden id="file" (change)="onUpload($event)">
                            </label>
-                            
                         </div>
                         <div class="field grid flex flex-column align-items-center" style="margin-top: 15px;">
                             <div class="user-name">
@@ -30,42 +29,65 @@
                         </div>
                     </div>
                     <div class="card p-fluid">
-                        <div class="field grid">
-                            <label htmlFor="firstName" class="col-12 mb-2 md:col-4 md:mb-0">Họ</label>
-                            <div class="col-12 md:col-8">
-                                <input pInputText id="firstName" [(ngModel)]="this.userResult.firstname" type="text" />
+                        <form [formGroup]="userForm">
+                            <div class="field grid">
+                                <label htmlFor="firstName" class="col-12 mb-2 md:col-4 md:mb-0">Họ</label>
+                                <div class="col-12 md:col-8">
+                                    <div class="input-box">
+                                        <input pInputText id="firstName" formControlName="firstname" type="text" [ngClass]="{'ng-invalid ng-dirty' : userForm.controls['firstname'].invalid && (userForm.controls['firstname'].dirty || userForm.controls['firstname'].touched)}"/>
+                                    </div>
+                                    <small class="ng-dirty ng-invalid" *ngIf="userForm.get('firstname')?.getError('required') && (userForm.controls['firstname'].dirty || userForm.controls['firstname'].touched)">Vui lòng nhập họ.</small>
+                                </div>
                             </div>
-                        </div>
-                        <div class="field grid">
-                            <label htmlFor="name3" class="col-12 mb-2 md:col-4 md:mb-0">Tên</label>
-                            <div class="col-12 md:col-8">
-                                <input pInputText id="name3" [(ngModel)]="this.userResult.lastname" type="text" />
+                            <div class="field grid">
+                                <label htmlFor="lastname" class="col-12 mb-2 md:col-4 md:mb-0">Tên</label>
+                                <div class="col-12 md:col-8">
+                                    <div class="input-box">
+                                        <input pInputText id="lastname" formControlName="lastname" type="text" [ngClass]="{'ng-invalid ng-dirty' : userForm.controls['lastname'].invalid && (userForm.controls['lastname'].dirty || userForm.controls['lastname'].touched)}"/>
+                                    </div>
+                                    <small class="ng-dirty ng-invalid" *ngIf="userForm.get('lastname')?.getError('required') && (userForm.controls['lastname'].dirty || userForm.controls['lastname'].touched)">Vui lòng nhập tên.</small>
+                                </div>
                             </div>
-                        </div>
-                        <div class="field grid">
-                            <label htmlFor="identifyNum" class="col-12 mb-2 md:col-4 md:mb-0">Số CCCD</label>
-                            <div class="col-12 md:col-8">
-                                <input pInputText id="identifyNum" [(ngModel)]="this.userResult.identifyNum" type="text" />
+                            <div class="field grid">
+                                <label htmlFor="identifyNum" class="col-12 mb-2 md:col-4 md:mb-0">Số CCCD</label>
+                                <div class="col-12 md:col-8">
+                                    <div class="input-box">
+                                        <input pInputText id="identifyNum" onlyNumber formControlName="identifyNum" type="text" [ngClass]="{'ng-invalid ng-dirty' : userForm.controls['identifyNum'].invalid && (userForm.controls['identifyNum'].dirty || userForm.controls['identifyNum'].touched)}"/>
+                                    </div>
+                                    <small class="ng-dirty ng-invalid" *ngIf="userForm.get('identifyNum')?.getError('required') && (userForm.controls['identifyNum'].dirty || userForm.controls['identifyNum'].touched)">Vui lòng nhập số CCCD.</small>
+                                    <small class="ng-dirty ng-invalid" *ngIf="userForm.get('identifyNum')?.getError('duplicated') && (userForm.controls['identifyNum'].dirty || userForm.controls['identifyNum'].touched)">Số CCCD đã tồn tại.</small>
+                                </div>
                             </div>
-                        </div>
-                        <div class="field grid">
-                            <label htmlFor="email3" class="col-12 mb-2 md:col-4 md:mb-0">Email</label>
-                            <div class="col-12 md:col-8">
-                                <input pInputText id="email3" [(ngModel)]="this.userResult.email" type="text" />
+                            <div class="field grid">
+                                <label htmlFor="email3" class="col-12 mb-2 md:col-4 md:mb-0">Email</label>
+                                <div class="col-12 md:col-8">
+                                    <div class="input-box">
+                                        <input pInputText id="email3" formControlName="email" type="text" [ngClass]="{'ng-invalid ng-dirty' : userForm.controls['email'].invalid && (userForm.controls['email'].dirty || userForm.controls['email'].touched)}"/>
+                                    </div>
+                                    <small class="ng-dirty ng-invalid" *ngIf="userForm.get('email')?.getError('required') && (userForm.controls['email'].dirty || userForm.controls['email'].touched)">Vui lòng nhập email.</small>
+                                    <small class="ng-dirty ng-invalid" *ngIf="userForm.get('email')?.getError('mailInvalid') && (userForm.controls['email'].dirty || userForm.controls['email'].touched)">Email không hợp lệ.</small>
+                                </div>
                             </div>
-                        </div>
-                        <div class="field grid">
-                            <label htmlFor="address" class="col-12 mb-2 md:col-4 md:mb-0">Địa chỉ</label>
-                            <div class="col-12 md:col-8">
-                                <input pInputText id="address" [(ngModel)]="this.userResult.address" type="text" />
+                            <div class="field grid">
+                                <label htmlFor="address" class="col-12 mb-2 md:col-4 md:mb-0">Địa chỉ</label>
+                                <div class="col-12 md:col-8">
+                                    <div class="input-box">
+                                        <input pInputText id="address" formControlName="address" type="text" [ngClass]="{'ng-invalid ng-dirty' : userForm.controls['address'].invalid && (userForm.controls['address'].dirty || userForm.controls['address'].touched)}"/>
+                                    </div>
+                                    <small class="ng-dirty ng-invalid" *ngIf="userForm.get('address')?.getError('required') && (userForm.controls['address'].dirty || userForm.controls['address'].touched)">Vui lòng nhập số điện thoại.</small>
+                                </div>
                             </div>
-                        </div>
-                        <div class="field grid">
-                            <label htmlFor="phone" class="col-12 mb-2 md:col-4 md:mb-0">Số điện thoại</label>
-                            <div class="col-12 md:col-8">
-                                <input pInputText id="phone" [(ngModel)]="this.userResult.phone" type="text" />
+                            <div class="field grid">
+                                <label htmlFor="phone" class="col-12 mb-2 md:col-4 md:mb-0">Số điện thoại</label>
+                                <div class="col-12 md:col-8">
+                                    <div class="input-box">
+                                        <input pInputText id="phone" onlyNumber formControlName="phone" type="text" [ngClass]="{'ng-invalid ng-dirty' : userForm.controls['phone'].invalid && (userForm.controls['phone'].dirty || userForm.controls['phone'].touched)}"/>
+                                    </div>
+                                    <small class="ng-dirty ng-invalid" *ngIf="userForm.get('phone')?.getError('required') && (userForm.controls['phone'].dirty || userForm.controls['phone'].touched)">Vui lòng nhập số điện thoại.</small>
+                                    <small class="ng-dirty ng-invalid" *ngIf="userForm.get('phone')?.getError('phoneInvalid') && (userForm.controls['phone'].dirty || userForm.controls['phone'].touched)">Số điện thoại không hợp lệ.</small>
+                                </div>
                             </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
             </div>

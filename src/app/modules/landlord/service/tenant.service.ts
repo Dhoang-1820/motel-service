@@ -25,7 +25,15 @@ export class TenantService {
         return this.http.post<any>(`${environment.apiUrl}/tenant`, request).pipe(retry(1), delay(1000))
     }
 
-    checkDuplicated(identifyNum: any): Observable<any> {
-        return this.http.post<any>(`${environment.apiUrl}/tenant/duplicated`, identifyNum).pipe(retry(1), delay(1000))
+    checkDuplicatedIdentify(identifyNum: any): Observable<any> {
+        return this.http.post<any>(`${environment.apiUrl}/tenant/identify/duplicated`, identifyNum).pipe(retry(1), delay(1000))
+    }
+
+    checkDuplicatedEmail(email: any): Observable<any> {
+        return this.http.post<any>(`${environment.apiUrl}/tenant/email/duplicated`, email).pipe(retry(1), delay(1000))
+    }
+
+    checkDuplicatedPhone(phone: any): Observable<any> {
+        return this.http.post<any>(`${environment.apiUrl}/tenant/phone/duplicated`, phone).pipe(retry(1), delay(1000))
     }
 }

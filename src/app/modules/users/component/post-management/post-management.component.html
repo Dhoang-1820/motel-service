@@ -10,58 +10,81 @@
                     </div>
                 </ng-template>
             </p-toolbar>
-            <p-table #dt [value]="posts" responsiveLayout="scroll" [rows]="10"
-                [globalFilterFields]="['address', 'createdAt', 'title', 'status']" [paginator]="true"
-                [rowsPerPageOptions]="[10, 20, 30]" [rowHover]="true" dataKey="id">
-                <ng-template pTemplate="caption">
-                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-                        <h5 class="m-0">Quản lý bài đăng</h5>
-                        <span class="block mt-2 md:mt-0 p-input-icon-left">
-                            <i class="pi pi-search"></i>
-                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Tìm kiếm..."
-                                class="w-full sm:w-auto" />
-                        </span>
+            <p-dataView #dv [value]="posts">
+                <p-toolbar styleClass="mb-4">
+                    <ng-template pTemplate="caption">
+                        <div
+                            class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                            <h5 class="m-0">Bài đăng đang chờ kiểm duyệt</h5>
+                        </div>
+                    </ng-template>
+                </p-toolbar>
+                <ng-template let-data pTemplate="listItem">
+                    <div class="col-12">
+                        <div class="flex flex-column xl:flex-row xl:align-items-start p-4 gap-4">
+                            <img class="w-9 sm:w-16rem xl:w-10rem shadow-2 block xl:block mx-auto border-round"
+                                [src]="data.images[0]?.imgUrl || 'assets/images/default-image-post.jpg'"
+                                [alt]="data.title" />
+                            <div
+                                class="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-1 gap-4">
+                                <div class="flex flex-column align-items-center sm:align-items-start gap-3">
+                                    <div class="flex  align-items-center text-2xl font-bold text-900">
+                                        <div class="mr-3">
+                                            {{ data.title }}
+                                        </div>
+                                        <ng-container [ngSwitch]="data.status">
+                                            <p-tag *ngSwitchCase="'IN_PROGRESS'" severity="info"
+                                                value="Đang chờ duyệt"></p-tag>
+                                            <p-tag *ngSwitchCase="'APPROVED'" severity="success"
+                                                value="Đã duyệt bài"></p-tag>
+                                            <p-tag *ngSwitchCase="'REJECTED'" severity="danger"
+                                                value="Đã khoá"></p-tag>
+                                        </ng-container>
+                                    </div>
+                                    <div class="flex align-items-center gap-3">
+                                        <span class="flex align-items-center gap-2">
+                                            <span>Diện tích: </span>
+                                            <span class="font-semibold">{{ data.acreage }} m²</span>
+                                        </span>
+                                    </div>
+                                    <div class="flex align-items-center gap-3">
+                                        <span class="flex align-items-center gap-2">
+                                            <span>Giá thuê: </span>
+                                            <span class="font-semibold">{{ data.price | currency:
+                                                'VND':'symbol'}}</span>
+                                        </span>
+                                    </div>
+
+                                    <div class="flex align-items-center gap-3">
+                                        <span class="flex align-items-center gap-2">
+                                            <span>Địa chỉ: </span>
+                                            <span class="font-semibold">{{ data.address }}</span>
+                                        </span>
+
+                                    </div>
+                                    <div class="flex align-items-center gap-3">
+                                        <span class="flex align-items-center gap-2">
+                                            <span>Ngày đăng: </span>
+                                            <span class="font-semibold">{{ data.createdAt | date :
+                                                'dd/MM/yyyy'}}</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div
+                                    class="flex sm:flex-column align-items-center sm:align-items-end gap-3 sm:gap-2">
+                                    <div class="flex align-items-center" style="position: relative">
+                                        <p-menu appendTo="body" (onShow)="onShowMenu(data)" #menu
+                                            [model]="items" [popup]="true"></p-menu>
+                                        <button pButton type="button" pTooltip="Tác vụ" tooltipPosition="top"
+                                            class="p-button-rounded" (click)="toggleMenu(menu, $event)"
+                                            icon="pi pi-bars"></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </ng-template>
-                <ng-template pTemplate="header">
-                    <tr>
-                        <th pSortableColumn="address">Địa chỉ<p-sortIcon field="address"></p-sortIcon></th>
-                        <th pSortableColumn="createdAt">Ngày đăng<p-sortIcon field="createdAt"></p-sortIcon></th>
-                        <th pSortableColumn="title">Tiêu đề<p-sortIcon field="title"></p-sortIcon>
-                        </th>
-                        <th pSortableColumn="status">Trạng thái<p-sortIcon field="status"></p-sortIcon></th>
-                        <th></th>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-data>
-                    <tr>
-                        <td style="width: 25%">{{ data.address }}</td>
-                        <td style="width: 15%">{{ data.createdAt | date : 'dd/MM/yyyy' }}</td>
-                        <td style="width: 30%">{{ data.title }}</td>
-
-                        <td style="width: 15%" *ngIf="data.status">
-                            <ng-container [ngSwitch]="data.status">
-                                <p-tag *ngSwitchCase="'IN_PROGRESS'" severity="info" value="Đang chờ duyệt"></p-tag>
-                                <p-tag *ngSwitchCase="'APPROVED'" severity="success" value="Đã duyệt bài"></p-tag>
-                                <p-tag *ngSwitchCase="'REJECTED'" severity="danger" value="Đã khoá"></p-tag>
-                            </ng-container>
-                        </td>
-                        <td style="width: 15%" *ngIf="!data.status">
-
-                        </td>
-                        <td>
-                            <ng-container *ngIf="data.id">
-                                <div class="flex align-items-center" style="position: relative">
-                                    <p-menu  appendTo="body"  (onShow)="onShowMenu(data)" #menu [model]="items" [popup]="true"></p-menu>
-                                    <button pButton type="button" pTooltip="Tác vụ" tooltipPosition="top"
-                                        class="p-button-rounded" (click)="toggleMenu(menu, $event)"
-                                        icon="pi pi-bars"></button>
-                                </div>
-                            </ng-container>
-                        </td>
-                    </tr>
-                </ng-template>
-            </p-table>
+            </p-dataView>
 
         </div>
 

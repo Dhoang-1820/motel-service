@@ -12,6 +12,7 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms'
             multi: true,
         },
     ],
+    standalone: true
 })
 export class OnlyNumberDirective {
     private onChange!: (val: string) => void

@@ -686,10 +686,6 @@ export class DocumentCreator {
                                     text: `Thành tiền: ${vnd.format(invoice.totalPayment)}`,
                                     break: 1,
                                 }),
-                                new TextRun({
-                                    text: `Tổng cộng: ${vnd.format(invoice.paidMoney)}`,
-                                    break: 1,
-                                }),
                             ]
                         }),
                         new Paragraph({

@@ -37,7 +37,11 @@ export class TenantsComponent implements OnInit {
     returnDate: Date | undefined = moment(Date.now()).toDate()
     gender: any = AppConstant.GENDER
     isValidating: boolean = false
+    emailLoading: boolean = false
+    phoneLoading: boolean = false
     oldIdentifyNum: any = ''
+    oldEmail: any = ''
+    oldPhone: any = ''
 
     constructor(
         private messageService: MessageService,
@@ -70,7 +74,7 @@ export class TenantsComponent implements OnInit {
             if (data) {
                 this.tentant.identifyNum = data
                 if (this.oldIdentifyNum !== this.tentant.identifyNum) {
-                    this.checkDuplicated()
+                    this.checkDuplicatedIdentify()
                 }
             }
         })
@@ -78,12 +82,18 @@ export class TenantsComponent implements OnInit {
             if (data) {
                 this.validatePhoneNumber(data)
                 this.tentant.phone = data
+                if (this.oldPhone !== this.tentant.phone && this.tenantForm.get('phone')?.valid) {
+                    this.checkDuplicatedPhone()
+                }
             }
         })
         this.tenantForm.get('email')?.valueChanges.subscribe((data) => {
             if (data) {
                 this.validateGmail(data)
                 this.tentant.email = data
+                if (this.oldEmail !== this.tentant.email && this.tenantForm.get('email')?.valid) {
+                    this.checkDuplicatedEmail()
+                }
             }
         })
         this.tenantForm.get('gender')?.valueChanges.subscribe((data) => {
@@ -121,10 +131,10 @@ export class TenantsComponent implements OnInit {
         this.tenantForm.reset()
     }
 
-    checkDuplicated() {
+    checkDuplicatedIdentify() {
         let isDuplicated = false;
         this.isValidating = true
-        this.tenantService.checkDuplicated(this.tentant.identifyNum).pipe(
+        this.tenantService.checkDuplicatedIdentify(this.tentant.identifyNum).pipe(
             finalize(() => {
                 this.isValidating = false
                 if (isDuplicated) {
@@ -134,9 +144,37 @@ export class TenantsComponent implements OnInit {
         ).subscribe(response => isDuplicated = response.data)
     }
 
+    checkDuplicatedEmail() {
+        let isDuplicated = false;
+        this.emailLoading = true
+        this.tenantService.checkDuplicatedEmail(this.tentant.email).pipe(
+            finalize(() => {
+                this.emailLoading = false
+                if (isDuplicated) {
+                    this.tenantForm.get('email')?.setErrors({duplicated: true})
+                }
+            })
+        ).subscribe(response => isDuplicated = response.data)
+    }
+
+    checkDuplicatedPhone() {
+        let isDuplicated = false;
+        this.phoneLoading = true
+        this.tenantService.checkDuplicatedPhone(this.tentant.phone).pipe(
+            finalize(() => {
+                this.phoneLoading = false
+                if (isDuplicated) {
+                    this.tenantForm.get('phone')?.setErrors({duplicated: true})
+                }
+            })
+        ).subscribe(response => isDuplicated = response.data)
+    }
+
     openNew() {
         this.tentant = {}
         this.oldIdentifyNum = ''
+        this.oldEmail = ''
+        this.oldPhone = ''
         this.tenantForm.get('firstName')?.setValue(null)
         this.tenantForm.get('lastName')?.setValue(null)
         this.tenantForm.get('startDate')?.setValue(null)
@@ -187,6 +225,8 @@ export class TenantsComponent implements OnInit {
     editTenant(tentant: Tenant) {
         this.tentant = { ...tentant }
         this.oldIdentifyNum = tentant.identifyNum
+        this.oldEmail = tentant.email
+        this.oldPhone = tentant.phone
         this.tenantForm.get('firstName')?.setValue(tentant.firstName)
         this.tenantForm.get('lastName')?.setValue(tentant.lastName)
         if (tentant.startDate) {
@@ -219,8 +259,7 @@ export class TenantsComponent implements OnInit {
     }
 
     hideDialog() {
-        // this.tenantDialog = false
-        console.log( this.tenantForm.get('email'))
+        this.tenantDialog = false
     }
 
     saveTenant() {

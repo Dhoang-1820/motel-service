@@ -106,7 +106,7 @@
     class="p-fluid">
     <ng-template pTemplate="content">
         <div class="flex justify-content-center">
-            <p-galleria [value]="roomSelected.images" [showIndicators]="true" [showThumbnails]="false"
+            <p-galleria [value]="post.images" [showIndicators]="true" [showThumbnails]="false"
                 [containerStyle]="{ 'max-width': '640px' }">
                 <ng-template pTemplate="item" let-item>
                     <img [src]="item.imgUrl"
@@ -114,48 +114,31 @@
                 </ng-template>
             </p-galleria>
         </div>
-        <h3 class="text-900 text-center my-5">{{roomSelected.title}}</h3>
+        <h3 class="text-900 text-center my-5">{{post.title}}</h3>
         <div class="my-5">
-            <span class="text-3xl font-bold mr-2 text-900">{{roomSelected.price | currency:
+            <span class="text-3xl font-bold mr-2 text-900">{{post.price | currency:
                 'VND':'symbol'}}</span>
-            <button pButton pRipple label="Đặt phòng" (click)="openBooking(roomSelected)"
+            <button pButton pRipple label="Đặt phòng" (click)="openBooking(post)"
                 class="block mx-auto mt-4 p-button-rounded border-none ml-3 font-light line-height-2 bg-blue-500 text-white"></button>
         </div>
         <p-divider class="w-full bg-surface-200"></p-divider>
-        <div class="text-xl mb-3">Địa chỉ: <span class="font-bold">{{roomSelected.address}}</span></div>
-        <div class="text-xl mb-3">Diện tích: <span class="font-bold">{{roomSelected.acreage}} m²</span>
+        <div class="text-xl mb-3">Địa chỉ: <span class="font-bold">{{post.address}}</span></div>
+        <div class="text-xl mb-3">Diện tích: <span class="font-bold">{{post.acreage}} m²</span>
         </div>
-        <div class="text-xl">Liên hệ: <span class="font-bold">{{roomSelected.phone}}</span></div>
+        <div class="text-xl">Liên hệ: <span class="font-bold">{{post.phone}}</span></div>
         <p-divider class="w-full bg-surface-200"></p-divider>
         <p-card header="Thông tin mô tả">
-            <div [innerHTML]="roomSelected.content">
+            <div [innerHTML]="post.content">
             </div>
         </p-card>
         <br>
-        <p-fieldset class="mb-4" legend="Dịch vụ" [toggleable]="true" [collapsed]="true">
-            <ul class="my-5 list-none p-0 flex text-900 flex-column">
-                <li class="py-2" *ngFor="let service of roomSelected.services">
-                    <i class="pi pi-fw pi-check text-xl text-cyan-500 mr-2"></i>
-                    <span class="text-xl line-height-3">{{service.name}}</span>
-                </li>
-            </ul>
-        </p-fieldset>
-        <br>
-        <p-fieldset legend="Thiết bị sẵn có (có thể tuỳ chọn thêm)" [toggleable]="true" [collapsed]="true">
-            <ul class="my-5 list-none p-0 flex text-900 flex-column">
-                <li class="py-2" *ngFor="let equip of roomSelected.equipments">
-                    <i class="pi pi-fw pi-check text-xl text-cyan-500 mr-2"></i>
-                    <span class="text-xl line-height-3">{{equip.name}}</span>
-                </li>
-            </ul>
-        </p-fieldset>
         <p-card>
             <!-- <google-map [options]="options"></google-map> -->
         </p-card>
     </ng-template>
 </p-dialog>
 
-<p-dialog [(visible)]="bookingDialog" [style]="{width: '450px'}" header="Thông tin" [modal]="true" class="p-fluid">
+<p-dialog (onHide)="onHideBooking()" [(visible)]="bookingDialog" [style]="{width: '450px'}" header="Thông tin" [modal]="true" class="p-fluid">
     <ng-template pTemplate="content">
         <form [formGroup]="bookingForm">
             <div class="field">
@@ -210,7 +193,7 @@
     <ng-template pTemplate="footer">
         <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text"
             (click)="hideBookingDialog()"></button>
-        <button pButton pRipple label="Save" [disabled]="bookingForm.invalid" [loading]="submitLoading"
+        <button pButton pRipple label="Save" [loading]="submitLoading"
             loadingIcon="pi pi-spin pi-spinner" icon="pi pi-check" class="p-button-text"
             (click)="saveBooking()"></button>
     </ng-template>

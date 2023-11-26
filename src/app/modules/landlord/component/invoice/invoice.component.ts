@@ -263,11 +263,9 @@ export class InvoiceComponent implements OnInit {
                     const documentCreator = new DocumentCreator()
                     const doc = documentCreator.createInvoice(printData)
 
-                    console.log('printData',printData)
-
                     Packer.toBlob(doc).then((blob) => {
                         console.log(blob)
-                        saveAs(blob, 'example.docx')
+                        saveAs(blob, `Hoa_don_phong_${invoice.room?.name}_thang_${month}.docx`)
                         console.log('Document created successfully')
                     })
                 }),

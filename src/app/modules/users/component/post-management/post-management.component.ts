@@ -213,19 +213,19 @@ export class PostManagementComponent implements OnInit {
             {
                 icon: 'pi pi-check',
                 label: 'Gỡ bài',
-                visible: post.isActive,
+                visible: post.status === 'APPROVED',
                 command: (e: any) => {
-                    this.post = { ...e.item.data }
-                    this.changeStatusPost(false)
+                    this.post = {...e.item.data}
+                    this.changeStatusPost({postId: this.post.id, status: 'REMOVED'})
                 },
             },
             {
                 icon: 'pi pi-check',
                 label: 'Đăng bài',
-                visible: !post.isActive,
+                visible: post.status === 'REMOVED' || post.status === 'REJECTED',
                 command: (e: any) => {
-                    this.post = { ...e.item.data }
-                    this.changeStatusPost(true)
+                    this.post = {...e.item.data}
+                    this.changeStatusPost({postId: this.post.id, status: 'IN_PROGRESS'})
                 },
             },
             {
@@ -321,18 +321,21 @@ export class PostManagementComponent implements OnInit {
         }
     }
 
-    changeStatusPost(status: boolean) {
+    changeStatusPost(request: {postId: any, status: any}) {
         this.loading = true
-        this.post.isActive = status
         let message: string
-        if (status) {
-            message = 'Gỡ bài đăng thành công'
-        } else {
-            message = 'Đăng bài thành công'
+        switch (request.status) {
+            case 'REMOVED':
+                message = 'Gỡ bài thành công'
+                break;
+            case 'IN_PROGRESS':
+                message = 'Đăng bài thành công'
+                break;
+            default:
+                break;
         }
-
         this.postService
-            .changeStatusPost(this.post)
+            .changeStatusPost(request)
             .pipe(
                 finalize(() => {
                     this.initData()

@@ -3,6 +3,7 @@ import { NgxPermissionsService } from 'ngx-permissions'
 import { AuthenticationService } from './modules/auth/service/authentication.service';
 import { User } from './modules/model/user.model';
 
+
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',

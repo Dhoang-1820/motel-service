@@ -36,7 +36,7 @@ export class MainComponent implements OnInit {
     items: MenuItem[]
     searchForm: FormGroup
     bookingForm: FormGroup
-    submitForm: { name?: string; email?: string; phone?: string; roomId?: string; reviewDate?: Date } = {}
+    submitForm: { name?: string; email?: string; phone?: string; postId?: string; reviewDate?: Date, userId?: number } = {}
     searchPostRequest: { address?: Address; price?: RangeRequest; areage?: RangeRequest } = {}
 
     loading: boolean = false
@@ -46,7 +46,7 @@ export class MainComponent implements OnInit {
     sortField: string = ''
     sortOptions: any[] = []
     detailDialog: boolean = false
-    roomSelected: any
+    post: any
     bookingDialog: boolean = false
     isAddReviewDate: boolean = false
     today: Date = new Date()
@@ -77,7 +77,6 @@ export class MainComponent implements OnInit {
             fullname: new FormControl(this.submitForm.name, [Validators.required]),
             email: new FormControl(this.submitForm.email, [Validators.required]),
             phone: new FormControl(this.submitForm.phone, [Validators.required]),
-            roomId: new FormControl(this.submitForm.roomId, [Validators.required]),
             reviewDate: new FormControl(this.submitForm.reviewDate, []),
         })
         this.searchForm = new FormGroup({
@@ -113,9 +112,7 @@ export class MainComponent implements OnInit {
                 this.validatePhoneNumber(data)
             }
         })
-        this.bookingForm.get('roomId')?.valueChanges.subscribe((data) => {
-            this.submitForm.roomId = data
-        })
+        
         this.bookingForm.get('reviewDate')?.valueChanges.subscribe((data) => {
             this.submitForm.reviewDate = data
         })
@@ -201,19 +198,20 @@ export class MainComponent implements OnInit {
         }
     }
 
-    openBooking(room: any) {
+    openBooking(post: any) {
         this.bookingDialog = true
-        this.roomSelected = room
+        this.post = {...post}
         this.bookingForm.get('fullname')?.setValue(null)
         this.bookingForm.get('email')?.setValue(null)
         this.bookingForm.get('phone')?.setValue(null)
         this.bookingForm.get('reviewDate')?.setValue(null)
-        this.bookingForm.get('roomId')?.setValue(this.roomSelected.room.id)
     }
 
     saveBooking() {
         this.submitLoading = true
         this.submitForm.reviewDate = moment(this.submitForm.reviewDate).toDate()
+        this.submitForm.postId = this.post.id
+        this.submitForm.userId = this.post.userId
         this.bookingService
             .saveBooking(this.submitForm)
             .pipe(
@@ -222,7 +220,6 @@ export class MainComponent implements OnInit {
                     this.bookingDialog = false
                     this.detailDialog = false
                     this.isAddReviewDate = false
-                    this.roomSelected = {}
                     this.messageService.add({
                         severity: 'success',
                         summary: 'Successful',
@@ -278,9 +275,13 @@ export class MainComponent implements OnInit {
             .subscribe((response) => (this.posts = response.data))
     }
 
-    onShowDialog(room: any) {
-        this.roomSelected = room
+    onShowDialog(post: any) {
+        this.post = {...post}
         this.detailDialog = true
+    }
+
+    onHideBooking() {
+        this.bookingForm.reset()
     }
 
     onSortChange(event: any) {

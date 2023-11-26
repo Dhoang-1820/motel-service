@@ -47,6 +47,7 @@ import { MainComponent } from './component/main/main.component';
 import { PostManagementComponent } from './component/post-management/post-management.component';
 import { TagModule } from 'primeng/tag';
 import { EditorModule } from 'primeng/editor';
+import { OnlyNumberDirective } from '../directive/only-number.directive';
 
 @NgModule({
   declarations: [
@@ -63,6 +64,7 @@ import { EditorModule } from 'primeng/editor';
     SliderModule,
     EditorModule,
     ListboxModule,
+    OnlyNumberDirective,
     MenuModule,
     SelectButtonModule,
     BreadcrumbModule,

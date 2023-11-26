@@ -9,88 +9,106 @@
                         <button pButton [loading]="addLoading" pRipple label="Thêm" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
                     </div>
                 </ng-template>
-
-                <ng-template pTemplate="right">
-                    <div class="flex justify-content-center">
-                        <p-dropdown
-                            [options]="accomodations"
-                            (onChange)="onSelectAccomodation()"
-                            [(ngModel)]="selectedAccomodation"
-                            optionLabel="name"
-                            autoWidth="false"
-                            [style]="{ width: '100%' }"
-                        ></p-dropdown>
-                    </div>
-                </ng-template>
             </p-toolbar>
 
-            <p-table
-                #dt
-                [value]="posts"
-                responsiveLayout="scroll"
-                [rows]="10"
-                [globalFilterFields]="['name', 'capacity', 'price', 'acreage']"
-                [paginator]="true"
-                [rowsPerPageOptions]="[10, 20, 30]"
-                [rowHover]="true"
-                dataKey="id"
-            >
-                <ng-template pTemplate="caption">
-                    <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-                        <h5 class="m-0">Quản lý bài đăng</h5>
-                        <span class="block mt-2 md:mt-0 p-input-icon-left">
-                            <i class="pi pi-search"></i>
-                            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Tìm kiếm..." class="w-full sm:w-auto" />
-                        </span>
+            <p-dataView #dv [value]="posts">
+                <p-toolbar styleClass="mb-4">
+                    <ng-template pTemplate="caption">
+                        <div
+                            class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+                            <h5 class="m-0">Bài đăng đang chờ kiểm duyệt</h5>
+                        </div>
+                    </ng-template>
+                </p-toolbar>
+                <ng-template let-data pTemplate="listItem">
+                    <div class="col-12">
+                        <div class="flex flex-column xl:flex-row xl:align-items-start p-4 gap-4">
+                            <img class="w-9 sm:w-16rem xl:w-10rem shadow-2 block xl:block mx-auto border-round"
+                                [src]="data.images[0]?.imgUrl || 'assets/images/default-image-post.jpg'"
+                                [alt]="data.title" />
+                            <div
+                                class="flex flex-column sm:flex-row justify-content-between align-items-center xl:align-items-start flex-1 gap-4">
+                                <div class="flex flex-column align-items-center sm:align-items-start gap-3">
+                                    <div class="flex  align-items-center text-2xl font-bold text-900">
+                                        <div class="mr-3">
+                                            {{ data.title }}
+                                        </div>
+                                        <ng-container [ngSwitch]="data.status">
+                                            <p-tag *ngSwitchCase="'IN_PROGRESS'" severity="info"
+                                                value="Đang chờ duyệt"></p-tag>
+                                            <p-tag *ngSwitchCase="'APPROVED'" severity="success"
+                                                value="Đã duyệt bài"></p-tag>
+                                            <p-tag *ngSwitchCase="'REJECTED'" severity="danger"
+                                                value="Đã khoá"></p-tag>
+                                        </ng-container>
+                                    </div>
+                                    <div class="flex align-items-center gap-3">
+                                        <span class="flex align-items-center gap-2">
+                                            <span>Diện tích: </span>
+                                            <span class="font-semibold">{{ data.acreage }} m²</span>
+                                        </span>
+                                    </div>
+                                    <div class="flex align-items-center gap-3">
+                                        <span class="flex align-items-center gap-2">
+                                            <span>Giá thuê: </span>
+                                            <span class="font-semibold">{{ data.price | currency:
+                                                'VND':'symbol'}}</span>
+                                        </span>
+                                    </div>
+
+                                    <div class="flex align-items-center gap-3">
+                                        <span class="flex align-items-center gap-2">
+                                            <span>Địa chỉ: </span>
+                                            <span class="font-semibold">{{ data.address }}</span>
+                                        </span>
+
+                                    </div>
+                                    <div class="flex align-items-center gap-3">
+                                        <span class="flex align-items-center gap-2">
+                                            <span>Ngày đăng: </span>
+                                            <span class="font-semibold">{{ data.createdAt | date :
+                                                'dd/MM/yyyy'}}</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div
+                                    class="flex sm:flex-column align-items-center sm:align-items-end gap-3 sm:gap-2">
+                                    <div class="flex align-items-center" style="position: relative">
+                                        <p-menu appendTo="body" (onShow)="onShowMenu(data)" #menu
+                                            [model]="items" [popup]="true"></p-menu>
+                                        <button pButton type="button" pTooltip="Tác vụ" tooltipPosition="top"
+                                            class="p-button-rounded" (click)="toggleMenu(menu, $event)"
+                                            icon="pi pi-bars"></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </ng-template>
-                <ng-template pTemplate="header">
-                    <tr>
-                        <th pSortableColumn="name">Khu trọ<p-sortIcon field="name"></p-sortIcon></th>
-                        <th pSortableColumn="month">Ngày đăng<p-sortIcon field="month"></p-sortIcon></th>
-                        <th pSortableColumn="representative">Tiêu đề<p-sortIcon field="representative"></p-sortIcon></th>
-                        <th pSortableColumn="isPay">Trạng thái<p-sortIcon field="isPay"></p-sortIcon></th>
-                        <th></th>
-                    </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-data>
-                    <tr>
-                        <td style="width: 15%">{{ selectedAccomodation.name }}</td>
-                        <td style="width: 15%">{{ data.createdAt | date : 'MM/yyyy' }}</td>
-                        <td style="width: 40%">{{ data.title }}</td>
-
-                        <td style="width: 15%">
-                            <ng-container [ngSwitch]="data.status">
-                                <p-tag *ngSwitchCase="'IN_PROGRESS'" severity="info" value="Đang chờ duyệt"></p-tag>
-                                <p-tag *ngSwitchCase="'APPROVED'" severity="success" value="Đã duyệt bài"></p-tag>
-                                <p-tag *ngSwitchCase="'REJECTED'" severity="danger" value="Đã khoá"></p-tag>
-                            </ng-container>
-                        </td>
-                        <td>
-                            <ng-container *ngIf="data.id">
-                                <div class="flex align-items-center" style="position: relative">
-                                    <p-menu (onShow)="onShowMenu(data)" #menu [model]="items" [popup]="true"></p-menu>
-                                    <button
-                                        pButton
-                                        type="button"
-                                        pTooltip="Tác vụ"
-                                        tooltipPosition="top"
-                                        class="p-button-rounded"
-                                        (click)="toggleMenu(menu, $event)"
-                                        icon="pi pi-bars"
-                                    ></button>
-                                </div>
-                            </ng-container>
-                        </td>
-                    </tr>
-                </ng-template>
-            </p-table>
+            </p-dataView>
             
         </div>
 
         <p-dialog (onHide)="onHideDialog()" [(visible)]="postDialog" [style]="{width: '1150px'}" header="Quản lý bài đăng" [modal]="true" class="p-fluid">
             <ng-template pTemplate="content">
                 <form [formGroup]="postForm">
+                    <div class="formgrid grid">
+                        <div class="field col">
+                            <p-dropdown
+                                [options]="accomodations"
+                                (onChange)="onSelectAccomodation()"
+                                [(ngModel)]="selectedAccomodation"
+                                optionLabel="name"
+                                autoWidth="false"
+                                [ngModelOptions]="{standalone: true}"
+                                [style]="{ width: '100%' }"
+                            ></p-dropdown>
+                        </div>
+                        <div class="field col">
+
+                        </div>
+                    </div>
+                    
                     <div class="field">
                         <label for="title">Tiêu đề</label>
                         <textarea type="text" pInputTextarea id="title" formControlName="title"></textarea>
@@ -114,6 +132,7 @@
                                         <p-tag *ngSwitchCase="'IN_PROGRESS'" severity="info" value="Đang chờ duyệt"></p-tag>
                                         <p-tag *ngSwitchCase="'APPROVED'" severity="success" value="Đã duyệt bài"></p-tag>
                                         <p-tag *ngSwitchCase="'REJECTED'" severity="danger" value="Đã khoá"></p-tag>
+                                        <p-tag *ngSwitchDefault severity="info" value="Đang chờ duyệt"></p-tag>
                                     </ng-container>
                                 </div>
                             </div>
@@ -179,30 +198,55 @@
                             <p-editor formControlName="content" [style]="{ height: '320px' }"></p-editor>
                         </div>
                     </div>
-                    <div class="formgrid grid" *ngIf="post.images && post.images.length > 0">
+                    <div class="formgrid grid">
                        <div class="field col">
                         <div class="card">
-                            <div class="card m-3 border-1 surface-border" *ngFor="let img of post.images">
-                                <div class="flex flex-column align-items-center text-center mb-3">
-                                    <img [src]="img.imgUrl" [alt]="img.imgName" class="w-4 shadow-2 my-3 mx-0"/>
-                                </div>
-                                <p-divider></p-divider>
-                                <div class="flex justify-content-center">
-                                    <div class="flex">
-                                        <div>
-                                            <button pButton pRipple label="Xoá" (click)="onDeleteImage(img.imageId)" [loading]="deleteLoading" loadingIcon="pi pi-spin pi-spinner"  icon="pi pi-delete-left" class="p-button-text" ></button>
-                                        </div>
-                                        <div style="width: 115px;">
-                                            <p-fileUpload (onBeforeUpload)="loading = true" (onUpload)="onUpload($event)" mode="basic" chooseLabel="Thay đổi" name="file" method="put" [auto]="true" [url]="linkUpload + img.imageId" accept="image/*" [maxFileSize]="1000000" ></p-fileUpload>
+                            <ng-container *ngIf="post.images?.length">
+                                <div class="card m-3 border-1 surface-border" 
+                                    *ngFor="let image of post.images; index as i">
+                                    <div class="flex flex-column align-items-center text-center mb-3">
+                                        <img [src]="image.imgUrl" [alt]="image" class="w-4 shadow-2 my-3 mx-0" />
+                                    </div>
+                                    <p-divider></p-divider>
+                                    <div class="flex justify-content-center">
+                                        <div class="flex">
+                                            <div>
+                                                <button pButton pRipple label="Xoá" (click)="onDeleteImage(image.imageId)"
+                                                    icon="pi pi-delete-left" class="p-button-text"></button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </ng-container>
+                            <ng-container *ngIf="previewImage.length">
+                                <div class="card m-3 border-1 surface-border" 
+                                    *ngFor="let img of previewImage; index as i">
+                                    <div class="flex flex-column align-items-center text-center mb-3">
+                                        <img [src]="img" [alt]="img" class="w-4 shadow-2 my-3 mx-0" />
+                                    </div>
+                                    <p-divider></p-divider>
+                                    <div class="flex justify-content-center">
+                                        <div class="flex">
+                                            <div>
+                                                <button pButton pRipple label="Xoá" (click)="deleteImage(i)"
+                                                    icon="pi pi-delete-left" class="p-button-text"></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ng-container>
                            </div>
                        </div>
                     </div>
                     <div class="field">
-                        <p-fileUpload (onBeforeUpload)="loading = true" (onUpload)="onUpload($event)" mode="basic" chooseLabel="Thêm ảnh" [multiple]="true" name="file" method="post" [auto]="true" [url]="linkUpload + post.id" accept="image/*" [maxFileSize]="1000000"></p-fileUpload>
+                        <div class="formbold-mb-5 formbold-file-input">
+                            <input type="file" name="file" (change)="selectFile($event)" [multiple]="true" id="file" />
+                            <label for="file">
+                                <div>
+                                    <span class="formbold-browse"> Thêm ảnh </span>
+                                </div>
+                            </label>
+                        </div>
                     </div>
                 </form>            
             </ng-template>

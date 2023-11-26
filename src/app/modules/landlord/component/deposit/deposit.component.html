@@ -162,19 +162,27 @@
                             </div> 
                             <div class="field">
                                 <label for="phone">Số điện thoại <span class="mandatory-sign">*</span></label>
-                                <div class="input-box">
+                                <span class="p-input-icon-right">
+                                    <i class="pi pi-spin pi-spinner" *ngIf="phoneLoading"></i>
+                                    <div class="input-box">
                                     <input type="text" [readOnly]="!isChooseExisted" onlyNumber pInputText id="phone" formControlName="phone" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['phone'].invalid && (depositForm.controls['phone'].dirty || depositForm.controls['phone'].touched)}"/>
-                                </div>
+                                    </div>
+                                </span>
                                 <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('phone')?.getError('required') && (depositForm.controls['phone'].dirty || depositForm.controls['phone'].touched)">Vui lòng nhập số điện thoại.</small>
                                 <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('phone')?.getError('phoneInvalid') && (depositForm.controls['phone'].dirty || depositForm.controls['phone'].touched)">Số điện thoại không hợp lệ.</small>
+                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('phone')?.getError('duplicated') && (depositForm.controls['phone'].dirty || depositForm.controls['phone'].touched)">Số điện thoại đã tồn tại.</small>
                             </div> 
                             <div class="field">
                                 <label for="email">Email <span class="mandatory-sign">*</span></label>
-                                <div class="input-box">
-                                    <input formControlName="email" type="text" [readOnly]="!isChooseExisted" pInputText id="email" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['email'].invalid && (depositForm.controls['email'].dirty || depositForm.controls['email'].touched)}"/>
-                                </div>
-                                <small class="ng-dirty ng-invalid" *ngIf="this.depositForm.get('email')?.getError('required') && (depositForm.controls['email'].dirty || depositForm.controls['email'].touched)">Vui lòng nhập email.</small>
-                                <small class="ng-dirty ng-invalid" *ngIf="this.depositForm.get('email')?.getError('mailInvalid') && (depositForm.controls['email'].dirty || depositForm.controls['email'].touched)">Email không hợp lệ.</small>
+                                <span class="p-input-icon-right">
+                                    <i class="pi pi-spin pi-spinner" *ngIf="emailLoading"></i>
+                                    <div class="input-box">
+                                        <input formControlName="email" type="text" [readOnly]="!isChooseExisted" pInputText id="email" [ngClass]="{'ng-invalid ng-dirty' : depositForm.controls['email'].invalid && (depositForm.controls['email'].dirty || depositForm.controls['email'].touched)}"/>
+                                    </div>
+                                </span>
+                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('email')?.getError('required') && (depositForm.controls['email'].dirty || depositForm.controls['email'].touched)">Vui lòng nhập email.</small>
+                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('email')?.getError('mailInvalid') && (depositForm.controls['email'].dirty || depositForm.controls['email'].touched)">Email không hợp lệ.</small>
+                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('email')?.getError('duplicated') && (depositForm.controls['email'].dirty || depositForm.controls['email'].touched)">Số điện thoại đã tồn tại.</small>
                             </div> 
                         </div>
                     </div>
@@ -440,19 +448,27 @@
                     </div>
                     <div class="field">
                         <label for="email">Email <span class="mandatory-sign">*</span></label>
-                         <div class="input-box">
+                        <span class="p-input-icon-right">
+                            <i class="pi pi-spin pi-spinner" *ngIf="emailLoading"></i>
+                            <div class="input-box">
                              <input formControlName="email" type="text" pInputText id="email" [ngClass]="{'ng-invalid ng-dirty' : tenantForm.controls['email'].invalid && (tenantForm.controls['email'].dirty || tenantForm.controls['email'].touched)}"/>
-                         </div>
+                            </div>
+                        </span>
                         <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('email')?.getError('required') && (tenantForm.controls['email'].dirty || tenantForm.controls['email'].touched)">Vui lòng nhập email.</small>
                         <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('email')?.getError('mailInvalid') && (tenantForm.controls['email'].dirty || tenantForm.controls['email'].touched)">Email không hợp lệ.</small>
+                        <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('email')?.getError('duplicated') && (tenantForm.controls['email'].dirty || tenantForm.controls['email'].touched)">Email đã tồn tại.</small>
                     </div>
                     <div class="field">
                         <label for="phone">Số điện thoại <span class="mandatory-sign">*</span></label>
-                         <div class="input-box">
+                        <span class="p-input-icon-right">
+                            <i class="pi pi-spin pi-spinner" *ngIf="phoneLoading"></i>
+                            <div class="input-box">
                              <input formControlName="phone" onlyNumber type="text" pInputText id="phone" [ngClass]="{'ng-invalid ng-dirty' : tenantForm.controls['phone'].invalid && (tenantForm.controls['phone'].dirty || tenantForm.controls['phone'].touched)}"/>
-                         </div>
+                            </div>
+                        </span>
                         <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('phone')?.getError('required') && (tenantForm.controls['phone'].dirty || tenantForm.controls['phone'].touched)">Vui lòng nhập số điện thoại.</small>
                         <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('phone')?.getError('phoneInvalid') && (tenantForm.controls['phone'].dirty || tenantForm.controls['phone'].touched)">Số điện thoại không hợp lệ.</small>
+                        <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('phone')?.getError('duplicated') && (tenantForm.controls['phone'].dirty || tenantForm.controls['phone'].touched)">Số điện thoại đã tồn tại.</small>
                     </div>
                     <div class="field">
                         <label for="name">Ngày bắt đầu ở</label>

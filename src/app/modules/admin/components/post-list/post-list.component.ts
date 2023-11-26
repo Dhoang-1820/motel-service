@@ -111,11 +111,33 @@ export class PostListComponent implements OnInit {
                     this.changeStatusPost({postId: this.post.id, status: 'APPROVED'})
                 },
             },
+            {
+                label: 'Xoá',
+                icon: 'pi pi-trash',
+                command: (e) => {
+                    this.post = {...e.item.data}
+                    this.removePost()
+                },
+            },
         ]
         this.items.forEach((menuItem: any) => {
             menuItem.data = post
         })
         return this.items
+    }
+
+    removePost() {
+        this.loading = true
+        this.postService
+            .removePost(this.post.id)
+            .pipe(
+                finalize(() => {
+                    this.getPostByStatus()
+                    this.post = {}
+                    this.messageService.add({ severity: 'success', summary: 'Thành công', detail: 'Xoá thành công', life: 3000 })
+                }),
+            )
+            .subscribe()
     }
 
     changeStatusPost(request: {postId: any, status: any}) {

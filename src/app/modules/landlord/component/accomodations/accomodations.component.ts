@@ -213,7 +213,7 @@ export class AccomodationsComponent implements OnInit {
                 if (result) {
                     this.deleteDialog = true
                 } else {
-                    this.messageService.add({ severity: 'warn', summary: 'Cảnh báo', detail: 'Khu trọ đang được sử dụng không thể xoá, vui lòng liên hệ admin để được giúp đỡ!', life: 5000 })
+                    this.messageService.add({ severity: 'warn', summary: 'Cảnh báo', detail: 'Khu trọ đang được sử dụng không thể xoá, vui lòng liên hệ admin để được trợ giúp!', life: 5000 })
                     this.accomodation = {}
                 }
                

@@ -176,6 +176,7 @@ export class ContractComponent implements OnInit {
         })
         this.contractForm.get('holdRoomMoney')?.valueChanges.subscribe((data) => {
             this.contract.keepRoomDeposit = data
+            this.getTotalFirstPayment()
         })
         this.contractForm.get('duration')?.valueChanges.subscribe((data) => {
             this.contract.duration = data
@@ -194,7 +195,9 @@ export class ContractComponent implements OnInit {
     }
 
     prepareContractData(contract: Contract) {
-        this.contract = { ...contract }
+        console.log(contract)
+        this.contract = JSON.parse(JSON.stringify(contract))
+        console.log(this.contract)
         this.contract.preRoom = contract.room?.id
         this.filterService()
         this.filterTenant()
@@ -205,12 +208,14 @@ export class ContractComponent implements OnInit {
         this.contractForm.get('firstWaterNum')?.setValue(this.contract.firstWaterNum)
         this.contractForm.get('representative')?.setValue(this.contract.representative)
         this.contractForm.get('duration')?.setValue(this.contract.duration)
+        this.contractForm.get('holdRoomMoney')?.setValue(this.contract.keepRoomDeposit)
         this.contractForm.get('room')?.setValue(this.contract.room)
         this.roomPresent = this.contract.room
         this.rooms.push(this.roomPresent)
         if (this.contract.representative) {
             this.selectedTenant = this.contract.representative
         }
+        this.getTotalFirstPayment()
     }
 
     printContract(contract: Contract): void {
@@ -237,7 +242,7 @@ export class ContractComponent implements OnInit {
     
         Packer.toBlob(doc).then(blob => {
           console.log(blob);
-          saveAs(blob, "example.docx");
+          saveAs(blob, `Hop_dong_phong_${this.contract.room?.name}.docx`);
           console.log("Document created successfully");
         });
       }
@@ -273,7 +278,7 @@ export class ContractComponent implements OnInit {
     checkDuplicated() {
         let isDuplicated = false;
         this.isValidating = true
-        this.tenantService.checkDuplicated(this.tentant.identifyNum).pipe(
+        this.tenantService.checkDuplicatedIdentify(this.tentant.identifyNum).pipe(
             finalize(() => {
                 this.isValidating = false
                 if (isDuplicated) {
@@ -339,6 +344,7 @@ export class ContractComponent implements OnInit {
                 if (result.isBooked) {
                     this.depositor = result.depositor
                     this.oldDeposit = result.depositMoney
+                    this.contractForm.get('holdRoomMoney')?.setValue(this.oldDeposit)
                     let tenant =  this.selectedTenants.find((item: any) => item.id === this.depositor.id)
                     if (!tenant) {
                         this.selectedTenants.push(this.depositor)
@@ -348,7 +354,7 @@ export class ContractComponent implements OnInit {
                     this.depositor = {}
                     this.oldDeposit = 0
                 }
-                this.contractForm.get('holdRoomMoney')?.setValue(this.oldDeposit)
+                
             })
         ).subscribe(response => result = response.data)
     }

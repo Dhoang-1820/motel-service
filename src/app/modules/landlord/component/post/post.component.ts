@@ -43,7 +43,6 @@ export class PostComponent implements OnInit {
     contractInfoLoading: boolean = false
 
     items: MenuItem[] = []
-    linkUpload: string = "http://localhost:8080/motel-service/api/post/image/"
     responsiveOptions: any[];
     deleteImageDialog: boolean = false
     selectedImage: any;
@@ -60,6 +59,9 @@ export class PostComponent implements OnInit {
     existingProvince!: any;
     existingDistrict!: any;
     existingWard: any = {}
+    previewImage: any[] = []
+    selectedFiles: File[] = []
+    currentFile?: File
 
     addLoading: boolean = false
 
@@ -103,7 +105,7 @@ export class PostComponent implements OnInit {
 
     ngOnInit() {
         this.user = this.auth.userValue
-        this.getDropdownAccomodation()
+        this.initData()
 
         this.postForm.get('title')?.valueChanges.subscribe((data) => {
             this.post.title = data
@@ -231,19 +233,19 @@ export class PostComponent implements OnInit {
             {
                 icon: 'pi pi-check',
                 label: 'Gỡ bài',
-                visible: post.isActive,
+                visible: post.status === 'APPROVED',
                 command: (e: any) => {
                     this.post = {...e.item.data}
-                    this.changeStatusPost(false)
+                    this.changeStatusPost({postId: this.post.id, status: 'REMOVED'})
                 },
             },
             {
                 icon: 'pi pi-check',
                 label: 'Đăng bài',
-                visible: !post.isActive,
+                visible: post.status === 'REMOVED' || post.status === 'REJECTED',
                 command: (e: any) => {
                     this.post = {...e.item.data}
-                    this.changeStatusPost(true)
+                    this.changeStatusPost({postId: this.post.id, status: 'IN_PROGRESS'})
                 },
             },
             {
@@ -259,6 +261,31 @@ export class PostComponent implements OnInit {
             menuItem.data = post
         })
         return this.items
+    }
+
+    changeStatusPost(request: {postId: any, status: any}) {
+        this.loading = true
+        let message: string
+        switch (request.status) {
+            case 'REMOVED':
+                message = 'Gỡ bài thành công'
+                break;
+            case 'IN_PROGRESS':
+                message = 'Đăng bài thành công'
+                break;
+            default:
+                break;
+        }
+        this.postService
+            .changeStatusPost(request)
+            .pipe(
+                finalize(() => {
+                    this.initData()
+                    this.post = {}
+                    this.messageService.add({ severity: 'success', summary: 'Thành công', detail: message, life: 3000 })
+                }),
+            )
+            .subscribe()
     }
 
     toggleMenu(menu: any, event: any) {
@@ -278,33 +305,26 @@ export class PostComponent implements OnInit {
 
     getDropdownAccomodation() {
         this.loading = true
-        this.accomodationService
+        return this.accomodationService
             .getDropdownAccomodation(this.user?.id)
-            .pipe(
-                finalize(() => {
-                    this.selectedAccomodation = this.accomodations[0]
-                    this.initData()
-                }),
-            )
-        .subscribe((response) => (this.accomodations = response.data)) 
     }
 
     initData() {
         forkJoin({
             posts: this.getPostByAccomodation(),
-            services: this.getAccomdationService(),
+            accomodations: this.getDropdownAccomodation(),
             provinces: this.getProvinces(),
         })
             .pipe(
                 finalize(() => {
                     this.loading = false
-                    this.servicesDisplayed = JSON.parse(JSON.stringify(this.services))
+                    this.selectedAccomodation = this.accomodations[0]
                 }),
             )
             .subscribe((response) => {
                 this.posts = response.posts.data
-                this.services = response.services.data
                 this.provices = response.provinces
+                this.accomodations = response.accomodations.data
             })
     }
 
@@ -317,11 +337,28 @@ export class PostComponent implements OnInit {
     }
 
     getPostByAccomodation() {
-        return this.postService.getByUserIdAndAccomodation(this.user?.id, this.selectedAccomodation.id)
+        return this.postService.getByUserId(this.user?.id)
     }
 
     onSelectAccomodation() {
-        this.initData()
+        console.log(this.selectedAccomodation)
+        this.existingProvince = this.findAddressByName(this.selectedAccomodation.provinceCode, this.provices)
+        this.postForm.get('province')?.setValue(this.existingProvince )        
+        this.postForm.get('addressLine')?.setValue(this.selectedAccomodation.addressLine) 
+        this.loading = true
+        this.getFullAddress().pipe(
+            finalize(() => {
+                this.existingDistrict = this.findAddressByName(this.selectedAccomodation.districtCode, this.districts)
+                this.existingWard = this.findAddressByName(this.selectedAccomodation.wardCode, this.wards)
+                this.postForm.get('district')?.setValue(this.existingDistrict)  
+                this.postForm.get('ward')?.setValue(this.existingWard)   
+                this.loading = false    
+                this.postDialog = true
+            })
+        ).subscribe((response: any) => {
+            this.districts = response.districts.districts
+            this.wards = response.wards.wards
+        })
     }
 
     hideDialog() {
@@ -339,12 +376,20 @@ export class PostComponent implements OnInit {
                 message = 'Thêm thành công'
             }
             this.post.userId = this.user?.id
+            const request: FormData = new FormData()
+            for (let i = 0; i < this.selectedFiles.length; i++) {
+                request.append('file', this.selectedFiles[i])
+            }
+            request.append('data', JSON.stringify(this.post))
+            console.log(request)
             this.postService
-                .savePost(this.post)
+                .savePost(request)
                 .pipe(
                     finalize(() => {
                         this.initData()
                         this.post = {}
+                        this.previewImage = []
+                        this.selectedFiles = []
                         this.postDialog = false
                         this.messageService.add({ severity: 'success', summary: 'Thành công', detail: message, life: 3000 })
                     }),
@@ -353,25 +398,6 @@ export class PostComponent implements OnInit {
         } else {
             this.postForm.markAllAsTouched()
         }
-    }
-
-    changeStatusPost(status: boolean) {
-        this.loading = true
-        this.post.isActive = status
-        let message: string
-        if (status) {
-            message = 'Gỡ bài đăng thành công'
-        } else {
-            message = 'Đăng bài thành công'
-        }
-
-        this.postService.changeStatusPost(this.post).pipe(
-            finalize(() => {
-                this.initData()
-                this.post = {}
-                this.messageService.add({ severity: 'success', summary: 'Thành công', detail: message, life: 3000 })
-            }),
-        ).subscribe()
     }
 
     getById(id: any, source: any[]) {
@@ -408,6 +434,8 @@ export class PostComponent implements OnInit {
 
     onHideDialog() {
         this.selectedServices = []
+        this.previewImage = []
+        this.selectedFiles = []
         this.servicesDisplayed = JSON.parse(JSON.stringify(this.services))
         this.postForm.reset()
     }
@@ -438,6 +466,34 @@ export class PostComponent implements OnInit {
     onUpload(e: any) {
         console.log(e)
         this.getImagesByPost()
+    }
+
+    deleteImage(index: number) {
+        this.previewImage.splice(index, 1)
+        this.selectedFiles.splice(index, 1)
+        if (this.post) {
+            console.log('next')
+        }
+    }
+
+    selectFile(event: any): void {
+        const files = event.target.files
+        if (files) {
+            for (let i = 0; i < files.length; i++) {
+                const file: File = files[i]
+                this.selectedFiles.push(file)
+                if (file) {
+                    this.currentFile = file
+                    const reader = new FileReader()
+                    
+                    reader.onload = (e: any) => {
+                        this.previewImage.push(e.target.result)
+                        console.log(this.previewImage)
+                    }
+                    reader.readAsDataURL(this.currentFile)
+                }
+            }
+        }
     }
 
     onGlobalFilter(table: Table, event: Event) {

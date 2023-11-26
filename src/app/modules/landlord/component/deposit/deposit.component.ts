@@ -73,6 +73,10 @@ export class DepositComponent implements OnInit {
     tentant: Tenant = {}
     tenantForm: FormGroup
     tenantDialog: boolean = false
+    emailLoading: boolean = false
+    phoneLoading: boolean = false
+    oldEmail: any = ''
+    oldPhone: any = ''
 
     constructor(
         private accomodationService: AccomodationService,
@@ -176,6 +180,9 @@ export class DepositComponent implements OnInit {
                 } else {
                     this.depositForm.get('phone')?.setErrors(null)
                 }
+                if (this.oldPhone !== this.tentant.phone && this.depositForm.get('phone')?.valid) {
+                    this.checkDuplicatedTenantPhone()
+                }
             }
         })
         this.depositForm.get('email')?.valueChanges.subscribe((data) => {
@@ -186,6 +193,9 @@ export class DepositComponent implements OnInit {
                     this.depositForm.get('email')?.setErrors({mailInvalid: true})
                 } else {
                     this.depositForm.get('email')?.setErrors(null)
+                }
+                if (this.oldEmail !== this.tentant.email && this.depositForm.get('email')?.valid) {
+                    this.checkDuplicatedTenantEmail()
                 }
             }
         })
@@ -279,6 +289,9 @@ export class DepositComponent implements OnInit {
                 } else {
                     this.tenantForm.get('phone')?.setErrors(null)
                 }
+                if (this.oldPhone !== this.tentant.phone && this.tenantForm.get('phone')?.valid) {
+                    this.checkDuplicatedPhone()
+                }
             }
         })
         this.tenantForm.get('email')?.valueChanges.subscribe((data) => {
@@ -289,6 +302,9 @@ export class DepositComponent implements OnInit {
                     this.tenantForm.get('email')?.setErrors({mailInvalid: true})
                 } else {
                     this.tenantForm.get('email')?.setErrors(null)
+                }
+                if (this.oldEmail !== this.tentant.email && this.tenantForm.get('email')?.valid) {
+                    this.checkDuplicatedEmail()
                 }
             }
         })
@@ -301,11 +317,50 @@ export class DepositComponent implements OnInit {
     checkDuplicated() {
         let isDuplicated = false;
         this.isValidating = true
-        this.tenantService.checkDuplicated(this.tentant.identifyNum).pipe(
+        this.tenantService.checkDuplicatedIdentify(this.tentant.identifyNum).pipe(
             finalize(() => {
                 this.isValidating = false
                 if (isDuplicated) {
                     this.tenantForm.get('identifyNum')?.setErrors({duplicated: true})
+                }
+            })
+        ).subscribe(response => isDuplicated = response.data)
+    }
+
+    checkDuplicatedIdentify() {
+        let isDuplicated = false;
+        this.isValidating = true
+        this.tenantService.checkDuplicatedIdentify(this.tentant.identifyNum).pipe(
+            finalize(() => {
+                this.isValidating = false
+                if (isDuplicated) {
+                    this.tenantForm.get('identifyNum')?.setErrors({duplicated: true})
+                }
+            })
+        ).subscribe(response => isDuplicated = response.data)
+    }
+
+    checkDuplicatedEmail() {
+        let isDuplicated = false;
+        this.emailLoading = true
+        this.tenantService.checkDuplicatedEmail(this.tentant.email).pipe(
+            finalize(() => {
+                this.emailLoading = false
+                if (isDuplicated) {
+                    this.tenantForm.get('email')?.setErrors({duplicated: true})
+                }
+            })
+        ).subscribe(response => isDuplicated = response.data)
+    }
+
+    checkDuplicatedPhone() {
+        let isDuplicated = false;
+        this.phoneLoading = true
+        this.tenantService.checkDuplicatedPhone(this.tentant.phone).pipe(
+            finalize(() => {
+                this.phoneLoading = false
+                if (isDuplicated) {
+                    this.tenantForm.get('phone')?.setErrors({duplicated: true})
                 }
             })
         ).subscribe(response => isDuplicated = response.data)
@@ -363,6 +418,8 @@ export class DepositComponent implements OnInit {
 
     newTenant() {
         this.tentant = {}
+        this.oldEmail = ''
+        this.oldPhone = ''
         this.tenantForm.get('firstName')?.setValue(null)
         this.tenantForm.get('lastName')?.setValue(null)
         this.tenantForm.get('startDate')?.setValue(null)
@@ -401,11 +458,37 @@ export class DepositComponent implements OnInit {
     checkDuplicatedTenant() {
         let isDuplicated = false;
         this.isValidating = true
-        this.tenantService.checkDuplicated(this.deposit.identifyNum).pipe(
+        this.tenantService.checkDuplicatedIdentify(this.deposit.identifyNum).pipe(
             finalize(() => {
                 this.isValidating = false
                 if (isDuplicated) {
                     this.depositForm.get('identifyNum')?.setErrors({duplicated: true})
+                }
+            })
+        ).subscribe(response => isDuplicated = response.data)
+    }
+
+    checkDuplicatedTenantEmail() {
+        let isDuplicated = false;
+        this.emailLoading = true
+        this.tenantService.checkDuplicatedEmail(this.deposit.email).pipe(
+            finalize(() => {
+                this.emailLoading = false
+                if (isDuplicated) {
+                    this.depositForm.get('email')?.setErrors({duplicated: true})
+                }
+            })
+        ).subscribe(response => isDuplicated = response.data)
+    }
+
+    checkDuplicatedTenantPhone() {
+        let isDuplicated = false;
+        this.phoneLoading = true
+        this.tenantService.checkDuplicatedPhone(this.deposit.phone).pipe(
+            finalize(() => {
+                this.phoneLoading = false
+                if (isDuplicated) {
+                    this.depositForm.get('phone')?.setErrors({duplicated: true})
                 }
             })
         ).subscribe(response => isDuplicated = response.data)
@@ -468,6 +551,8 @@ export class DepositComponent implements OnInit {
         this.addDialog = true
         this.isAddNew = true
         this.oldIdentifyNum = ''
+        this.oldEmail = ''
+        this.oldPhone = ''
         this.depositForm.get('startDate')?.setValue(null)
         this.depositForm.get('dueDate')?.setValue(null)
         this.depositForm.get('note')?.setValue(null)
@@ -512,6 +597,8 @@ export class DepositComponent implements OnInit {
 
     onChangeTenant() {
         this.oldIdentifyNum = this.selectedTenant.identifyNum
+        this.oldEmail = this.selectedTenant.email
+        this.oldPhone = this.selectedTenant.phone
         this.depositForm.get('firstName')?.setValue(this.selectedTenant.firstName)
         this.depositForm.get('lastName')?.setValue(this.selectedTenant.lastName)
         this.depositForm.get('identifyNum')?.setValue(this.selectedTenant.identifyNum)

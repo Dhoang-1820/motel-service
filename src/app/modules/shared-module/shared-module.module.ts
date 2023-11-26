@@ -38,9 +38,10 @@ import { OnlyNumberDirective } from '../directive/only-number.directive';
 
 
 @NgModule({
-  declarations: [OnlyNumberDirective],
+  declarations: [],
   imports: [
-    CommonModule
+    CommonModule,
+    OnlyNumberDirective,
   ],
   exports: [
     EditorModule,
@@ -54,6 +55,7 @@ import { OnlyNumberDirective } from '../directive/only-number.directive';
     ButtonModule,
     ToastModule,
     ToolbarModule,
+    OnlyNumberDirective,
     FileUploadModule,
     TableModule,
     DialogModule,
@@ -78,7 +80,7 @@ import { OnlyNumberDirective } from '../directive/only-number.directive';
     MenuModule,
     MultiSelectModule,
     PickListModule,
-    OnlyNumberDirective
+    
   ],
 })
 export class SharedModuleModule { }

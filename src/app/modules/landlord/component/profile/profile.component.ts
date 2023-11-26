@@ -35,6 +35,7 @@ export class ProfileManagement implements OnInit {
     updateBankLoading: boolean = false
     deleteBankDialog: boolean = false
     deleteBankLoading: boolean = false
+    userForm: FormGroup
 
     constructor(private authenticationService: AuthenticationService, private userService: UserService, private messageService: MessageService) {
         this.authenticationService.user.subscribe((user) => (this.user = user))
@@ -42,6 +43,15 @@ export class ProfileManagement implements OnInit {
             currentPass: new FormControl('', [Validators.required]),
             newPass: new FormControl('', [Validators.required]),
             confirmedPass: new FormControl('', [Validators.required]),
+        })
+
+        this.userForm = new FormGroup({
+            firstname: new FormControl(this.userResult?.firstname, [Validators.required]),
+            lastname: new FormControl(this.userResult?.lastname, [Validators.required]),
+            phone: new FormControl(this.userResult?.phone, []),
+            identifyNum: new FormControl(this.userResult?.identifyNum, []),
+            email: new FormControl(this.userResult?.email, [Validators.required]),
+            address: new FormControl(this.userResult?.address, []),
         })
     }
 
@@ -70,7 +80,55 @@ export class ProfileManagement implements OnInit {
                 this.passwordForm.get('confirmedPass')?.setErrors({ incorrect: true })
             }
         })
+
+        this.userForm.get('firstname')?.valueChanges.subscribe(data => {
+            this.userResult.firstname = data
+        })
+        this.userForm.get('lastname')?.valueChanges.subscribe(data => {
+            this.userResult.lastname = data
+        })
+        this.userForm.get('phone')?.valueChanges.subscribe(data => {
+            if (data) {
+                this.userResult.phone = data
+                this.validatePhoneNumber(data)
+            }
+        })
+        this.userForm.get('identifyNum')?.valueChanges.subscribe(data => {
+            this.userResult.identifyNum = data
+        })
+        this.userForm.get('email')?.valueChanges.subscribe(data => {
+            if (data) {
+                this.userResult.email = data
+                this.validateGmail(data)
+            }
+        })
+        this.userForm.get('address')?.valueChanges.subscribe(data => {
+            this.userResult.address = data
+        })
     }
+
+    validateGmail(email: string) {
+        const isValid = email.toLowerCase().match(
+            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        )
+        if (!isValid) {
+            this.userForm.get('email')?.setErrors({mailInvalid: true})
+        } else {
+            this.userForm.get('email')?.setErrors(null)
+        }
+    }
+
+    validatePhoneNumber(phone: string) {
+        const isValid = phone.toLowerCase().match(
+            /(84|0[3|5|7|8|9])+([0-9]{8})\b/g
+        )
+        if (!isValid) {
+            this.userForm.get('phone')?.setErrors({phoneInvalid: true})
+        } else {
+            this.userForm.get('phone')?.setErrors(null)
+        }
+    }
+
 
     onUpload(event: any) {
         if (event.target.files && event.target.files[0]) {
@@ -83,6 +141,15 @@ export class ProfileManagement implements OnInit {
         }
     }
 
+    fillData() {
+        this.userForm.get('firstname')?.setValue(this.userResult.firstname)
+        this.userForm.get('lastname')?.setValue(this.userResult.lastname)
+        this.userForm.get('phone')?.setValue(this.userResult.phone)
+        this.userForm.get('identifyNum')?.setValue(this.userResult.identifyNum)
+        this.userForm.get('email')?.setValue(this.userResult.email)
+        this.userForm.get('address')?.setValue(this.userResult.address)
+    }
+
     getUser() {
         this.loading = true
         this.userService
@@ -90,6 +157,7 @@ export class ProfileManagement implements OnInit {
             .pipe(
                 finalize(() => {
                     this.loading = false
+                    this.fillData()
                 }),
             )
             .subscribe((result) => (this.userResult = result.data))

@@ -329,7 +329,7 @@ export class BookingComponent implements OnInit {
     checkDuplicatedTenant() {
         let isDuplicated = false;
         this.isValidating = true
-        this.tenantService.checkDuplicated(this.deposit.identifyNum).pipe(
+        this.tenantService.checkDuplicatedIdentify(this.deposit.identifyNum).pipe(
             finalize(() => {
                 this.isValidating = false
                 if (isDuplicated) {
@@ -710,7 +710,7 @@ export class BookingComponent implements OnInit {
     checkDuplicated() {
         let isDuplicated = false;
         this.isValidating = true
-        this.tenantService.checkDuplicated(this.tentant.identifyNum).pipe(
+        this.tenantService.checkDuplicatedIdentify(this.tentant.identifyNum).pipe(
             finalize(() => {
                 this.isValidating = false
                 if (isDuplicated) {
