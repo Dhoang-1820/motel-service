@@ -47,7 +47,7 @@ export class AuthComponent implements OnInit {
             firstname: new FormControl(this.signUpRequest.firstname, [Validators.required]),
             lastname: new FormControl(this.signUpRequest.lastname, [Validators.required]),
             email: new FormControl(this.signUpRequest.email, [Validators.required]),
-            phone: new FormControl(this.signUpRequest.phone, [Validators.required]),
+            phone: new FormControl(this.signUpRequest.phone, []),
             username: new FormControl(this.signUpRequest.userName, [Validators.required]),
             password: new FormControl(this.signUpRequest.password, [Validators.required]),
             rePassword: new FormControl(this.signUpRequest.password, [Validators.required]),
@@ -218,6 +218,7 @@ export class AuthComponent implements OnInit {
                 .pipe(
                     finalize(() => {
                         this.loading = false
+                        this.isLogin = true
                         this.messageService.add({ severity: 'success', summary: 'Thành công', detail: 'Đăng ký thành công', life: 3000 })
                     }),
                 )

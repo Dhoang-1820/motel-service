@@ -48,7 +48,7 @@ export class ContractComponent implements OnInit {
 
     loadingChild: boolean = false
     isAddNew: boolean = false
-    selectedTenants: any = []
+    selectedTenants: any[] = []
     selectedTenant: Tenant | null = null
 
     roomPresent: any
@@ -403,6 +403,9 @@ export class ContractComponent implements OnInit {
                             this.messageService.add({ severity: 'success', summary: 'Successful', detail: message, life: 3000 })
                             this.loading = false
                             this.tenantsDisplayed = JSON.parse(JSON.stringify(this.tenants))
+                            if (this.depositor) {
+                                this.tenantsDisplayed = this.tenantsDisplayed.filter(tenant => tenant.id !== this.depositor.id)
+                            }
                         })
                     ).subscribe(response => this.tenants = response.data)
                 }),

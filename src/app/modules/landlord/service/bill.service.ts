@@ -88,4 +88,15 @@ export class BillService {
     removeInvoice(invoiceId: any): Observable<any> {
         return this.http.delete<any>(`${environment.apiUrl}/invoice/${invoiceId}`).pipe(retry(1), delay(1000))
     }
+
+    isCanRemoveElectricWater(request: any): Observable<any> {
+        return this.http.post<any>(`${environment.apiUrl}/invoice/check/electric-water`, request).pipe(
+            retry(1),
+            delay(1000)
+        )
+    }
+
+    removeEletricWater(id: any): Observable<any> {
+        return this.http.delete<any>(`${environment.apiUrl}/invoice/remove/electric-water/${id}`).pipe(retry(1), delay(1000))
+    }
 }

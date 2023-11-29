@@ -18,12 +18,19 @@ import { ReturnRoomComponent } from './component/return-room/return-room.compone
 import { PostComponent } from './component/post/post.component'
 import { BookingComponent } from './component/booking/booking.component'
 import { DashboardComponent } from './component/dashboard/dashboard.component'
+import { NgxPermissionsGuard } from 'ngx-permissions'
 
 const routes: Routes = [
     {
         path: '',
         component: LandlordComponent,
-        canActivate: [AuthGuard],
+        canActivate: [NgxPermissionsGuard],
+        data: {
+            permissions: {
+                only: ['ROLE_ADMIN', 'ROLE_LANDLORD'],
+                redirectTo: 'access-denined',
+            },
+        },
         children: [
             { path: '', redirectTo: 'accomodation', pathMatch: 'full'},
             { path: 'profile', component: ProfileManagement },

@@ -20,10 +20,10 @@
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                         <h5 class="m-0">Quản lý thiết bị</h5>
-                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                        <!-- <span class="block mt-2 md:mt-0 p-input-icon-left">
                             <i class="pi pi-search"></i>
                             <p-dropdown [showClear]="true" (onChange)="onFilterByRoom()" [(ngModel)]="filterRoom" optionLabel="name" optionValue="id" [options]="rooms" placeholder="Lọc theo phòng" > </p-dropdown>
-                        </span>
+                        </span> -->
                     </div>
                 </ng-template>
                 <ng-template pTemplate="header">
@@ -53,8 +53,8 @@
                         <td style="width:15%;">{{data.quantity}}</td>
                         <td style="width:15%;">
                             <div class="flex">
-                                <button *ngIf="filterRoom" pButton pRipple pTooltip="Chỉnh sửa" icon="pi pi-pencil" tooltipPosition="top" class="p-button-rounded p-button-success mr-2" (click)="editEquipment(data)"></button>
-                                <button pButton pRipple pTooltip="Xoá" icon="pi pi-trash" tooltipPosition="top" class="p-button-rounded p-button-warning mr-2" (click)="deleteRoom(data)"></button>
+                                <!-- <button *ngIf="filterRoom" pButton pRipple pTooltip="Chỉnh sửa" icon="pi pi-pencil" tooltipPosition="top" class="p-button-rounded p-button-success mr-2" (click)="editEquipment(data)"></button> -->
+                                <!-- <button pButton pRipple pTooltip="Xoá" icon="pi pi-trash" tooltipPosition="top" class="p-button-rounded p-button-warning mr-2" (click)="deleteRoom(data)"></button> -->
                             </div>
                         </td>
                     </tr>
@@ -177,12 +177,10 @@
             </ng-template>
         </p-dialog>
 
-        
-
         <p-dialog [(visible)]="deleteProductDialog" header="Confirm" [modal]="true" [style]="{width:'450px'}">
             <div class="flex align-items-center justify-content-center">
                 <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
-                <span *ngIf="equipment">Are you sure you want to delete <b>{{equipment.name}}</b>?</span>
+                <span *ngIf="equipment">Xác nhận xoá <b>{{equipment.name}}</b>?</span>
             </div>
             <ng-template pTemplate="footer">
                 <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteProductDialog = false"></button>

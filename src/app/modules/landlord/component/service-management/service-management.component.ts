@@ -1,3 +1,5 @@
+/** @format */
+
 import { Component, OnInit } from '@angular/core'
 import { FormControl, FormGroup, Validators } from '@angular/forms'
 import { MessageService } from 'primeng/api'
@@ -26,17 +28,14 @@ export class ServiceManagementComponent implements OnInit {
     deleteDialog: boolean = false
 
     services: AccomodationUtilities[] = []
-    service: AccomodationUtilities = {};
+    service: AccomodationUtilities = {}
     serviceForm: FormGroup
     units: String[] = AppConstant.UNITS
     isValidating: boolean = false
     oldName: any = ''
+    deleteLoading: boolean = false
 
-    constructor(
-        private accomodationService: AccomodationService,
-        private auth: AuthenticationService,
-        private messageService: MessageService,
-    ) {
+    constructor(private accomodationService: AccomodationService, private auth: AuthenticationService, private messageService: MessageService) {
         this.serviceForm = new FormGroup({
             name: new FormControl(this.service.name, [Validators.required]),
             price: new FormControl(this.service.price, [Validators.required]),
@@ -47,41 +46,44 @@ export class ServiceManagementComponent implements OnInit {
 
     ngOnInit() {
         this.user = this.auth.userValue
-        this.serviceForm.get('name')?.valueChanges.pipe(
-            debounceTime(500),
-            distinctUntilChanged()
-        ).subscribe(data => {
-            if (data) {
-                this.service.name = data
-                if (this.oldName !== this.service.name) {
-                    this.checkValidService()
+        this.serviceForm
+            .get('name')
+            ?.valueChanges.pipe(debounceTime(500), distinctUntilChanged())
+            .subscribe((data) => {
+                if (data) {
+                    this.service.name = data
+                    if (this.oldName !== this.service.name) {
+                        this.checkValidService()
+                    }
                 }
-            }
-        })
-        this.serviceForm.get('price')?.valueChanges.subscribe(data => {
+            })
+        this.serviceForm.get('price')?.valueChanges.subscribe((data) => {
             this.service.price = data
         })
-        this.serviceForm.get('unit')?.valueChanges.subscribe(data => {
+        this.serviceForm.get('unit')?.valueChanges.subscribe((data) => {
             this.service.unit = data
         })
-        this.serviceForm.get('description')?.valueChanges.subscribe(data => {
+        this.serviceForm.get('description')?.valueChanges.subscribe((data) => {
             this.service.description = data
         })
         this.getDropdownAccomodation()
     }
 
     checkValidService() {
-        let isValid = false;
+        let isValid = false
         this.isValidating = true
         this.service.accomodationId = this.selectedAccomodation.id
-        this.accomodationService.checkValidService(this.service).pipe(
-            finalize(() => {
-                this.isValidating = false
-                if (!isValid) {
-                    this.serviceForm.get('name')?.setErrors({nameExisted: true})
-                }
-            })
-        ).subscribe(response => isValid = response.data)
+        this.accomodationService
+            .checkValidService(this.service)
+            .pipe(
+                finalize(() => {
+                    this.isValidating = false
+                    if (!isValid) {
+                        this.serviceForm.get('name')?.setErrors({ nameExisted: true })
+                    }
+                }),
+            )
+            .subscribe((response) => (isValid = response.data))
     }
 
     onHideAddDialog() {
@@ -95,14 +97,16 @@ export class ServiceManagementComponent implements OnInit {
             .pipe(
                 finalize(() => {
                     this.selectedAccomodation = this.accomodations[0]
-                    this.getServiceByAccomodation().pipe(
-                        finalize(() => {
-                            this.loading = false
-                        })
-                    ).subscribe(response => this.services = response.data)
+                    this.getServiceByAccomodation()
+                        .pipe(
+                            finalize(() => {
+                                this.loading = false
+                            }),
+                        )
+                        .subscribe((response) => (this.services = response.data))
                 }),
             )
-            .subscribe(response => this.accomodations = response.data)
+            .subscribe((response) => (this.accomodations = response.data))
     }
 
     openNewService() {
@@ -120,18 +124,20 @@ export class ServiceManagementComponent implements OnInit {
     getServiceByAccomodation() {
         return this.accomodationService.getAccomodationService(this.selectedAccomodation.id)
     }
-    
+
     onSelectAccomodation() {
         this.loading = true
-        this.getServiceByAccomodation().pipe(
-            finalize(() => {
-                this.loading = false;
-            })
-        ).subscribe(response => this.services = response.data)
+        this.getServiceByAccomodation()
+            .pipe(
+                finalize(() => {
+                    this.loading = false
+                }),
+            )
+            .subscribe((response) => (this.services = response.data))
     }
 
     editService(service: AccomodationUtilities) {
-        this.service = {...service}
+        this.service = { ...service }
         this.oldName = service.name
         this.serviceForm.get('name')?.setValue(this.service.name)
         this.serviceForm.get('price')?.setValue(this.service.price)
@@ -145,10 +151,55 @@ export class ServiceManagementComponent implements OnInit {
             this.serviceForm.get('unit')?.enable()
         }
         this.addDialog = true
-    }  
+    }
 
-    deleteService(service: AccomodationUtilities) {
-        this.deleteDialog = true
+    isCanDelete(service: AccomodationUtilities) {
+        return this.accomodationService.isCanRemoveService(service)
+    }
+
+    deleteService(service: any) {
+        this.service = { ...service }
+        service.removeLoading = true
+        let result: boolean
+        this.isCanDelete(this.service)
+            .pipe(
+                finalize(() => {
+                    service.removeLoading = false
+                    if (result) {
+                        this.deleteDialog = true
+                    } else {
+                        this.messageService.add({
+                            severity: 'warn',
+                            summary: 'Cảnh báo',
+                            detail: 'Khu trọ đang được sử dụng không thể xoá, vui lòng liên hệ admin để được trợ giúp!',
+                            life: 5000,
+                        })
+                        this.service = {}
+                    }
+                }),
+            )
+            .subscribe((response) => (result = response.data))
+    }
+
+    confirmDelete() {
+        this.deleteLoading = true
+        this.accomodationService
+            .removeService(this.service.id)
+            .pipe(
+                finalize(() => {
+                    this.getServiceByAccomodation()
+                        .pipe(
+                            finalize(() => {
+                                this.deleteDialog = false
+                                this.deleteLoading = false
+                                this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Xoá thành công', life: 3000 })
+                                this.service = {}
+                            }),
+                        )
+                        .subscribe((response) => (this.services = response.data))
+                }),
+            )
+            .subscribe()
     }
 
     hideDialog() {
@@ -156,28 +207,28 @@ export class ServiceManagementComponent implements OnInit {
     }
 
     saveService() {
-       if (!this.serviceForm.invalid) {
-        this.loading = true
-        let message: string
-        if (this.service.id) {
-            message = 'Chỉnh sửa thành công'
+        if (!this.serviceForm.invalid) {
+            this.loading = true
+            let message: string
+            if (this.service.id) {
+                message = 'Chỉnh sửa thành công'
+            } else {
+                message = 'Thêm thành công'
+            }
+            this.service.accomodationId = this.selectedAccomodation.id
+            this.accomodationService
+                .saveService(this.service)
+                .pipe(
+                    finalize(() => {
+                        this.loading = false
+                        this.messageService.add({ severity: 'success', summary: 'Successful', detail: message, life: 3000 })
+                    }),
+                )
+                .subscribe((response) => (this.services = response.data))
+            this.addDialog = false
         } else {
-            message = 'Thêm thành công'
+            this.serviceForm.markAllAsTouched()
         }
-        this.service.accomodationId = this.selectedAccomodation.id
-        this.accomodationService
-            .saveService(this.service)
-            .pipe(
-                finalize(() => {
-                    this.loading = false
-                    this.messageService.add({ severity: 'success', summary: 'Successful', detail: message, life: 3000 })
-                }),
-            )
-            .subscribe(response => this.services = response.data)
-        this.addDialog = false
-       } else {
-        this.serviceForm.markAllAsTouched()
-       }
     }
 
     onGlobalFilter(table: Table, event: Event) {

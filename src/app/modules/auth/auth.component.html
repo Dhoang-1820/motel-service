@@ -68,8 +68,9 @@
                     <div class="p-fluid">
                         <form [formGroup]="signupForm">
                             <div class="mb-3">
+                                <label for="firstname" class="block text-900 text-xl font-medium mb-2">Họ <span
+                                        class="mandatory-sign">*</span></label>
                                 <div class="input-box">
-                                    <label for="firstname" class="block text-900 text-xl font-medium mb-2">Họ</label>
                                     <input id="firstname" type="text" formControlName="firstname" placeholder="Họ"
                                         pInputText class="w-full md:w-30rem" style="padding:1rem"
                                         [ngClass]="{'ng-invalid ng-dirty' : signupForm.controls['firstname'].invalid && (signupForm.controls['firstname'].dirty || signupForm.controls['firstname'].touched)}">
@@ -79,8 +80,9 @@
                                     lòng nhập họ.</small>
                             </div>
                             <div class="mb-3">
+                                <label for="lastname" class="block text-900 text-xl font-medium mb-2">Tên <span
+                                        class="mandatory-sign">*</span></label>
                                 <div class="input-box">
-                                    <label for="lastname" class="block text-900 text-xl font-medium mb-2">Tên</label>
                                     <input id="lastname" type="text" formControlName="lastname" placeholder="Tên"
                                         pInputText class="w-full md:w-30rem" style="padding:1rem"
                                         [ngClass]="{'ng-invalid ng-dirty' : signupForm.controls['lastname'].invalid && (signupForm.controls['lastname'].dirty || signupForm.controls['lastname'].touched)}">
@@ -91,8 +93,9 @@
                             </div>
 
                             <div class="mb-3">
+                                <label for="email" class="block text-900 font-medium text-xl mb-2">Email <span
+                                        class="mandatory-sign">*</span></label>
                                 <div class="input-box">
-                                    <label for="email" class="block text-900 font-medium text-xl mb-2">Email</label>
                                     <span class="p-input-icon-right">
                                         <i class="pi pi-spin pi-spinner" *ngIf="isValidating"></i>
                                         <div class="input-box">
@@ -115,9 +118,9 @@
 
                             </div>
                             <div class="mb-3">
+                                <label for="phone" class="block text-900 font-medium text-xl mb-2">Số điện
+                                    thoại <span class="mandatory-sign">*</span></label>
                                 <div class="input-box">
-                                    <label for="phone" class="block text-900 font-medium text-xl mb-2">Số điện
-                                        thoại</label>
                                     <input id="phone" type="text" formControlName="phone" placeholder="Số điện thoại"
                                         pInputText styleClass="mb-3" class="w-full md:w-30rem" style="padding:1rem"
                                         [ngClass]="{'ng-invalid ng-dirty' : signupForm.controls['phone'].invalid && (signupForm.controls['phone'].dirty || signupForm.controls['phone'].touched)}">
@@ -133,7 +136,7 @@
                             <div class="mb-3">
                                 <div class="input-box">
                                     <label for="username" class="block text-900 text-xl font-medium mb-2">Tên đăng
-                                        nhập</label>
+                                        nhập <span class="mandatory-sign">*</span></label>
                                     <span class="p-input-icon-right">
                                         <i class="pi pi-spin pi-spinner" *ngIf="isValidateUserName"></i>
                                         <div class="input-box">
@@ -153,9 +156,9 @@
                                     đã tồn tại.</small>
                             </div>
                             <div class="mb-3">
+                                <label for="password" class="block text-900 font-medium text-xl mb-2">Mật
+                                    khẩu <span class="mandatory-sign">*</span></label>
                                 <div class="input-box">
-                                    <label for="password" class="block text-900 font-medium text-xl mb-2">Mật
-                                        khẩu</label>
                                     <input id="password" type="password" formControlName="password" autocomplete="off"
                                         placeholder="Mật khẩu" pInputText styleClass="mb-3" class="w-full md:w-30rem"
                                         style="padding:1rem"
@@ -166,10 +169,10 @@
                                     lòng nhập mật khẩu.</small>
                             </div>
                             <div class="mb-4">
+                                <label for="re-password" class="block text-900 font-medium text-xl mb-2">Nhập lại
+                                    mật
+                                    khẩu <span class="mandatory-sign">*</span></label>
                                 <div class="input-box">
-                                    <label for="re-password" class="block text-900 font-medium text-xl mb-2">Nhập lại
-                                        mật
-                                        khẩu</label>
                                     <input id="re-password" type="password" formControlName="rePassword"
                                         placeholder="Nhập lại mật khẩu" pInputText styleClass="mb-3"
                                         class="w-full md:w-30rem" style="padding:1rem"
@@ -187,11 +190,11 @@
                             class="w-full p-3 text-xl" (click)="signUp()"></button>
                     </div>
                     <div class="mt-5">
-                        <a (click)="isLogin = true"
-                        class="font-medium no-underline text-right cursor-pointer"
-                        style="color: var(--primary-color)"><i class="pi pi-arrow-left"></i>  Quay lại đăng nhập</a></div>
+                        <a (click)="isLogin = true" class="font-medium no-underline text-right cursor-pointer"
+                            style="color: var(--primary-color)"><i class="pi pi-arrow-left"></i> Quay lại đăng nhập</a>
+                    </div>
                 </ng-container>
-                
+
             </div>
         </div>
     </div>

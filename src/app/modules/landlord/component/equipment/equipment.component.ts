@@ -151,7 +151,7 @@ export class EquipmentComponent implements OnInit {
             let child: any
             this.loading = true
             this.equipmentService
-            .getByName(equipment.name)
+            .getByName(equipment.name, this.selectedAccomodation.id)
             .pipe(
                 finalize(() => {
                     this.loading = false
@@ -201,13 +201,7 @@ export class EquipmentComponent implements OnInit {
             this.filterRoom = null
         }
         this.loading = true
-        this.getEquipByAccomodation()
-            .pipe(
-                finalize(() => {
-                    this.loading = false
-                }),
-            )
-            .subscribe((response) => (this.equipments = response.data))
+        this.getRoomsAndEqip()
     }
 
     editEquipment(equipment: Equipment) {
@@ -230,7 +224,14 @@ export class EquipmentComponent implements OnInit {
     }
 
     confirmDelete() {
-        this.deleteProductDialog = false
+        this.loading = true
+        this.equipmentService.deleleById(this.equipment.id).pipe(
+            finalize(() => {
+                this.deleteProductDialog = false
+                this.expandedRows = {}
+                this.getRoomsAndEqip()
+            })
+        ).subscribe()
     }
 
     hideDialog() {

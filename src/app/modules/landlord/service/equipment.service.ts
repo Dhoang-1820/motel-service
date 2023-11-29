@@ -21,11 +21,11 @@ export class EquipmentService {
         return this.http.get<any>(`${environment.apiUrl}/equipment/room/${roomId}`).pipe(retry(1), delay(1000))
     }
 
-    getByName(name: String): Observable<any> {
-        return this.http.get<any>(`${environment.apiUrl}/equipment?name=${name}`).pipe(retry(1), delay(1000))
+    getByName(name: String, accomodationId: number): Observable<any> {
+        return this.http.get<any>(`${environment.apiUrl}/equipment?name=${name}&accomodationId=${accomodationId}`).pipe(retry(1), delay(1000))
     }
 
-    deleleById(equipmentId: Number): Observable<any> {
+    deleleById(equipmentId: any): Observable<any> {
         return this.http.delete<any>(`${environment.apiUrl}/equipment/${equipmentId}`).pipe(retry(1), delay(1000))
     }
 }

@@ -160,7 +160,7 @@ export class RoomComponent implements OnInit {
     checkRoomDuplicated() {
         let isDuplicated = false;
         this.isValidating = true
-        this.roomService.checkRoomDuplicated(this.room.name).pipe(
+        this.roomService.checkRoomDuplicated(this.room.name, this.selectedAccomodation.id).pipe(
             finalize(() => {
                 this.isValidating = false
                 if (isDuplicated) {

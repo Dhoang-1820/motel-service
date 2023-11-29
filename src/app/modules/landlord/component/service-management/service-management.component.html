@@ -16,7 +16,7 @@
                 </ng-template>
             </p-toolbar>
 
-            <p-table #dt [value]="services" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['name','unit','description']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]"  selectionMode="multiple" [rowHover]="true" dataKey="id">
+            <p-table #dt [value]="services" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['name','unit','price']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]"  selectionMode="multiple" [rowHover]="true" dataKey="id">
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                         <h5 class="m-0">Quản lý dịch vụ</h5>
@@ -44,7 +44,7 @@
                         <td>
                             <div class="flex">
                                 <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editService(data)"></button>
-                                <button pButton pRipple icon="pi pi-trash" [pTooltip]="data.isDefault ? 'Không thể xoá dịch vụ mặc định' : 'Xoá'" tooltipPosition="top" [disabled]="data.isDefault" class="p-button-rounded p-button-warning" (click)="deleteService(data)"></button>
+                                <button pButton pRipple icon="pi pi-trash" [loading]="data.removeLoading" [pTooltip]="data.isDefault ? 'Không thể xoá dịch vụ mặc định' : 'Xoá'" tooltipPosition="top" [disabled]="data.isDefault" class="p-button-rounded p-button-warning" (click)="deleteService(data)"></button>
                             </div>
                         </td>
                     </tr>
@@ -96,11 +96,11 @@
         <p-dialog [(visible)]="deleteDialog" header="Xác nhận xoá dịch vụ" [modal]="true" [style]="{width:'450px'}">
             <div class="flex align-items-center justify-content-center">
                 <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
-                <span>Dịch vụ sẽ bị xoá vĩnh viễn?</span>
+                <span>Xác nhận xoá {{service.name}}</span>
             </div>
             <ng-template pTemplate="footer">
                 <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteDialog = false"></button>
-                <!-- <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDeleteRoomFee()"></button> -->
+                <button pButton pRipple icon="pi pi-check" [loading]="deleteLoading" class="p-button-text" label="Yes" (click)="confirmDelete()"></button>
             </ng-template>
         </p-dialog>
     </div>

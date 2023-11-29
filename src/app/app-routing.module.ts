@@ -2,21 +2,16 @@
 
 import { NgModule } from '@angular/core'
 import { RouterModule, Routes } from '@angular/router'
-import { AccessDeninedComponent } from './modules/auth/access-denined/access-denined.component'
 import { NgxPermissionsGuard } from 'ngx-permissions'
+import { AccessDeninedComponent } from './modules/auth/access-denined/access-denined.component'
+import { AuthGuard } from './modules/auth/helper/auth.guard'
 import { PageNotFoundComponent } from './modules/auth/page-not-found/page-not-found.component'
 
 const routes: Routes = [
     {
         path: 'motel-management',
         loadChildren: () => import('./modules/landlord/landlord.module').then((m) => m.LandlordModule),
-        canActivate: [NgxPermissionsGuard],
-        data: {
-            permissions: {
-                only: ['ROLE_ADMIN', 'ROLE_LANDLORD'],
-                redirectTo: 'access-denined',
-            },
-        },
+        canActivate: [AuthGuard]
     },
     {
         path: '',
@@ -27,13 +22,7 @@ const routes: Routes = [
     {
         path: 'administration',
         loadChildren: () => import('./modules/admin/admin.module').then((m) => m.AdminModule),
-        canActivate: [NgxPermissionsGuard],
-        data: {
-            permissions: {
-                only: ['ROLE_ADMIN'],
-                redirectTo: 'access-denined',
-            },
-        },
+        canActivate: [AuthGuard],
     },
     {
         path: 'page-not-found', component: PageNotFoundComponent 

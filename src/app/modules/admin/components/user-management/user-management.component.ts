@@ -1,3 +1,5 @@
+/** @format */
+
 import { Component, OnInit } from '@angular/core'
 import { MessageService } from 'primeng/api'
 import { Table } from 'primeng/table'
@@ -6,6 +8,7 @@ import { AuthenticationService } from 'src/app/modules/auth/service/authenticati
 import { Room } from 'src/app/modules/landlord/model/accomodation.model'
 import { User } from 'src/app/modules/model/user.model'
 import { UserManagementService } from '../../services/user-management.service'
+import { FormGroup, FormControl, Validators } from '@angular/forms'
 
 @Component({
     selector: 'app-user-management',
@@ -19,26 +22,122 @@ export class UserManagementComponent implements OnInit {
     users: any[] = []
     userSelected: any = {}
     selectedProducts: Room[] = []
-    submitted: boolean = false
     cols: any[] = []
     statuses: any[] = []
     rowsPerPageOptions = [5, 10, 20]
     user!: User | null
     dataLoading: boolean = false
     loading: boolean = false
+    userResult: any
 
-    constructor(private auth: AuthenticationService, private messageService: MessageService, private userService: UserManagementService) {}
+    userForm: FormGroup
+
+
+    constructor(private auth: AuthenticationService, private messageService: MessageService, private userService: UserManagementService) {
+
+        this.userForm = new FormGroup({
+            firstname: new FormControl(this.userSelected?.firstName, [Validators.required]),
+            lastname: new FormControl(this.userSelected?.lastName, [Validators.required]),
+            phone: new FormControl(this.userSelected?.phone, []),
+            identifyNum: new FormControl(this.userSelected?.identifyNum, []),
+            email: new FormControl(this.userSelected?.email, [Validators.required]),
+            address: new FormControl(this.userSelected?.address, []),
+            status: new FormControl(this.userSelected?.active, [Validators.required]),
+            role: new FormControl(this.userSelected?.role, [Validators.required]),
+        })
+    }
 
     ngOnInit() {
         this.user = this.auth.userValue
         this.getAllUsers().subscribe((response) => (this.users = response.data))
+
+        this.userForm.get('firstname')?.valueChanges.subscribe(data => {
+            this.userSelected.firstName = data
+        })
+        this.userForm.get('lastname')?.valueChanges.subscribe(data => {
+            this.userSelected.lastName = data
+        })
+        this.userForm.get('phone')?.valueChanges.subscribe(data => {
+            if (data) {
+                this.userSelected.phone = data
+                this.validatePhoneNumber(data)
+            }
+        })
+        this.userForm.get('identifyNum')?.valueChanges.subscribe(data => {
+            this.userSelected.identifyNum = data
+        })
+        this.userForm.get('email')?.valueChanges.subscribe(data => {
+            if (data) {
+                this.userSelected.email = data
+                this.validateGmail(data)
+            }
+        })
+        this.userForm.get('address')?.valueChanges.subscribe(data => {
+            this.userSelected.address = data
+        })
+        this.userForm.get('status')?.valueChanges.subscribe(data => {
+            this.userSelected.active = data
+        })
+        this.userForm.get('role')?.valueChanges.subscribe(data => {
+            this.userSelected.role = data
+        })
+    }
+    
+
+    validateGmail(email: string) {
+        const isValid = email.toLowerCase().match(
+            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        )
+        if (!isValid) {
+            this.userForm.get('email')?.setErrors({mailInvalid: true})
+        } else {
+            this.userForm.get('email')?.setErrors(null)
+        }
+    }
+
+    validatePhoneNumber(phone: string) {
+        const isValid = phone.toLowerCase().match(
+            /(84|0[3|5|7|8|9])+([0-9]{8})\b/g
+        )
+        if (!isValid) {
+            this.userForm.get('phone')?.setErrors({phoneInvalid: true})
+        } else {
+            this.userForm.get('phone')?.setErrors(null)
+        }
+    }
+
+    fillData() {
+        this.userForm.get('firstname')?.setValue(this.userSelected.firstName)
+        this.userForm.get('lastname')?.setValue(this.userSelected.lastName)
+        this.userForm.get('phone')?.setValue(this.userSelected.phone)
+        this.userForm.get('identifyNum')?.setValue(this.userSelected.identifyNum)
+        this.userForm.get('email')?.setValue(this.userSelected.email)
+        this.userForm.get('address')?.setValue(this.userSelected.address)
+        this.userForm.get('role')?.setValue(this.userSelected.role)
+        this.userForm.get('status')?.setValue(this.userSelected.active)
     }
 
     openNew() {
         this.userSelected = {}
-        this.userSelected.active = true
-        this.submitted = false
+        this.userForm.get('firstname')?.setValue(null)
+        this.userForm.get('lastname')?.setValue(null)
+        this.userForm.get('phone')?.setValue(null)
+        this.userForm.get('identifyNum')?.setValue(null)
+        this.userForm.get('email')?.setValue(null)
+        this.userForm.get('address')?.setValue(null)
+        this.userForm.get('role')?.setValue('ROLE_LANDLORD')
+        this.userForm.get('status')?.setValue(true)
         this.userDialog = true
+    }
+
+    onHideForm() {
+        this.userForm.reset()
+    }
+
+    changeUserStatus(userSelected: any, status: boolean) {
+        this.userSelected = { ...userSelected }
+        this.userSelected.active = status
+        this.saveUser()
     }
 
     getAllUsers() {
@@ -50,31 +149,24 @@ export class UserManagementComponent implements OnInit {
         )
     }
 
-    editProduct(userSelected: any) {
-        console.log(this.userSelected)
+    editUser(userSelected: any) {
         this.userSelected = { ...userSelected }
+        console.log(this.userSelected)
+        this.fillData()
         this.userDialog = true
     }
 
-    deleteProduct(userSelected: any) {
+    deleteUser(userSelected: any) {
         this.deleteUserDialog = true
         this.userSelected = { ...userSelected }
     }
 
     confirmDelete() {
         this.deleteUserDialog = false
-        //   this.roomService.removeRoom(this.userSelected.id).pipe(
-        //       finalize(() => {
-        //           this.users = this.users.filter((val) => val.id !== this.userSelected.id)
-        //           this.userSelected = {}
-        //           this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Accomodation Deleted', life: 3000 })
-        //       })
-        //   ).subscribe(data => console.log(data))
     }
 
     hideDialog() {
         this.userDialog = false
-        this.submitted = false
         console.log(this.userSelected)
     }
 
@@ -86,13 +178,11 @@ export class UserManagementComponent implements OnInit {
             message = 'Chỉnh sửa thành công'
         } else {
             message = 'Thêm thành công'
-            this.userSelected.role = 'landlord'
         }
         this.userService
             .updateUser(this.userSelected)
             .pipe(
                 finalize(() => {
-                    this.submitted = false
                     this.getAllUsers()
                         .pipe(
                             finalize(() => {

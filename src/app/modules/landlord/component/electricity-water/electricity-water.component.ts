@@ -28,7 +28,7 @@ export class ElectricityWaterComponent implements OnInit {
     electricWaters: ElectricWater[] = []
     cols: any[] = []
     billDialog: boolean = false
-    deleteTenantDialog: boolean = false
+    deleteDialog: boolean = false
     selectedAccomodation!: any
     rooms: Room[] = []
     roomPresent: any
@@ -182,8 +182,27 @@ export class ElectricityWaterComponent implements OnInit {
         )
     }
 
+    deleteEletricWater(num: any) {
+        this.electricWater = { ...num }
+        num.removeLoading = true
+        let result: boolean
+        this.isCanDelete().pipe(
+            finalize(() => {
+                num.removeLoading = false
+                if (result) {
+                    this.deleteDialog = true
+                } else {
+                    this.messageService.add({ severity: 'warn', summary: 'Cảnh báo', detail: `Chỉ số điện cho phòng ${this.electricWater.room?.name} đã được tạo hoá đơn không thể xoá, vui lòng liên hệ admin để được trợ giúp!`, life: 5000 })
+                    this.electricWater = {}
+                }
+               
+            })
+        ).subscribe(response => result = response.data)
+    }
+
     isCanDelete() {
-        
+        let request: {roomId?: any, month?: Date} = {roomId: this.electricWater.room?.id, month: this.electricWater.month}
+        return this.billService.isCanRemoveElectricWater(request)
     }
 
     checkIsRoomInputElectricWater() {
@@ -226,11 +245,6 @@ export class ElectricityWaterComponent implements OnInit {
     onSelectAccomodation() {
         this.loading = true
         this.initData()
-    }
-
-    deleteTenant(bill: ElectricWater) {
-        this.deleteTenantDialog = true
-        this.electricWater = { ...bill }
     }
 
     onEdit(num: ElectricWater) {
@@ -296,7 +310,15 @@ export class ElectricityWaterComponent implements OnInit {
     }
 
     confirmDelete() {
-        this.deleteTenantDialog = false
+        this.loading = true
+        this.billService.removeEletricWater(this.electricWater.id).pipe(
+            finalize(() => {
+                this.deleteDialog = false
+                this.initData()
+                this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Xoá thành công', life: 3000 })
+                this.electricWater = {}
+            })
+        ).subscribe()
     }
 
     onGlobalFilter(table: Table, event: Event) {

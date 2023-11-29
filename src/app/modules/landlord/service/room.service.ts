@@ -23,8 +23,8 @@ export class RoomService {
         )
     }
 
-    checkRoomDuplicated(name: any): Observable<any> {
-        return this.http.post<any>(`${environment.apiUrl}/room/utility/duplicated`, name).pipe(
+    checkRoomDuplicated(name: any, accomodationId: number): Observable<any> {
+        return this.http.post<any>(`${environment.apiUrl}/room/utility/duplicated/${accomodationId}`, name).pipe(
             retry(1),
             delay(1000),
         )

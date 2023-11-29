@@ -36,8 +36,22 @@ export class AccomodationService {
         )
     }
 
+    isCanRemoveService(request: any): Observable<any> {
+        return this.http.post<any>(`${environment.apiUrl}/accomodation/check/remove/service`, request).pipe(
+            retry(1),
+            delay(1000)
+        )
+    }
+
     removeAccomodation(id: any): Observable<any> {
         return this.http.delete<any>(`${environment.apiUrl}/accomodation/${id}`).pipe(
+            retry(1),
+            delay(1000)
+        )
+    }
+
+    removeService(id: any): Observable<any> {
+        return this.http.delete<any>(`${environment.apiUrl}/accomodation/service/${id}`).pipe(
             retry(1),
             delay(1000)
         )
