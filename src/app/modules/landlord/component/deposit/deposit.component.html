@@ -182,7 +182,7 @@
                                 </span>
                                 <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('email')?.getError('required') && (depositForm.controls['email'].dirty || depositForm.controls['email'].touched)">Vui lòng nhập email.</small>
                                 <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('email')?.getError('mailInvalid') && (depositForm.controls['email'].dirty || depositForm.controls['email'].touched)">Email không hợp lệ.</small>
-                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('email')?.getError('duplicated') && (depositForm.controls['email'].dirty || depositForm.controls['email'].touched)">Số điện thoại đã tồn tại.</small>
+                                <small class="ng-dirty ng-invalid" *ngIf="depositForm.get('email')?.getError('duplicated') && (depositForm.controls['email'].dirty || depositForm.controls['email'].touched)">Email đã tồn tại.</small>
                             </div> 
                         </div>
                     </div>

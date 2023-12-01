@@ -163,7 +163,7 @@ export class DepositComponent implements OnInit {
         this.depositForm.get('identifyNum')?.valueChanges.subscribe((data) => {
             if (data) {
                 this.deposit.identifyNum = data
-                if (this.oldIdentifyNum !== this.deposit.identifyNum) {
+                if (this.oldIdentifyNum !== this.deposit.identifyNum && this.isChooseExisted) {
                     this.checkDuplicatedTenant()
                 }
             }
@@ -180,7 +180,7 @@ export class DepositComponent implements OnInit {
                 } else {
                     this.depositForm.get('phone')?.setErrors(null)
                 }
-                if (this.oldPhone !== this.tentant.phone && this.depositForm.get('phone')?.valid) {
+                if (this.oldPhone !== this.tentant.phone && this.depositForm.get('phone')?.valid  && this.isChooseExisted) {
                     this.checkDuplicatedTenantPhone()
                 }
             }
@@ -194,7 +194,7 @@ export class DepositComponent implements OnInit {
                 } else {
                     this.depositForm.get('email')?.setErrors(null)
                 }
-                if (this.oldEmail !== this.tentant.email && this.depositForm.get('email')?.valid) {
+                if (this.oldEmail !== this.tentant.email && this.depositForm.get('email')?.valid  && this.isChooseExisted) {
                     this.checkDuplicatedTenantEmail()
                 }
             }
@@ -661,6 +661,8 @@ export class DepositComponent implements OnInit {
         this.isAddNew = false
         this.deposit = { ...deposit }
         this.oldIdentifyNum = deposit.identifyNum
+        this.oldEmail = deposit.email
+        this.oldPhone = deposit.phone
         this.preRoom = this.deposit.room?.id
         this.depositForm.get('startDate')?.setValue((moment(this.deposit.startDate)).toDate())
         this.depositForm.get('dueDate')?.setValue(moment(this.deposit.dueDate).toDate())

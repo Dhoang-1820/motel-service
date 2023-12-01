@@ -64,6 +64,8 @@ export class ContractComponent implements OnInit {
     dayStayedMoney!: number
     isValidating: boolean = false
     oldIdentifyNum: any = ''
+    oldRoom: any 
+    oldKeepRoomDeposit: any
 
     constructor(
         private accomodationService: AccomodationService,
@@ -187,9 +189,14 @@ export class ContractComponent implements OnInit {
         })
         this.contractForm.get('room')?.valueChanges.subscribe((data) => {
             this.contract.room = data
-            if (this.contract.room) {
+            console.log('this.contract.room.id', this.contract.room?.id)
+            console.log('this.oldRoom',this.oldRoom)
+            this.contractForm.get('holdRoomMoney')?.setValue(null)
+            if (this.contract.room && this.oldRoom !== this.contract.room.id) {
                 this.checkIsRoomHasDeposit()
                 this.checkRoomCapacity()
+            } else if (this.contract.room && this.oldRoom === this.contract.room.id) {
+                this.contractForm.get('holdRoomMoney')?.setValue(this.oldKeepRoomDeposit)
             }
         })
     }
@@ -199,6 +206,8 @@ export class ContractComponent implements OnInit {
         this.contract = JSON.parse(JSON.stringify(contract))
         console.log(this.contract)
         this.contract.preRoom = contract.room?.id
+        this.oldRoom = this.contract.room?.id
+        this.oldKeepRoomDeposit = this.contract.keepRoomDeposit
         this.filterService()
         this.filterTenant()
         this.contractForm.get('startDate')?.setValue(moment(this.contract.startDate).toDate())
@@ -211,6 +220,7 @@ export class ContractComponent implements OnInit {
         this.contractForm.get('holdRoomMoney')?.setValue(this.contract.keepRoomDeposit)
         this.contractForm.get('room')?.setValue(this.contract.room)
         this.roomPresent = this.contract.room
+        console.log('this.oldRoom',this.oldRoom)
         this.rooms.push(this.roomPresent)
         if (this.contract.representative) {
             this.selectedTenant = this.contract.representative
@@ -343,6 +353,7 @@ export class ContractComponent implements OnInit {
                 if (result.isBooked) {
                     this.depositor = result.depositor
                     this.oldDeposit = result.depositMoney
+                    this.contractForm.get('holdRoomMoney')?.setValue(this.oldDeposit)
                     let tenant =  this.selectedTenants.find((item: any) => item.id === this.depositor.id)
                     if (!tenant) {
                         this.selectedTenants.push(this.depositor)
@@ -352,8 +363,7 @@ export class ContractComponent implements OnInit {
                     this.depositor = {}
                     this.oldDeposit = 0
                 }
-                this.contractForm.get('holdRoomMoney')?.setValue(this.oldDeposit)
-                
+               
             })
         ).subscribe(response => result = response.data)
     }
@@ -444,6 +454,8 @@ export class ContractComponent implements OnInit {
 
     openNew() {
         this.contract = {}
+        this.oldRoom = {}
+        this.oldKeepRoomDeposit = null
         this.addDialog = true
         this.isAddNew = true
         this.contractForm.get('startDate')?.setValue(moment(new Date()).toDate())
