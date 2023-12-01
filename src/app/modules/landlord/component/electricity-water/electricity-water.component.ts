@@ -118,8 +118,13 @@ export class ElectricityWaterComponent implements OnInit {
             .getDropdownAccomodation(this.user?.id)
             .pipe(
                 finalize(() => {
-                    this.selectedAccomodation = this.accomodations[0]
-                    this.initData()
+                    if (this.accomodations.length > 0) {
+                        this.selectedAccomodation = this.accomodations[0]
+                        this.initData()
+                    } else {
+                        this.loading = false
+                        this.messageService.add({ severity: 'warn', summary: 'Cảnh báo', detail: 'Vui lòng tạo khu/nhà trọ trước!', life: 3000 })
+                    }
                 }),
             )
             .subscribe((response) => (this.accomodations = response.data))
@@ -200,6 +205,37 @@ export class ElectricityWaterComponent implements OnInit {
         ).subscribe(response => result = response.data)
     }
 
+    onEdit(num: ElectricWater) {
+        let request: any = { id: num.room?.id, month: this.selectedMonth }
+        let result: any
+        num.loading = true
+        this.billService
+            .checkIsCanEditEletricwater(request)
+            .pipe(
+                finalize(() => {
+                    num.loading = false
+                    if (!result) {
+                        this.messageService.add({ severity: 'warn', summary: 'Cảnh báo', detail: `Phòng ${num.room?.name} đã được tạo hoá đơn, không thể chỉnh sửa. Vui lòng xoá hoá đơn và quay lại chỉnh sửa!`, life: 5000 })
+                    } else {
+                        this.electricWater = { ...num }
+                        this.electricWaterNumForm.get('firstElectric')?.setValue(this.electricWater.firstElectric)
+                        this.electricWaterNumForm.get('lastElectric')?.setValue(this.electricWater.lastElectric)
+                        this.electricWaterNumForm.get('electricNum')?.setValue(this.electricWater.electricNum)
+                        this.electricWaterNumForm.get('firstWater')?.setValue(this.electricWater.firstWater)
+                        this.electricWaterNumForm.get('lastWater')?.setValue(this.electricWater.lastWater)
+                        this.electricWaterNumForm.get('waterNum')?.setValue(this.electricWater.waterNum)
+                        this.electricWaterNumForm.get('room')?.setValue(this.electricWater.room)
+                        this.electricWaterNumForm.get('month')?.setValue(moment(this.electricWater.month).toDate())
+                        this.roomPresent = this.electricWater.room
+                        this.rooms.push(this.roomPresent)
+                        this.billDialog = true
+                    }
+                }),
+            )
+            .subscribe((response) => (result = response.data))
+       
+    }
+
     isCanDelete() {
         let request: {roomId?: any, month?: Date} = {roomId: this.electricWater.room?.id, month: this.electricWater.month}
         return this.billService.isCanRemoveElectricWater(request)
@@ -247,36 +283,7 @@ export class ElectricityWaterComponent implements OnInit {
         this.initData()
     }
 
-    onEdit(num: ElectricWater) {
-        let request: any = { id: num.room?.id, month: this.selectedMonth }
-        let result: any
-        num.loading = true
-        this.billService
-            .checkIsRoomReturnValid(request)
-            .pipe(
-                finalize(() => {
-                    num.loading = false
-                    if (result.bill) {
-                        this.messageService.add({ severity: 'warn', summary: 'Cảnh báo', detail: `Phòng ${num.room?.name} đã được tạo hoá đơn, không thể chỉnh sửa`, life: 5000 })
-                    } else {
-                        this.electricWater = { ...num }
-                        this.electricWaterNumForm.get('firstElectric')?.setValue(this.electricWater.firstElectric)
-                        this.electricWaterNumForm.get('lastElectric')?.setValue(this.electricWater.lastElectric)
-                        this.electricWaterNumForm.get('electricNum')?.setValue(this.electricWater.electricNum)
-                        this.electricWaterNumForm.get('firstWater')?.setValue(this.electricWater.firstWater)
-                        this.electricWaterNumForm.get('lastWater')?.setValue(this.electricWater.lastWater)
-                        this.electricWaterNumForm.get('waterNum')?.setValue(this.electricWater.waterNum)
-                        this.electricWaterNumForm.get('room')?.setValue(this.electricWater.room)
-                        this.electricWaterNumForm.get('month')?.setValue(moment(this.electricWater.month).toDate())
-                        this.roomPresent = this.electricWater.room
-                        this.rooms.push(this.roomPresent)
-                        this.billDialog = true
-                    }
-                }),
-            )
-            .subscribe((response) => (result = response.data))
-       
-    }
+    
 
     onHideDialog() {
         if (this.roomPresent) {

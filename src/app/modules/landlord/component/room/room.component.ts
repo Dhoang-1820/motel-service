@@ -96,9 +96,13 @@ export class RoomComponent implements OnInit {
         this.loading = true
         return this.accomodationService.getDropdownAccomodation(this.user?.id).pipe(
             finalize(() => {
-                this.selectedAccomodation = this.accomodations[0]
                 this.loading = false
-                this.getRoomByAccomodation()
+                if (this.accomodations.length > 0) {
+                    this.selectedAccomodation = this.accomodations[0]
+                    this.getRoomByAccomodation()
+                } else {
+                    this.messageService.add({ severity: 'warn', summary: 'Cảnh báo', detail: 'Vui lòng tạo khu/nhà trọ trước!', life: 3000 })
+                }
             }),
         )
     }
@@ -146,7 +150,7 @@ export class RoomComponent implements OnInit {
             .pipe(
                 finalize(() => {
                     this.getRoomByAccomodation()
-                    this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Xoá thành công!', life: 3000 })
+                    this.messageService.add({ severity: 'success', summary: 'Thành công', detail: 'Xoá thành công!', life: 3000 })
                 }),
             )
             .subscribe((data) => console.log(data))

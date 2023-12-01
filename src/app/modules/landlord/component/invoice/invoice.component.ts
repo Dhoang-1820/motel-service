@@ -291,9 +291,13 @@ export class InvoiceComponent implements OnInit {
             .getDropdownAccomodation(this.user?.id)
             .pipe(
                 finalize(() => {
-                    this.selectedAccomodation = this.accomodations[0]
-                    this.loading = false
-                    this.getInvoiceByAccomodation().subscribe((response) => (this.invoices = response.data))
+                    if (this.accomodations.length > 0) {
+                        this.selectedAccomodation = this.accomodations[0]
+                        this.getInvoiceByAccomodation().subscribe((response) => (this.invoices = response.data))
+                    } else {
+                        this.loading = false
+                        this.messageService.add({ severity: 'warn', summary: 'Cảnh báo', detail: 'Vui lòng tạo khu/nhà trọ trước!', life: 3000 })
+                    }
                 }),
             )
             .subscribe((response) => (this.accomodations = response.data))

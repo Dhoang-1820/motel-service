@@ -61,11 +61,13 @@
                         </ng-template>
                         <td>
                             <div class="flex">
+                                <button pButton pRipple icon="pi pi-key" *ngIf="user.active" pTooltip="Reset mật khẩu" tooltipPosition="top"
+                                    class="p-button-rounded p-button-success mr-2" (click)="resetPassword(user)"></button>
                                 <button pButton pRipple icon="pi pi-lock" *ngIf="user.active" pTooltip="Khoá tài khoản" tooltipPosition="top"
                                     class="p-button-rounded p-button-success mr-2" (click)="changeUserStatus(user, false)"></button>
                                 <button pButton pRipple icon="pi pi-lock-open" *ngIf="!user.active" pTooltip="Mở khoá tài khoản" tooltipPosition="top"
                                     class="p-button-rounded p-button-success mr-2" (click)="changeUserStatus(user, true)"></button>
-                                <button pButton pRipple icon="pi pi-pencil"
+                                <button pButton pRipple icon="pi pi-pencil" pTooltip="Chỉnh sửa" tooltipPosition="top"
                                     class="p-button-rounded p-button-success mr-2" (click)="editUser(user)"></button>
                             </div>
                         </td>
@@ -99,7 +101,7 @@
                             lòng nhập tên.</small>
                     </div>
                     <div class="field">
-                        <label htmlFor="identifyNum">Số CCCD <span class="mandatory-sign">*</span></label>
+                        <label htmlFor="identifyNum">Số CCCD </label>
                         <div class="input-box">
                             <input pInputText id="identifyNum" onlyNumber formControlName="identifyNum" type="text"
                                 [ngClass]="{'ng-invalid ng-dirty' : userForm.controls['identifyNum'].invalid && (userForm.controls['identifyNum'].dirty || userForm.controls['identifyNum'].touched)}" />
@@ -113,16 +115,37 @@
                     </div>
                     <div class="field">
                         <label htmlFor="email3">Email <span class="mandatory-sign">*</span></label>
-                        <div class="input-box">
-                            <input pInputText id="email3" formControlName="email" type="text"
-                                [ngClass]="{'ng-invalid ng-dirty' : userForm.controls['email'].invalid && (userForm.controls['email'].dirty || userForm.controls['email'].touched)}" />
-                        </div>
+                        <span class="p-input-icon-right">
+                            <i class="pi pi-spin pi-spinner" *ngIf="emailLoading"></i>
+                            <div class="input-box">
+                                <input pInputText id="email3" formControlName="email" type="text"
+                                    [ngClass]="{'ng-invalid ng-dirty' : userForm.controls['email'].invalid && (userForm.controls['email'].dirty || userForm.controls['email'].touched)}" />
+                            </div>
+                        </span>
                         <small class="ng-dirty ng-invalid"
                             *ngIf="userForm.get('email')?.getError('required') && (userForm.controls['email'].dirty || userForm.controls['email'].touched)">Vui
                             lòng nhập email.</small>
                         <small class="ng-dirty ng-invalid"
                             *ngIf="userForm.get('email')?.getError('mailInvalid') && (userForm.controls['email'].dirty || userForm.controls['email'].touched)">Email
                             không hợp lệ.</small>
+                        <small class="ng-dirty ng-invalid"
+                            *ngIf="userForm.get('email')?.getError('duplicated') && (userForm.controls['email'].dirty || userForm.controls['email'].touched)">Email
+                            đã tồn tại.</small>
+                    </div>
+                    <div class="field">
+                        <label htmlFor="email3">User name <span class="mandatory-sign">*</span></label>
+                        <span class="p-input-icon-right">
+                            <i class="pi pi-spin pi-spinner" *ngIf="usernameLoading"></i>
+                            <div class="input-box">
+                                <input pInputText id="email3" formControlName="userName" type="text"
+                                    [ngClass]="{'ng-invalid ng-dirty' : userForm.controls['userName'].invalid && (userForm.controls['userName'].dirty || userForm.controls['userName'].touched)}" />
+                            </div>
+                        </span>
+                        <small class="ng-dirty ng-invalid"
+                            *ngIf="userForm.get('userName')?.getError('required') && (userForm.controls['userName'].dirty || userForm.controls['userName'].touched)">Vui
+                            lòng nhập user name.</small>
+                        <small class="ng-dirty ng-invalid"
+                            *ngIf="userForm.get('userName')?.getError('duplicated') && (userForm.controls['userName'].dirty || userForm.controls['userName'].touched)">User name đã tồn tại.</small>
                     </div>
                     <div class="field">
                         <label htmlFor="address">Địa chỉ</label>

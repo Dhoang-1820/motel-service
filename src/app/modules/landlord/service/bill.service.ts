@@ -44,7 +44,12 @@ export class BillService {
         )
     }
 
-
+    checkIsCanEditEletricwater(request: any): Observable<any> {
+        return this.http.post<any>(`${environment.apiUrl}/invoice/can-edit/electric-water`, request).pipe(
+            retry(1),
+            delay(1000),
+        )
+    }
 
     returnRoom(request: any): Observable<any> {
         return this.http.post<any>(`${environment.apiUrl}/invoice/return`, request).pipe(

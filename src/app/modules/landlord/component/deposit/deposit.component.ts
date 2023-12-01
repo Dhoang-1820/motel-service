@@ -569,8 +569,14 @@ export class DepositComponent implements OnInit {
         this.loading = true
         return this.accomodationService.getDropdownAccomodation(this.user?.id).pipe(
             finalize(() => {
-                this.selectedAccomodation = this.accomodations[0]
-                this.initData()
+                if (this.accomodations.length > 0) {
+                    this.selectedAccomodation = this.accomodations[0]
+                    this.initData()
+                } else {
+                    this.loading = false
+                    this.messageService.add({ severity: 'warn', summary: 'Cảnh báo', detail: 'Vui lòng tạo khu/nhà trọ trước!', life: 3000 })
+                }
+                
             }),
         )
     }

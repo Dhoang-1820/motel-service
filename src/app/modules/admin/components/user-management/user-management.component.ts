@@ -1,14 +1,14 @@
 /** @format */
 
 import { Component, OnInit } from '@angular/core'
+import { FormControl, FormGroup, Validators } from '@angular/forms'
 import { MessageService } from 'primeng/api'
 import { Table } from 'primeng/table'
-import { finalize } from 'rxjs'
+import { debounceTime, distinctUntilChanged, finalize } from 'rxjs'
 import { AuthenticationService } from 'src/app/modules/auth/service/authentication.service'
 import { Room } from 'src/app/modules/landlord/model/accomodation.model'
 import { User } from 'src/app/modules/model/user.model'
 import { UserManagementService } from '../../services/user-management.service'
-import { FormGroup, FormControl, Validators } from '@angular/forms'
 
 @Component({
     selector: 'app-user-management',
@@ -31,9 +31,13 @@ export class UserManagementComponent implements OnInit {
     userResult: any
 
     userForm: FormGroup
+    usernameLoading: boolean = false
+    emailLoading: boolean = false
+    oldEmail: any = ''
+    oldUsename: any = ''
 
 
-    constructor(private auth: AuthenticationService, private messageService: MessageService, private userService: UserManagementService) {
+    constructor(private auth: AuthenticationService, private messageService: MessageService, private userManagementService: UserManagementService) {
 
         this.userForm = new FormGroup({
             firstname: new FormControl(this.userSelected?.firstName, [Validators.required]),
@@ -44,6 +48,8 @@ export class UserManagementComponent implements OnInit {
             address: new FormControl(this.userSelected?.address, []),
             status: new FormControl(this.userSelected?.active, [Validators.required]),
             role: new FormControl(this.userSelected?.role, [Validators.required]),
+            userName: new FormControl(this.userSelected?.userName, [Validators.required]),
+            
         })
     }
 
@@ -66,10 +72,16 @@ export class UserManagementComponent implements OnInit {
         this.userForm.get('identifyNum')?.valueChanges.subscribe(data => {
             this.userSelected.identifyNum = data
         })
-        this.userForm.get('email')?.valueChanges.subscribe(data => {
+        this.userForm.get('email')?.valueChanges.pipe(
+            debounceTime(500),
+            distinctUntilChanged()
+        ).subscribe(data => {
             if (data) {
                 this.userSelected.email = data
                 this.validateGmail(data)
+                if (this.oldEmail !== this.userSelected.email && this.userForm.get('email')?.valid) {
+                    this.checkDuplicatedEmail()
+                }
             }
         })
         this.userForm.get('address')?.valueChanges.subscribe(data => {
@@ -81,8 +93,44 @@ export class UserManagementComponent implements OnInit {
         this.userForm.get('role')?.valueChanges.subscribe(data => {
             this.userSelected.role = data
         })
+        this.userForm.get('userName')?.valueChanges.pipe(
+            debounceTime(500),
+            distinctUntilChanged()
+        ).subscribe(data => {
+            if (data) {
+                this.userSelected.userName = data
+                if (this.oldUsename !== this.userSelected.userName && this.userForm.get('userName')?.valid) {
+                    this.checkDuplicatedUsername()
+                }
+            }
+        })
     }
     
+    checkDuplicatedUsername() {
+        let isDuplicated = false;
+        this.usernameLoading = true
+        this.userManagementService.checkDuplicatedUsername(this.userSelected.userName).pipe(
+            finalize(() => {
+                this.usernameLoading = false
+                if (isDuplicated) {
+                    this.userForm.get('userName')?.setErrors({duplicated: true})
+                }
+            })
+        ).subscribe(response => isDuplicated = response.data)
+    }
+
+    checkDuplicatedEmail() {
+        let isDuplicated = false;
+        this.emailLoading = true
+        this.userManagementService.checkDuplicatedEmail(this.userSelected.email).pipe(
+            finalize(() => {
+                this.emailLoading = false
+                if (isDuplicated) {
+                    this.userForm.get('email')?.setErrors({duplicated: true})
+                }
+            })
+        ).subscribe(response => isDuplicated = response.data)
+    }
 
     validateGmail(email: string) {
         const isValid = email.toLowerCase().match(
@@ -106,7 +154,19 @@ export class UserManagementComponent implements OnInit {
         }
     }
 
+    resetPassword(user: any) {
+        this.loading = true
+        this.userManagementService.resetPassword(user.userId).pipe(
+            finalize(() => {
+                this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Reset mật khẩu thành công!', life: 3000 })
+                this.getAllUsers().subscribe((response) => (this.users = response.data))
+            })
+        ).subscribe()
+    }
+
     fillData() {
+        this.oldEmail = this.userSelected.email
+        this.oldUsename = this.userSelected.userName
         this.userForm.get('firstname')?.setValue(this.userSelected.firstName)
         this.userForm.get('lastname')?.setValue(this.userSelected.lastName)
         this.userForm.get('phone')?.setValue(this.userSelected.phone)
@@ -115,16 +175,20 @@ export class UserManagementComponent implements OnInit {
         this.userForm.get('address')?.setValue(this.userSelected.address)
         this.userForm.get('role')?.setValue(this.userSelected.role)
         this.userForm.get('status')?.setValue(this.userSelected.active)
+        this.userForm.get('userName')?.setValue(this.userSelected.userName)
     }
 
     openNew() {
         this.userSelected = {}
+        this.oldEmail = ''
+        this.oldUsename = ''
         this.userForm.get('firstname')?.setValue(null)
         this.userForm.get('lastname')?.setValue(null)
         this.userForm.get('phone')?.setValue(null)
         this.userForm.get('identifyNum')?.setValue(null)
         this.userForm.get('email')?.setValue(null)
         this.userForm.get('address')?.setValue(null)
+        this.userForm.get('userName')?.setValue(null)
         this.userForm.get('role')?.setValue('ROLE_LANDLORD')
         this.userForm.get('status')?.setValue(true)
         this.userDialog = true
@@ -137,12 +201,32 @@ export class UserManagementComponent implements OnInit {
     changeUserStatus(userSelected: any, status: boolean) {
         this.userSelected = { ...userSelected }
         this.userSelected.active = status
-        this.saveUser()
+        this.loading = true
+        let message: string
+        if (status) {
+            message = 'Mở khoá tài khoản thành công!'
+        } else {
+            message = 'Khoá tài khoản thành công!'
+        }
+        this.userManagementService
+                .updateUser(this.userSelected)
+                .pipe(
+                    finalize(() => {
+                        this.getAllUsers()
+                            .pipe(
+                                finalize(() => {
+                                    this.messageService.add({ severity: 'success', summary: 'Successful', detail: message, life: 3000 })
+                                }),
+                            )
+                            .subscribe((response) => (this.users = response.data))
+                    }),
+                )
+                .subscribe((data) => console.log(data))
     }
 
     getAllUsers() {
         this.loading = true
-        return this.userService.getAllUsers().pipe(
+        return this.userManagementService.getAllUsers().pipe(
             finalize(() => {
                 this.loading = false
             }),
@@ -171,29 +255,35 @@ export class UserManagementComponent implements OnInit {
     }
 
     saveUser() {
-        this.loading = true
-        console.log(this.userSelected)
-        let message: string
-        if (this.userSelected.userId) {
-            message = 'Chỉnh sửa thành công'
+        if (this.userForm.valid) {
+            this.loading = true
+            console.log(this.userSelected)
+            let message: string
+            if (this.userSelected.userId) {
+                message = 'Chỉnh sửa thành công'
+            } else {
+                message = 'Thêm thành công'
+            }
+            this.userManagementService
+                .updateUser(this.userSelected)
+                .pipe(
+                    finalize(() => {
+                        this.getAllUsers()
+                            .pipe(
+                                finalize(() => {
+                                    this.messageService.add({ severity: 'success', summary: 'Successful', detail: message, life: 3000 })
+                                }),
+                            )
+                            .subscribe((response) => (this.users = response.data))
+                    }),
+                )
+                .subscribe((data) => console.log(data))
+            this.userDialog = false
         } else {
-            message = 'Thêm thành công'
+            this.userForm.markAllAsTouched()
+            this.messageService.add({ severity: 'warn', summary: 'Cảnh báo', detail: 'Vui lòng điền đầy đủ!', life: 3000 })
         }
-        this.userService
-            .updateUser(this.userSelected)
-            .pipe(
-                finalize(() => {
-                    this.getAllUsers()
-                        .pipe(
-                            finalize(() => {
-                                this.messageService.add({ severity: 'success', summary: 'Successful', detail: message, life: 3000 })
-                            }),
-                        )
-                        .subscribe((response) => (this.users = response.data))
-                }),
-            )
-            .subscribe((data) => console.log(data))
-        this.userDialog = false
+        
     }
 
     onGlobalFilter(table: Table, event: Event) {
