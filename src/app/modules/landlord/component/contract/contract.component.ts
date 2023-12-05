@@ -387,6 +387,10 @@ export class ContractComponent implements OnInit {
     onMoveTenant() {
         // this.checkTenantDeposit()
         this.checkRoomCapacity()
+        setTimeout(() => {
+            this.contractForm.get('representative')?.markAsTouched()
+        }, 200);
+        console.log(this.contractForm)
     }
 
     newTenant() {

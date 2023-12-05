@@ -5,13 +5,13 @@ import { MessageService } from 'primeng/api'
 import { Table } from 'primeng/table'
 import { debounceTime, distinctUntilChanged, finalize, forkJoin } from 'rxjs'
 import { AuthenticationService } from 'src/app/modules/auth/service/authentication.service'
+import { AppConstant } from 'src/app/modules/common/Constants'
 import { User } from 'src/app/modules/model/user.model'
 import { Room } from '../../model/accomodation.model'
 import { Tenant } from '../../model/tenant.model'
 import { AccomodationService } from '../../service/accomodation.service'
 import { RoomService } from '../../service/room.service'
 import { TenantService } from '../../service/tenant.service'
-import { AppConstant } from 'src/app/modules/common/Constants'
 
 @Component({
     selector: 'app-tenants',
@@ -173,6 +173,34 @@ export class TenantsComponent implements OnInit {
                 }
             })
         ).subscribe(response => isDuplicated = response.data)
+    }
+
+    removeTenant(tenant: any) {
+        this.tentant = {...tenant}
+        tenant.removeLoading = true
+        let result: boolean
+        this.tenantService.isCanRemove(tenant.id).pipe(
+            finalize(() => {
+                tenant.removeLoading = false
+                if (result) {
+                    this.deleteTenantDialog = true
+                } else {
+                    this.messageService.add({ severity: 'warn', summary: 'Cảnh báo', detail: 'Không thể xoá khách thuê đang đặt cọc phòng, vui lòng liên hệ admin để được trợ giúp!', life: 5000 })
+                    this.tentant = {}
+                }
+            })
+        ).subscribe(response => result = response.data)
+    } 
+    
+    confirmDelete() {
+        this.loading = true
+        this.tenantService.removeTenant(this.tentant.id).pipe(
+            finalize(() => {
+                this.tentant = {}
+                this.deleteTenantDialog = false
+                this.getRoomAndTenantData()
+            })
+        ).subscribe()
     }
 
     openNew() {

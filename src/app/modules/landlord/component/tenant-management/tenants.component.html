@@ -64,7 +64,7 @@
                         <td>
                             <div class="flex">
                                 <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editTenant(tenant)"></button>
-                                <!-- <button pButton pRipple [disabled]="!tenant.isStayed" pTooltip="Trả phòng" tooltipPosition="bottom" icon="pi pi-refresh" class="p-button-rounded p-button-warning" (click)="returnRoom(tenant)"></button> -->
+                                <button pButton pRipple [loading]="tenant.removeLoading" [disabled]="tenant.isStayed" pTooltip="Xoá" tooltipPosition="bottom" icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="removeTenant(tenant)"></button>
                             </div>
                         </td>
                     </tr>
@@ -144,6 +144,16 @@
             <ng-template pTemplate="footer">
                 <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
                 <button pButton pRipple label="Save" [disabled]="tenantForm.invalid" icon="pi pi-check"  class="p-button-text" (click)="saveTenant()"></button>
+            </ng-template>
+        </p-dialog>
+        <p-dialog [(visible)]="deleteTenantDialog" header="Xác nhận" [modal]="true" [style]="{width:'450px'}">
+            <div class="flex align-items-center justify-content-center">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+                <span *ngIf="tentant">Xác nhận xoá khách thuê <b>{{tentant.firstName + ' ' + tentant.lastName}}</b>?</span>
+            </div>
+            <ng-template pTemplate="footer">
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteTenantDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDelete()"></button>
             </ng-template>
         </p-dialog>
     </div>

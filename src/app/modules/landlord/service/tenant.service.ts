@@ -36,4 +36,12 @@ export class TenantService {
     checkDuplicatedPhone(phone: any): Observable<any> {
         return this.http.post<any>(`${environment.apiUrl}/tenant/phone/duplicated`, phone).pipe(retry(1), delay(1000))
     }
+
+    isCanRemove(tenantId: number): Observable<any> {
+        return this.http.get<any>(`${environment.apiUrl}/tenant/check/remove/${tenantId}`).pipe(retry(1), delay(1000))
+    }
+
+    removeTenant(tenantId: any): Observable<any> {
+        return this.http.delete<any>(`${environment.apiUrl}/tenant/${tenantId}`).pipe(retry(1), delay(1000))
+    }
 }

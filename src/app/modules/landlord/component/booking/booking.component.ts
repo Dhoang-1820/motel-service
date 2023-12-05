@@ -665,6 +665,7 @@ export class BookingComponent implements OnInit {
         } else {
             message = 'Thêm thành công'
         }
+        this.tentant.accomodationId = this.selectedAccomodation.id;
         this.tenantService
             .saveTenant(this.tentant)
             .pipe(
