@@ -423,9 +423,12 @@ export class ContractComponent implements OnInit {
                             this.messageService.add({ severity: 'success', summary: 'Successful', detail: message, life: 3000 })
                             this.loading = false
                             this.tenantsDisplayed = JSON.parse(JSON.stringify(this.tenants))
-                            if (this.depositor) {
+                            if (this.depositor.id) {
                                 this.tenantsDisplayed = this.tenantsDisplayed.filter(tenant => tenant.id !== this.depositor.id)
+                            } else {
+                                this.selectedTenants = []
                             }
+                            console.log('this.selectedTenants', this.selectedTenants)
                         })
                     ).subscribe(response => this.tenants = response.data)
                 }),

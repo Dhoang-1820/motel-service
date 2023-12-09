@@ -267,7 +267,7 @@ export class DocumentCreator {
                                     break: 1,
                                 }),
                                 new TextRun({
-                                    text: `Số ngày đã ở: ${contract.dayStayedBefore} kể từ ngày ${contract.startDate.day}/${contract.startDate.month}/${contract.startDate.year} đến ngày ${contract.endDayStayedBefor})`,
+                                    text: `Số ngày đã ở: ${contract.dayStayedBefore} kể từ ngày (${contract.startDate.day}/${contract.startDate.month}/${contract.startDate.year} đến ngày ${contract.endDayStayedBefor})`,
                                     break: 1,
                                 }),
                                 new TextRun({
@@ -322,7 +322,7 @@ export class DocumentCreator {
                         run: {
                             font: 'Times New Roman',
                             size: 24,
-                            color: '#000000',
+                            color: '#000000'
                         },
                         paragraph: {
                             spacing: {
@@ -351,6 +351,7 @@ export class DocumentCreator {
                             font: 'Times New Roman',
                             size: 28,
                             color: '#000000',
+                            bold: true
                         },
                     },
                 ],

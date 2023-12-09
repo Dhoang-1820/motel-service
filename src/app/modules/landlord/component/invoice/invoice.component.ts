@@ -244,6 +244,7 @@ export class InvoiceComponent implements OnInit {
                             services.push({ name: item.serviceName, price: item.totalPrice, quantity: item.quantity })
                         }
                     })
+                    console.log('electricsWaterNum', electricsWaterNum)
                     const month = moment(invoice.billDate).format('MM/YYYY')
                     const debtMonth = moment(this.preMonth).format('MM/YYYY')
                     let printData: any = {
