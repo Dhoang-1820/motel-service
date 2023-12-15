@@ -166,7 +166,7 @@ export class InvoiceComponent implements OnInit {
             {
                 icon: 'pi pi-print',
                 label: 'In hoá đơn',
-                visible: !!invoice.id,
+                visible: !!invoice.id && !invoice.isPay,
                 command: (e: any) => {
                     this.printInvoice(e.item.data.id)
                 },
@@ -191,6 +191,7 @@ export class InvoiceComponent implements OnInit {
             {
                 label: 'Xoá',
                 icon: 'pi pi-trash',
+                visible: invoice.isPay,
                 command: (e) => {
                     this.removeInvoice(e.item.data.id)
                 },

@@ -25,7 +25,7 @@ import { ReturnRoomComponent } from './component/return-room/return-room.compone
 import { PostComponent } from './component/post/post.component';
 import { BookingComponent } from './component/booking/booking.component';
 import { DashboardComponent } from './component/dashboard/dashboard.component'
-
+import { ChartModule } from 'primeng/chart';
 
 @NgModule({
     declarations: [
@@ -51,6 +51,6 @@ import { DashboardComponent } from './component/dashboard/dashboard.component'
         BookingComponent,
         DashboardComponent,
     ],
-    imports: [CommonModule, LandlordRoutingModule, SharedModuleModule, TagModule],
+    imports: [CommonModule, LandlordRoutingModule, SharedModuleModule, TagModule, ChartModule],
 })
 export class LandlordModule {}

@@ -216,16 +216,17 @@ export class MainComponent implements OnInit {
             .saveBooking(this.submitForm)
             .pipe(
                 finalize(() => {
-                    this.submitLoading = false
+                    
                     this.bookingDialog = false
                     this.detailDialog = false
                     this.isAddReviewDate = false
                     this.messageService.add({
                         severity: 'success',
-                        summary: 'Successful',
+                        summary: 'Thành công',
                         detail: 'Thông tin đã được gửi đến chủ trọ, chủ trọ sẽ liên hệ sớm nhất!',
                         life: 3000,
                     })
+                    this.getAllRoom();
                 }),
             )
             .subscribe((data) => console.log(data))
@@ -270,6 +271,7 @@ export class MainComponent implements OnInit {
             .pipe(
                 finalize(() => {
                     this.loading = false
+                    this.submitLoading = false
                 }),
             )
             .subscribe((response) => (this.posts = response.data))

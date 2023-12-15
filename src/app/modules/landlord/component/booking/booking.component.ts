@@ -233,7 +233,10 @@ export class BookingComponent implements OnInit {
                 }
             }
         })
-        this.tenantForm.get('phone')?.valueChanges.subscribe((data) => {
+        this.tenantForm.get('phone')?.valueChanges.pipe(
+            debounceTime(500),
+            distinctUntilChanged()
+        ).subscribe((data) => {
             if (data) {
                 this.validatePhoneNumber(data)
                 this.tentant.phone = data
@@ -242,7 +245,10 @@ export class BookingComponent implements OnInit {
                 }
             }
         })
-        this.tenantForm.get('email')?.valueChanges.subscribe((data) => {
+        this.tenantForm.get('email')?.valueChanges.pipe(
+            debounceTime(500),
+            distinctUntilChanged()
+        ).subscribe((data) => {
             if (data) {
                 this.validateGmail(data)
                 this.tentant.email = data
@@ -516,14 +522,14 @@ export class BookingComponent implements OnInit {
                     this.createContract()
                 },
             },
-            // {
-            //     label: 'Xoá',
-            //     icon: 'pi pi-trash',
-            //     command: (e) => {
-            //         this.booking = {...e.item.data}
-            //         this.removePost()
-            //     },
-            // },
+            {
+                label: 'Huỷ đặt phòng',
+                icon: 'pi pi-trash',
+                command: (e) => {
+                    this.booking = {...e.item.data}
+                    this.cancelBooking()
+                },
+            },
         ]
         this.items.forEach((menuItem: any) => {
             menuItem.data = post
@@ -586,6 +592,17 @@ export class BookingComponent implements OnInit {
         return this.bookingService.deactivateBooking(this.booking.id)
     }
 
+    cancelBooking() {
+        this.loading = true
+         this.bookingService.cancelBooking(this.booking.id).pipe(
+            finalize(() => {
+                this.loading = false
+                this.messageService.add({ severity: 'success', summary: 'Thành công', detail: 'Huỷ đặt phòng thành công', life: 3000 })
+                this.getAllBookedRoomByUserId()
+            })
+        ).subscribe()
+    }
+
     getDropdownAccomodation() {
         this.loading = true
         return this.accomodationService.getDropdownAccomodation(this.user?.id).pipe(
@@ -642,7 +659,7 @@ export class BookingComponent implements OnInit {
                 .saveDeposit(this.deposit)
                 .pipe(
                     finalize(() => {
-                        this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Thêm thành công', life: 3000 })
+                        this.messageService.add({ severity: 'success', summary: 'Thành công', detail: 'Thêm thành công', life: 3000 })
                         this.deativateBooking().pipe(
                             finalize(() => {
                                 this.getAllBookedRoomByUserId()
@@ -673,14 +690,20 @@ export class BookingComponent implements OnInit {
                     this.getTenantByAccomodation().pipe(
                         finalize(() => {
                             this.loading = false
-                            this.messageService.add({ severity: 'success', summary: 'Successful', detail: message, life: 3000 })
+                            this.messageService.add({ severity: 'success', summary: 'Thành công', detail: message, life: 3000 })
                             this.tenantsDisplayed = JSON.parse(JSON.stringify(this.tenants))
+                            this.tenantsDisplayed = this.tenantsDisplayed.filter(item => !this.isIncludeTenant(item))
                         })
                     ).subscribe(response => this.tenants = response.data)
                 }),
             )
             .subscribe((data) => console.log(data))
         this.tenantDialog = false
+    }
+
+    isIncludeTenant(tenant: Tenant) {
+        const tenantFound = this.selectedTenants.find((item: any) => item.id === tenant.id)
+        return !!tenantFound
     }
 
     openNew() {

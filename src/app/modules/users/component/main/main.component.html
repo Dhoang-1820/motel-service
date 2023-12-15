@@ -23,18 +23,19 @@
                         <div class="flex justify-content-center">
                             <div class="p-inputgroup">
                                 <span class="p-inputgroup-addon">
-                                    <i class="pi pi-dollar"></i>
+                                    <i class="pi pi-filter"></i>
                                 </span>
                                 <input (focus)="searchPriceDialog = true" pInputText placeholder="Chọn giá"
                                     [value]="rangePrice.length > 0 ? rangePrice[0] + '-' + rangePrice[1] + ' triệu' : ''" />
                                 <button [disabled]="rangePrice.length === 0" (click)="clearPrice()" pTooltip="Xoá"
-                                    type="button" pButton icon="pi pi-eraser" styleClass="p-button-warn"></button>
+                                    type="button" pButton icon="pi pi-eraser" styleClass="p-button-warn">
+                                </button>
                             </div>
                         </div>
                         <div class="flex justify-content-center">
                             <div class="p-inputgroup">
                                 <span class="p-inputgroup-addon">
-                                    <i class="pi pi-stop"></i>
+                                    <i class="pi pi-filter"></i>
                                 </span>
                                 <input (focus)="searhAreageDialog = true" pInputText placeholder="Chọn diện tích"
                                     [value]="rangeAreage.length > 0 ? rangeAreage[0] + '-' + rangeAreage[1] + ' m²' : ''" />
@@ -125,6 +126,8 @@
         <div class="text-xl mb-3">Địa chỉ: <span class="font-bold">{{post.address}}</span></div>
         <div class="text-xl mb-3">Diện tích: <span class="font-bold">{{post.acreage}} m²</span>
         </div>
+        <div class="text-xl mb-3">Số lượng phòng trống: <span class="font-bold">{{post.emptyRoomNum || 0}} phòng</span>
+        </div>
         <div class="text-xl">Liên hệ: <span class="font-bold">{{post.phone}}</span></div>
         <p-divider class="w-full bg-surface-200"></p-divider>
         <p-card header="Thông tin mô tả">
@@ -191,9 +194,9 @@
     </ng-template>
 
     <ng-template pTemplate="footer">
-        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text"
+        <button pButton pRipple label="Huỷ" icon="pi pi-times" class="p-button-text"
             (click)="hideBookingDialog()"></button>
-        <button pButton pRipple label="Save" [loading]="submitLoading"
+        <button pButton pRipple label="Lưu" [loading]="submitLoading"
             loadingIcon="pi pi-spin pi-spinner" icon="pi pi-check" class="p-button-text"
             (click)="saveBooking()"></button>
     </ng-template>

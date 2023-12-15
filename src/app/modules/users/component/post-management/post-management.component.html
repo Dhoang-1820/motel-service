@@ -49,6 +49,12 @@
                                     </div>
                                     <div class="flex align-items-center gap-3">
                                         <span class="flex align-items-center gap-2">
+                                            <span>Số lượng phòng trống: </span>
+                                            <span class="font-semibold">{{ data.emptyRoomNum || 0 }} phòng</span>
+                                        </span>
+                                    </div>
+                                    <div class="flex align-items-center gap-3">
+                                        <span class="flex align-items-center gap-2">
                                             <span>Giá thuê: </span>
                                             <span class="font-semibold">{{ data.price | currency:
                                                 'VND':'symbol'}}</span>
@@ -125,9 +131,9 @@
                     </div>
                     <div class="formgrid grid">
                         <div class="field col">
-                            <label for="price">Diện tích <span class="mandatory-sign">*</span></label>
+                            <label for="acreage">Diện tích <span class="mandatory-sign">*</span></label>
                             <div class="input-box">
-                                <p-inputNumber id="price" formControlName="acreage" mode="decimal" suffix="m²"
+                                <p-inputNumber id="acreage" formControlName="acreage" mode="decimal" suffix="m²"
                                     [ngClass]="{'ng-invalid ng-dirty' : postForm.controls['acreage'].invalid && (postForm.controls['acreage'].dirty || postForm.controls['acreage'].touched)}"></p-inputNumber>
                             </div>
                             <small class="ng-dirty ng-invalid"
@@ -135,14 +141,20 @@
                                 lòng nhập diện tích.</small>
                         </div>
                         <div class="field col">
-                            <label for="price">Số người ở tối đa <span class="mandatory-sign">*</span></label>
+                            <label for="capacity">Số người ở tối đa <span class="mandatory-sign">*</span></label>
                             <div class="input-box">
-                                <p-inputNumber id="price" formControlName="capacity"
+                                <p-inputNumber id="capacity" formControlName="capacity"
                                     [ngClass]="{'ng-invalid ng-dirty' : postForm.controls['capacity'].invalid && (postForm.controls['capacity'].dirty || postForm.controls['capacity'].touched)}"></p-inputNumber>
                             </div>
+                        </div>
+                        <div class="field col">
+                            <label for="emptyRoomNum">Số lượng phòng trống <span class="mandatory-sign">*</span></label>
+                            <div class="input-box">
+                                <p-inputNumber id="emptyRoomNum" formControlName="emptyRoomNum" [ngClass]="{'ng-invalid ng-dirty' : postForm.controls['emptyRoomNum'].invalid && (postForm.controls['emptyRoomNum'].dirty || postForm.controls['emptyRoomNum'].touched)}"></p-inputNumber>
+                            </div>
                             <small class="ng-dirty ng-invalid"
-                                *ngIf="postForm.get('capacity')?.invalid && (postForm.controls['capacity'].dirty || postForm.controls['capacity'].touched)">Vui
-                                lòng nhập số người ở tối đa.</small>
+                            *ngIf="postForm.get('emptyRoomNum')?.invalid && (postForm.controls['emptyRoomNum'].dirty || postForm.controls['emptyRoomNum'].touched)">Vui
+                            lòng nhập số lượng phòng trống.</small>
                         </div>
                     </div>
                     <div class="formgrid grid">
@@ -253,9 +265,9 @@
                 </form>
             </ng-template>
             <ng-template pTemplate="footer">
-                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text"
+                <button pButton pRipple label="Huỷ" icon="pi pi-times" class="p-button-text"
                     (click)="postDialog = false"></button>
-                <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"
+                <button pButton pRipple label="Lưu" icon="pi pi-check" class="p-button-text"
                     (click)="savePost()"></button>
             </ng-template>
         </p-dialog>

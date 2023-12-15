@@ -78,7 +78,10 @@ export class TenantsComponent implements OnInit {
                 }
             }
         })
-        this.tenantForm.get('phone')?.valueChanges.subscribe((data) => {
+        this.tenantForm.get('phone')?.valueChanges.pipe(
+            debounceTime(500),
+            distinctUntilChanged()
+        ).subscribe((data) => {
             if (data) {
                 this.validatePhoneNumber(data)
                 this.tentant.phone = data
@@ -87,7 +90,10 @@ export class TenantsComponent implements OnInit {
                 }
             }
         })
-        this.tenantForm.get('email')?.valueChanges.subscribe((data) => {
+        this.tenantForm.get('email')?.valueChanges.pipe(
+            debounceTime(500),
+            distinctUntilChanged()
+        ).subscribe((data) => {
             if (data) {
                 this.validateGmail(data)
                 this.tentant.email = data
@@ -265,7 +271,7 @@ export class TenantsComponent implements OnInit {
         if (tentant.startDate) {
             this.tenantForm.get('startDate')?.setValue(moment(tentant.startDate).toDate())
         } else {
-            this.tenantForm.get('startDate')?.setValue(moment(new Date()).toDate())
+            this.tenantForm.get('startDate')?.setValue(null)
         }
         this.tenantForm.get('identifyNum')?.setValue(tentant.identifyNum)
         this.tenantForm.get('email')?.setValue(tentant.email)
@@ -307,7 +313,7 @@ export class TenantsComponent implements OnInit {
             .saveTenant(this.tentant)
             .pipe(
                 finalize(() => {
-                    this.messageService.add({ severity: 'success', summary: 'Successful', detail: message, life: 3000 })
+                    this.messageService.add({ severity: 'success', summary: 'Thành công', detail: message, life: 3000 })
                     this.getRoomAndTenantData()
                 }),
             )

@@ -22,4 +22,8 @@ export class BookingService {
     deactivateBooking(bookingId: any): Observable<any> {
         return this.http.put<any>(`${environment.apiUrl}/booking/${bookingId}`, null).pipe(retry(1), delay(1000))
     }
+
+    cancelBooking(bookingId: any): Observable<any> {
+        return this.http.delete<any>(`${environment.apiUrl}/booking/${bookingId}`).pipe(retry(1), delay(1000))
+    }
 }

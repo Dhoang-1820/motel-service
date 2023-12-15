@@ -199,7 +199,7 @@ export class ServiceManagementComponent implements OnInit {
                             finalize(() => {
                                 this.deleteDialog = false
                                 this.deleteLoading = false
-                                this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Xoá thành công', life: 3000 })
+                                this.messageService.add({ severity: 'success', summary: 'Thành công', detail: 'Xoá thành công', life: 3000 })
                                 this.service = {}
                             }),
                         )
@@ -228,7 +228,7 @@ export class ServiceManagementComponent implements OnInit {
                 .pipe(
                     finalize(() => {
                         this.loading = false
-                        this.messageService.add({ severity: 'success', summary: 'Successful', detail: message, life: 3000 })
+                        this.messageService.add({ severity: 'success', summary: 'Thành công', detail: message, life: 3000 })
                     }),
                 )
                 .subscribe((response) => (this.services = response.data))

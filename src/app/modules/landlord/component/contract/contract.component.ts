@@ -63,6 +63,8 @@ export class ContractComponent implements OnInit {
     nextMonth!: Date
     dayStayedMoney!: number
     isValidating: boolean = false
+    emailLoading: boolean = false
+    phoneLoading: boolean = false
     oldIdentifyNum: any = ''
     oldRoom: any 
     oldKeepRoomDeposit: any
@@ -120,16 +122,28 @@ export class ContractComponent implements OnInit {
                 }
             }
         })
-        this.tenantForm.get('phone')?.valueChanges.subscribe((data) => {
+        this.tenantForm.get('phone')?.valueChanges.pipe(
+            debounceTime(500),
+            distinctUntilChanged()
+        ).subscribe((data) => {
             if (data) {
                 this.validatePhoneNumber(data)
                 this.tentant.phone = data
+                if (this.tenantForm.get('phone')?.valid) {
+                    this.checkDuplicatedPhone()
+                }
             }
         })
-        this.tenantForm.get('email')?.valueChanges.subscribe((data) => {
+        this.tenantForm.get('email')?.valueChanges.pipe(
+            debounceTime(500),
+            distinctUntilChanged()
+        ).subscribe((data) => {
             if (data) {
                 this.validateGmail(data)
                 this.tentant.email = data
+                if (this.tenantForm.get('email')?.valid) {
+                    this.checkDuplicatedEmail()
+                }
             }
         })
         this.tenantForm.get('gender')?.valueChanges.subscribe((data) => {
@@ -201,6 +215,32 @@ export class ContractComponent implements OnInit {
         })
     }
 
+    checkDuplicatedPhone() {
+        let isDuplicated = false;
+        this.phoneLoading = true
+        this.tenantService.checkDuplicatedPhone(this.tentant.phone).pipe(
+            finalize(() => {
+                this.phoneLoading = false
+                if (isDuplicated) {
+                    this.tenantForm.get('phone')?.setErrors({duplicated: true})
+                }
+            })
+        ).subscribe(response => isDuplicated = response.data)
+    }
+
+    checkDuplicatedEmail() {
+        let isDuplicated = false;
+        this.emailLoading = true
+        this.tenantService.checkDuplicatedEmail(this.tentant.email).pipe(
+            finalize(() => {
+                this.emailLoading = false
+                if (isDuplicated) {
+                    this.tenantForm.get('email')?.setErrors({duplicated: true})
+                }
+            })
+        ).subscribe(response => isDuplicated = response.data)
+    }
+
     prepareContractData(contract: Contract) {
         console.log(contract)
         this.contract = JSON.parse(JSON.stringify(contract))
@@ -234,7 +274,7 @@ export class ContractComponent implements OnInit {
             style: 'currency',
             currency: 'VND',
         });
-        let lanlord: {fullname?: string, identifyNum?: string, phone?: string, address?: string} = {fullname: this.user?.firstname + ' ' + this.user?.lastname, address: this.selectedAccomodation.address, identifyNum: this.user?.identifyNum, phone: this.user?.phone}
+        let lanlord: {fullname?: string, identifyNum?: string, phone?: string, address?: string} = {fullname: this.user?.firstname + ' ' + this.user?.lastname, address: `${this.selectedAccomodation.addressLine}, ${this.selectedAccomodation.ward}, ${this.selectedAccomodation.district}, ${this.selectedAccomodation.province}`, identifyNum: this.user?.identifyNum, phone: this.user?.phone}
         let representative : {identifyNum?: string, phone?: string, fullname: string} = {identifyNum:  this.contract.representative?.identifyNum, phone: this.contract.representative?.phone, fullname: this.contract.representative?.firstName + ' ' + this.contract.representative?.lastName}
         let room: {price: string, deposit?: string} = {price: vnd.format(this.contract.room?.price), deposit: vnd.format(Number(this.contract.deposit))}
         const contractStartDate = moment(this.contract.startDate)
@@ -243,10 +283,9 @@ export class ContractComponent implements OnInit {
         let endDate: {day?: string, month?: string, year?: string} = {day: contractEndDate.format('DD'), month: contractEndDate.format('MM'), year:  contractEndDate.format('YYYY')}
         const endDayStayedBefor = moment(this.nextMonth).format('DD/MM/YYYY')
         
-        console.log(vnd.format(this.dayStayedMoney))
+        console.log('this.selectedAccomodation', this.selectedAccomodation)
         let docxData = {lanlord: lanlord, representative: representative, room: room, startDate: startDate, endDate: endDate, services: this.contract.services, deposit: vnd.format(Number(this.contract.deposit)), dayStayedBefore: this.contract.dayStayedBefore, dayStayedMoney: vnd.format(this.dayStayedMoney), firstTotalPayment: vnd.format(Number(this.contract.firstComePayment)), holdRoomMoney: vnd.format(Number(this.contract.keepRoomDeposit)), endDayStayedBefor }
         console.log('docxData',docxData)
-        this.dayStayedMoney
         const documentCreator = new DocumentCreator();
         const doc = documentCreator.createContract(docxData);
     
@@ -420,14 +459,10 @@ export class ContractComponent implements OnInit {
                 finalize(() => {
                     this.getTenantByAccomodation().pipe(
                         finalize(() => {
-                            this.messageService.add({ severity: 'success', summary: 'Successful', detail: message, life: 3000 })
+                            this.messageService.add({ severity: 'success', summary: 'Thành công', detail: message, life: 3000 })
                             this.loading = false
                             this.tenantsDisplayed = JSON.parse(JSON.stringify(this.tenants))
-                            if (this.depositor.id) {
-                                this.tenantsDisplayed = this.tenantsDisplayed.filter(tenant => tenant.id !== this.depositor.id)
-                            } else {
-                                this.selectedTenants = []
-                            }
+                            this.tenantsDisplayed = this.tenantsDisplayed.filter(item => !this.isIncludeTenant(item))
                             console.log('this.selectedTenants', this.selectedTenants)
                         })
                     ).subscribe(response => this.tenants = response.data)
@@ -435,6 +470,11 @@ export class ContractComponent implements OnInit {
             )
             .subscribe((data) => console.log(data))
         this.tenantDialog = false
+    }
+
+    isIncludeTenant(tenant: Tenant) {
+        const tenantFound = this.selectedTenants.find((item: any) => item.id === tenant.id)
+        return !!tenantFound
     }
 
     checkRoomCapacity() {

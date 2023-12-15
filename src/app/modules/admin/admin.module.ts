@@ -41,10 +41,11 @@ import { HeaderComponent } from './layout/header/header.component'
 import { TagModule } from 'primeng/tag';
 import { PostListComponent } from './components/post-list/post-list.component';
 import { FieldsetModule } from 'primeng/fieldset';
-import { AdminProfileComponent } from './components/admin-profile/admin-profile.component'
+import { AdminProfileComponent } from './components/admin-profile/admin-profile.component';
+import { NewRegisterComponent } from './components/new-register/new-register.component'
 
 @NgModule({
-    declarations: [AdminComponent, UserManagementComponent, SidebarComponent, MenuitemComponent, HeaderComponent, PostListComponent, AdminProfileComponent],
+    declarations: [AdminComponent, UserManagementComponent, SidebarComponent, MenuitemComponent, HeaderComponent, PostListComponent, AdminProfileComponent, NewRegisterComponent],
     imports: [
         CommonModule,
         AdminRoutingModule,

@@ -1,23 +1,22 @@
-/** @format */
-
-import { Component, OnInit } from '@angular/core'
-import { FormControl, FormGroup, Validators } from '@angular/forms'
-import { MessageService } from 'primeng/api'
-import { Table } from 'primeng/table'
-import { debounceTime, distinctUntilChanged, finalize } from 'rxjs'
-import { AuthenticationService } from 'src/app/modules/auth/service/authentication.service'
-import { Room } from 'src/app/modules/landlord/model/accomodation.model'
-import { User } from 'src/app/modules/model/user.model'
-import { UserManagementService } from '../../services/user-management.service'
+import { Component, OnInit } from '@angular/core';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { MessageService } from 'primeng/api';
+import { debounceTime, distinctUntilChanged, finalize } from 'rxjs';
+import { AuthenticationService } from 'src/app/modules/auth/service/authentication.service';
+import { Room } from 'src/app/modules/landlord/model/accomodation.model';
+import { User } from 'src/app/modules/model/user.model';
+import { UserManagementService } from '../../services/user-management.service';
+import { Table } from 'primeng/table/table';
 
 @Component({
-    selector: 'app-user-management',
-    templateUrl: './user-management.component.html',
-    styleUrls: ['./user-management.component.scss'],
-    providers: [MessageService],
+  selector: 'app-new-register',
+  templateUrl: './new-register.component.html',
+  styleUrls: ['./new-register.component.scss'],
+  providers: [MessageService],
 })
-export class UserManagementComponent implements OnInit {
-    userDialog: boolean = false
+export class NewRegisterComponent implements OnInit {
+
+  userDialog: boolean = false
     deleteUserDialog: boolean = false
     users: any[] = []
     userSelected: any = {}
@@ -174,59 +173,17 @@ export class UserManagementComponent implements OnInit {
         this.userForm.get('email')?.setValue(this.userSelected.email)
         this.userForm.get('address')?.setValue(this.userSelected.address)
         this.userForm.get('role')?.setValue(this.userSelected.role)
-        this.userForm.get('status')?.setValue(this.userSelected.status)
-        this.userForm.get('userName')?.setValue(this.userSelected.userName)
-    }
-
-    openNew() {
-        this.userSelected = {}
-        this.oldEmail = ''
-        this.oldUsename = ''
-        this.userForm.get('firstname')?.setValue(null)
-        this.userForm.get('lastname')?.setValue(null)
-        this.userForm.get('phone')?.setValue(null)
-        this.userForm.get('identifyNum')?.setValue(null)
-        this.userForm.get('email')?.setValue(null)
-        this.userForm.get('address')?.setValue(null)
-        this.userForm.get('userName')?.setValue(null)
-        this.userForm.get('role')?.setValue('ROLE_LANDLORD')
         this.userForm.get('status')?.setValue('ACTIVE')
-        this.userDialog = true
+        this.userForm.get('userName')?.setValue(this.userSelected.userName)
     }
 
     onHideForm() {
         this.userForm.reset()
     }
 
-    changeUserStatus(userSelected: any, status: string) {
-        this.userSelected = { ...userSelected }
-        this.userSelected.status = status
-        this.loading = true
-        let message: string
-        if (status === 'ACTIVE') {
-            message = 'Mở khoá tài khoản thành công!'
-        } else if (status === 'LOCKED'){
-            message = 'Khoá tài khoản thành công!'
-        }
-        this.userManagementService
-                .updateUser(this.userSelected)
-                .pipe(
-                    finalize(() => {
-                        this.getAllUsers()
-                            .pipe(
-                                finalize(() => {
-                                    this.messageService.add({ severity: 'success', summary: 'Thành công', detail: message, life: 3000 })
-                                }),
-                            )
-                            .subscribe((response) => (this.users = response.data))
-                    }),
-                )
-                .subscribe((data) => console.log(data))
-    }
-
     getAllUsers() {
         this.loading = true
-        return this.userManagementService.getAllUsers().pipe(
+        return this.userManagementService.getNewRegisterUsers().pipe(
             finalize(() => {
                 this.loading = false
             }),
@@ -289,4 +246,5 @@ export class UserManagementComponent implements OnInit {
     onGlobalFilter(table: Table, event: Event) {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains')
     }
+
 }

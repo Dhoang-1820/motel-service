@@ -2,18 +2,6 @@
     <div class="col-12">
         <div class="card px-6 py-6">
             <p-toast></p-toast>
-            <p-toolbar styleClass="mb-4">
-                <ng-template pTemplate="left">
-                    <div class="my-2">
-                        <button pButton pRipple label="Tạo tài khoản" icon="pi pi-plus" class="p-button-success mr-2"
-                            (click)="openNew()"></button>
-                    </div>
-                </ng-template>
-
-                <ng-template pTemplate="right">
-
-                </ng-template>
-            </p-toolbar>
 
             <p-table #dt [value]="users" [columns]="cols" responsiveLayout="scroll" [rows]="10"
                 [globalFilterFields]="['firstName','lastName','address','phone', 'email']" [paginator]="true"
@@ -51,9 +39,6 @@
                         <td>{{user.email }}</td>
                         <ng-container [ngSwitch]="user.role">
                             <td *ngSwitchCase="'ROLE_LANDLORD'">Chủ trọ</td>
-                            <td *ngSwitchCase="'ROLE_POSTER'">Khách đăng tin</td>
-                            <td *ngSwitchCase="'ROLE_ADMIN'">Quản trị viên</td>
-                            <td *ngSwitchDefault>Chủ trọ</td>
                         </ng-container>
                         <ng-container [ngSwitch]="user.status">
                             <p-tag *ngSwitchCase="'REGISTERED'" severity="info"
@@ -65,13 +50,8 @@
                         </ng-container>
                         <td>
                             <div class="flex">
-                                <button pButton pRipple icon="pi pi-key" *ngIf="user.status === 'ACTIVE'" pTooltip="Reset mật khẩu" tooltipPosition="top"
-                                    class="p-button-rounded p-button-success mr-2" (click)="resetPassword(user)"></button>
-                                <button pButton pRipple icon="pi pi-lock" *ngIf="user.status === 'ACTIVE'" pTooltip="Khoá tài khoản" tooltipPosition="top"
-                                    class="p-button-rounded p-button-success mr-2" (click)="changeUserStatus(user, 'LOCKED')"></button>
-                                <button pButton pRipple icon="pi pi-lock-open" *ngIf="user.status === 'LOCKED'" pTooltip="Mở khoá tài khoản" tooltipPosition="top"
-                                    class="p-button-rounded p-button-success mr-2" (click)="changeUserStatus(user, 'ACTIVE')"></button>
-                                <button pButton pRipple icon="pi pi-pencil" pTooltip="Chỉnh sửa" tooltipPosition="top"
+                                
+                                <button pButton pRipple icon="pi pi-pencil" pTooltip="Tạo tài khoản" tooltipPosition="top"
                                     class="p-button-rounded p-button-success mr-2" (click)="editUser(user)"></button>
                             </div>
                         </td>
@@ -181,16 +161,6 @@
                                 <p-radioButton id="landord" formControlName="role"
                                     [value]="'ROLE_LANDLORD'"></p-radioButton>
                                 <label for="landord">Chủ trọ</label>
-                            </div>
-                            <div class="field-radiobutton col-4">
-                                <p-radioButton id="poster" formControlName="role"
-                                    [value]="'ROLE_POSTER'"></p-radioButton>
-                                <label for="poster">Khách đăng tin</label>
-                            </div>
-                            <div class="field-radiobutton col-4">
-                                <p-radioButton id="admin" formControlName="role"
-                                    [value]="'ROLE_ADMIN'"></p-radioButton>
-                                <label for="admin">Quản trị viên</label>
                             </div>
                         </div>
                     </div>

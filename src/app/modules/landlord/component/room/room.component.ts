@@ -190,7 +190,7 @@ export class RoomComponent implements OnInit {
                     finalize(() => {
                         this.submitted = false
                         this.loading = false
-                        this.messageService.add({ severity: 'success', summary: 'Successful', detail: message, life: 3000 })
+                        this.messageService.add({ severity: 'success', summary: 'Thành công', detail: message, life: 3000 })
                     }),
                 )
                 .subscribe((response) => (this.rooms = response.data))

@@ -267,7 +267,7 @@ export class DocumentCreator {
                                     break: 1,
                                 }),
                                 new TextRun({
-                                    text: `Số ngày đã ở: ${contract.dayStayedBefore} kể từ ngày (${contract.startDate.day}/${contract.startDate.month}/${contract.startDate.year} đến ngày ${contract.endDayStayedBefor})`,
+                                    text: `Số ngày đã ở: ${contract.dayStayedBefore} (kể từ ngày ${contract.startDate.day}/${contract.startDate.month}/${contract.startDate.year} đến ngày ${contract.endDayStayedBefor})`,
                                     break: 1,
                                 }),
                                 new TextRun({
@@ -361,7 +361,7 @@ export class DocumentCreator {
                     children: [
                         new Paragraph({
                             style: 'heading',
-                            text: 'HOÁ ĐƠN TIỀN PHÒNG',
+                            text: 'PHIẾU TIỀN PHÒNG',
                             heading: HeadingLevel.HEADING_1,
                             alignment: AlignmentType.CENTER,
                             children: [
@@ -680,7 +680,7 @@ export class DocumentCreator {
                                     break: 1,
                                 }),
                                 new TextRun({
-                                    text: `Giảm giá (đồng): ${invoice.discount}`,
+                                    text: `Giảm giá (đồng): ${vnd.format(invoice.discount)}`,
                                     break: 1,
                                 }),
                                 new TextRun({

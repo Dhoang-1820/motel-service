@@ -58,9 +58,9 @@
                 <span *ngIf="contract">Xác nhận xoá hợp đồng phòng <b>{{contract.room?.name}}</b>?</span>
             </div>
             <ng-template pTemplate="footer">
-                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No"
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="Không"
                     (click)="deleteContractDialog = false"></button>
-                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes"
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Có"
                     (click)="confirmDeleteContract()"></button>
             </ng-template>
         </p-dialog>
@@ -256,8 +256,8 @@
                 </form>            
             </ng-template>
             <ng-template pTemplate="footer">
-                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-                <button pButton pRipple label="Save" icon="pi pi-check" [disabled]="contractForm.invalid" class="p-button-text" (click)="saveContract()"></button>
+                <button pButton pRipple label="Huỷ" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+                <button pButton pRipple label="Lưu" icon="pi pi-check" [disabled]="contractForm.invalid" class="p-button-text" (click)="saveContract()"></button>
             </ng-template>
         </p-dialog>
        
@@ -299,19 +299,27 @@
                     </div>
                     <div class="field">
                         <label for="email">Email <span class="mandatory-sign">*</span></label>
-                         <div class="input-box">
+                        <span class="p-input-icon-right">
+                            <i class="pi pi-spin pi-spinner" *ngIf="emailLoading"></i>
+                            <div class="input-box">
                              <input formControlName="email" type="text" pInputText id="email" [ngClass]="{'ng-invalid ng-dirty' : tenantForm.controls['email'].invalid && (tenantForm.controls['email'].dirty || tenantForm.controls['email'].touched)}"/>
-                         </div>
+                            </div>
+                        </span>
                         <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('email')?.getError('required') && (tenantForm.controls['email'].dirty || tenantForm.controls['email'].touched)">Vui lòng nhập email.</small>
                         <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('email')?.getError('mailInvalid') && (tenantForm.controls['email'].dirty || tenantForm.controls['email'].touched)">Email không hợp lệ.</small>
+                        <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('email')?.getError('duplicated') && (tenantForm.controls['email'].dirty || tenantForm.controls['email'].touched)">Email đã tồn tại.</small>
                     </div>
                     <div class="field">
                         <label for="phone">Số điện thoại <span class="mandatory-sign">*</span></label>
-                         <div class="input-box">
+                        <span class="p-input-icon-right">
+                            <i class="pi pi-spin pi-spinner" *ngIf="phoneLoading"></i>
+                            <div class="input-box">
                              <input formControlName="phone" onlyNumber type="text" pInputText id="phone" [ngClass]="{'ng-invalid ng-dirty' : tenantForm.controls['phone'].invalid && (tenantForm.controls['phone'].dirty || tenantForm.controls['phone'].touched)}"/>
-                         </div>
+                            </div>
+                        </span>
                         <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('phone')?.getError('required') && (tenantForm.controls['phone'].dirty || tenantForm.controls['phone'].touched)">Vui lòng nhập số điện thoại.</small>
                         <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('phone')?.getError('phoneInvalid') && (tenantForm.controls['phone'].dirty || tenantForm.controls['phone'].touched)">Số điện thoại không hợp lệ.</small>
+                        <small class="ng-dirty ng-invalid" *ngIf="tenantForm.get('phone')?.getError('duplicated') && (tenantForm.controls['phone'].dirty || tenantForm.controls['phone'].touched)">Số điện thoại đã tồn tại.</small>
                     </div>
                     <div class="field">
                         <label for="name">Ngày bắt đầu ở</label>
@@ -323,8 +331,8 @@
             </ng-template>
 
             <ng-template pTemplate="footer">
-                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="tenantDialog = false"></button>
-                <button pButton pRipple label="Save" [disabled]="tenantForm.invalid" icon="pi pi-check"  class="p-button-text" (click)="saveTenant()"></button>
+                <button pButton pRipple label="Huỷ" icon="pi pi-times" class="p-button-text" (click)="tenantDialog = false"></button>
+                <button pButton pRipple label="Lưu" [disabled]="tenantForm.invalid" icon="pi pi-check"  class="p-button-text" (click)="saveTenant()"></button>
             </ng-template>
         </p-dialog>
 
@@ -334,8 +342,8 @@
                 <!-- <span *ngIf="contract">Huỷ đặt cọc phòng <b>{{contract.room.name}}</b>?</span> -->
             </div>
             <ng-template pTemplate="footer">
-                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="cancelDepositDialog = false"></button>
-                <!-- <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmCancelDeposit()"></button> -->
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="Không" (click)="cancelDepositDialog = false"></button>
+                <!-- <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Có" (click)="confirmCancelDeposit()"></button> -->
             </ng-template>
         </p-dialog>
     </div>

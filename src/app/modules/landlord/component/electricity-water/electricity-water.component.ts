@@ -140,10 +140,10 @@ export class ElectricityWaterComponent implements OnInit {
                 this.loading = false
                 if (result) {
                     console.log(result)
-                    this.electricWaterNumForm.get('firstElectric')?.setValue(result.firstElectric)
-                    this.electricWaterNumForm.get('lastElectric')?.setValue(result.firstElectric)
-                    this.electricWaterNumForm.get('firstWater')?.setValue(result.firstWater)
-                    this.electricWaterNumForm.get('lastWater')?.setValue(result.firstWater)
+                    this.electricWaterNumForm.get('firstElectric')?.setValue(result.lastElectric)
+                    this.electricWaterNumForm.get('lastElectric')?.setValue(result.lastElectric)
+                    this.electricWaterNumForm.get('firstWater')?.setValue(result.lastWater)
+                    this.electricWaterNumForm.get('lastWater')?.setValue(result.lastWater)
                 } else {
                     this.electricWaterNumForm.get('firstElectric')?.setValue(0)
                     this.electricWaterNumForm.get('lastElectric')?.setValue(0)
@@ -322,7 +322,7 @@ export class ElectricityWaterComponent implements OnInit {
             finalize(() => {
                 this.deleteDialog = false
                 this.initData()
-                this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Xoá thành công', life: 3000 })
+                this.messageService.add({ severity: 'success', summary: 'Thành công', detail: 'Xoá thành công', life: 3000 })
                 this.electricWater = {}
             })
         ).subscribe()

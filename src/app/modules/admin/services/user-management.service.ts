@@ -15,6 +15,10 @@ export class UserManagementService {
         return this.http.get<any>(`${environment.apiUrl}/user`).pipe(retry(1), delay(1000))
     }
 
+    getNewRegisterUsers(): Observable<any> {
+        return this.http.get<any>(`${environment.apiUrl}/user/new-register`).pipe(retry(1), delay(1000))
+    }
+
     updateUser(request: any): Observable<any> {
         return this.http.put<any>(`${environment.apiUrl}/user`, request).pipe(retry(1), delay(1000))
     }

@@ -37,8 +37,12 @@ export class UserService {
         return this.http.put<any>(`${environment.apiUrl}/user/preference`, request).pipe(retry(1), delay(1000))
     }
 
-    getDashboard(userId: any): Observable<any> {
-        return this.http.get<any>(`${environment.apiUrl}/user/dashboard/${userId}`).pipe(retry(1), delay(1000))
+    getDashboard(request: any): Observable<any> {
+        return this.http.post<any>(`${environment.apiUrl}/user/dashboard`, request).pipe(retry(1), delay(1000))
+    }
+
+    getChartRevenue(request: any): Observable<any> {
+        return this.http.post<any>(`${environment.apiUrl}/user/dashboard/chart`, request).pipe(retry(1), delay(1000))
     }
 
     signUp(request: any): Observable<any> {

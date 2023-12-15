@@ -289,7 +289,7 @@ export class EquipmentComponent implements OnInit {
                     this.loading = false
                     this.equipment = {}
                     this.collapse()
-                    this.messageService.add({ severity: 'success', summary: 'Successful', detail: message, life: 3000 })
+                    this.messageService.add({ severity: 'success', summary: 'Thành công', detail: message, life: 3000 })
                 }),
             )
             .subscribe((response) => (this.equipments = response.data))

@@ -7,6 +7,7 @@ export class Post {
 	createdAt?: Date;
 	acreage?: number;
     capacity?: number;
+    emptyRoomNum?: number = 1;
     price?: number;
 	lastChange?: Date;
 	userId?: number;

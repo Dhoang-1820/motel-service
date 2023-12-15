@@ -16,7 +16,7 @@
                 </ng-template>
             </p-toolbar>
 
-            <p-table #dt [value]="tentants" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['firstName', 'lastName', 'room.name', 'startDate', 'isStayed', 'identifyNum', 'email', 'phone']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"  selectionMode="multiple" [rowHover]="true" dataKey="id">
+            <p-table #dt [value]="tentants" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['firstName', 'lastName', 'room.name', 'startDate', 'isStayed', 'identifyNum', 'email', 'phone']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]"  selectionMode="multiple" [rowHover]="true" dataKey="id">
                 <ng-template pTemplate="caption">
                     <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
                         <h5 class="m-0">Quản lý khách thuê</h5>
@@ -142,8 +142,8 @@
             </ng-template>
 
             <ng-template pTemplate="footer">
-                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-                <button pButton pRipple label="Save" [disabled]="tenantForm.invalid" icon="pi pi-check"  class="p-button-text" (click)="saveTenant()"></button>
+                <button pButton pRipple label="Huỷ" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+                <button pButton pRipple label="Lưu" [disabled]="tenantForm.invalid" icon="pi pi-check"  class="p-button-text" (click)="saveTenant()"></button>
             </ng-template>
         </p-dialog>
         <p-dialog [(visible)]="deleteTenantDialog" header="Xác nhận" [modal]="true" [style]="{width:'450px'}">
@@ -152,8 +152,8 @@
                 <span *ngIf="tentant">Xác nhận xoá khách thuê <b>{{tentant.firstName + ' ' + tentant.lastName}}</b>?</span>
             </div>
             <ng-template pTemplate="footer">
-                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteTenantDialog = false"></button>
-                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDelete()"></button>
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="Không" (click)="deleteTenantDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Có" (click)="confirmDelete()"></button>
             </ng-template>
         </p-dialog>
     </div>

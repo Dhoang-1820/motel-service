@@ -189,8 +189,8 @@
                 </form>            
             </ng-template>
             <ng-template pTemplate="footer">
-                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-                <button pButton pRipple label="Save" icon="pi pi-check" [disabled]="depositForm.invalid" class="p-button-text" (click)="saveDeposit()"></button>
+                <button pButton pRipple label="Huỷ" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+                <button pButton pRipple label="Lưu" icon="pi pi-check" [disabled]="depositForm.invalid" class="p-button-text" (click)="saveDeposit()"></button>
             </ng-template>
         </p-dialog>
 
@@ -200,20 +200,20 @@
                 <span *ngIf="deposit">Huỷ đặt cọc phòng <b>{{deposit.room?.name}}</b>?</span>
             </div>
             <ng-template pTemplate="content">
-                <div class="flex align-items-center justify-content-center" style="margin-top: 25px;"> 
+                <div class="flex flex-column align-items-start justify-content-center" style="margin-top: 25px;"> 
                     <div class="field-checkbox">
-                        <label for="repaid" class="mr-2">Trả lại tiền</label>
                         <p-radioButton id="repaid" [(ngModel)]="isRepaid" [value]="true"></p-radioButton>
+                        <label for="repaid" class="mr-2">Trả lại tiền cọc</label>
                     </div>
                     <div class="field-checkbox">
-                        <label for="non-repaid" class="mr-2">Không trả lại tiền</label>
                         <p-radioButton id="non-repaid" [(ngModel)]="isRepaid" [value]="false"></p-radioButton>
+                        <label for="non-repaid" class="mr-2">Không trả lại tiền cọc</label>
                     </div>
                 </div>
             </ng-template>
             <ng-template pTemplate="footer">
-                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="cancelDepositDialog = false"></button>
-                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmCancelDeposit()"></button>
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="Không" (click)="cancelDepositDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Có" (click)="confirmCancelDeposit()"></button>
             </ng-template>
         </p-dialog>
 
@@ -405,8 +405,8 @@
                 </form>            
             </ng-template>
             <ng-template pTemplate="footer">
-                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="contractDialog = false"></button>
-                <button pButton pRipple label="Save" icon="pi pi-check" [disabled]="contractForm.invalid" class="p-button-text" (click)="saveContract()"></button>
+                <button pButton pRipple label="Huỷ" icon="pi pi-times" class="p-button-text" (click)="contractDialog = false"></button>
+                <button pButton pRipple label="Lưu" icon="pi pi-check" [disabled]="contractForm.invalid" class="p-button-text" (click)="saveContract()"></button>
             </ng-template>
         </p-dialog>
 
@@ -480,8 +480,8 @@
             </ng-template>
 
             <ng-template pTemplate="footer">
-                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="tenantDialog = false"></button>
-                <button pButton pRipple label="Save" [disabled]="tenantForm.invalid" icon="pi pi-check"  class="p-button-text" (click)="saveTenant()"></button>
+                <button pButton pRipple label="Huỷ" icon="pi pi-times" class="p-button-text" (click)="tenantDialog = false"></button>
+                <button pButton pRipple label="Lưu" [disabled]="tenantForm.invalid" icon="pi pi-check"  class="p-button-text" (click)="saveTenant()"></button>
             </ng-template>
         </p-dialog>
     </div>

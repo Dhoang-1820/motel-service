@@ -77,8 +77,9 @@ export class PostManagementComponent implements OnInit {
             title: new FormControl(this.post.title, [Validators.required]),
             content: new FormControl(this.post.content, [Validators.required]),
             price: new FormControl(this.post.price, [Validators.required]),
-            acreage: new FormControl(this.post.acreage, []),
+            acreage: new FormControl(this.post.acreage, [Validators.required]),
             capacity: new FormControl(this.post.capacity, []),
+            emptyRoomNum: new FormControl(this.post.emptyRoomNum, [Validators.required]),
             status: new FormControl(this.post.status, []),
             province: new FormControl(this.post.province, [Validators.required]),
             district: new FormControl(this.post.district, [Validators.required]),
@@ -124,6 +125,9 @@ export class PostManagementComponent implements OnInit {
         })
         this.postForm.get('capacity')?.valueChanges.subscribe((data) => {
             this.post.capacity = data
+        })
+        this.postForm.get('emptyRoomNum')?.valueChanges.subscribe(data => {
+            this.post.emptyRoomNum = data
         })
 
         this.postForm.get('province')?.valueChanges.subscribe((data) => {
@@ -186,6 +190,7 @@ export class PostManagementComponent implements OnInit {
         this.postForm.get('price')?.setValue(null)
         this.postForm.get('acreage')?.setValue(null)
         this.postForm.get('capacity')?.setValue(null)
+        this.postForm.get('emptyRoomNum')?.setValue(null)
         this.postForm.get('province')?.setValue(null)
         this.postForm.get('district')?.setValue(null)
         this.postForm.get('ward')?.setValue(null)
@@ -353,6 +358,7 @@ export class PostManagementComponent implements OnInit {
         this.postForm.get('price')?.setValue(this.post.price)
         this.postForm.get('acreage')?.setValue(this.post.acreage)
         this.postForm.get('capacity')?.setValue(this.post.capacity)
+        this.postForm.get('emptyRoomNum')?.setValue(this.post.emptyRoomNum)
         this.postForm.get('status')?.setValue(this.post.status)
         this.existingProvince = this.findAddressByName(this.post.provinceCode, this.provices)
         this.postForm.get('province')?.setValue(this.existingProvince)

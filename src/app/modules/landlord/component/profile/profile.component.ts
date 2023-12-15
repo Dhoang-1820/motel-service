@@ -46,8 +46,8 @@ export class ProfileManagement implements OnInit {
         })
 
         this.userForm = new FormGroup({
-            firstname: new FormControl(this.userResult?.firstname, [Validators.required]),
-            lastname: new FormControl(this.userResult?.lastname, [Validators.required]),
+            firstname: new FormControl(this.userResult?.firstName, [Validators.required]),
+            lastname: new FormControl(this.userResult?.lastName, [Validators.required]),
             phone: new FormControl(this.userResult?.phone, []),
             identifyNum: new FormControl(this.userResult?.identifyNum, []),
             email: new FormControl(this.userResult?.email, [Validators.required]),
@@ -82,10 +82,10 @@ export class ProfileManagement implements OnInit {
         })
 
         this.userForm.get('firstname')?.valueChanges.subscribe(data => {
-            this.userResult.firstname = data
+            this.userResult.firstName = data
         })
         this.userForm.get('lastname')?.valueChanges.subscribe(data => {
-            this.userResult.lastname = data
+            this.userResult.lastName = data
         })
         this.userForm.get('phone')?.valueChanges.subscribe(data => {
             if (data) {
@@ -175,7 +175,7 @@ export class ProfileManagement implements OnInit {
         this.userService.saveUser(request).pipe(
             finalize(() => {
                 this.saveLoading = false
-                this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Chỉnh sửa thành công', life: 3000 })
+                this.messageService.add({ severity: 'success', summary: 'Thành công', detail: 'Chỉnh sửa thành công', life: 3000 })
             }),
         )
         .subscribe(data => console.log(data))

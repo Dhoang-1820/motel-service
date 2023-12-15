@@ -25,7 +25,7 @@ export class HeaderComponent implements OnInit {
                     {
                         label: 'Quản lý người dùng',
                         icon: 'pi pi-fw pi-users',
-                        routerLink: '/admin/user-management',
+                        routerLink: '/administration/user-management',
                     },
                     {
                         label: 'Đăng xuất',

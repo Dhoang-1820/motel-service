@@ -8,7 +8,7 @@ export class User {
     token?: string;
     refreshToken?: string;
     roles?: string;
-    isActive?: boolean;
+    status?: string;
 }
 
 export class ChangePassword {

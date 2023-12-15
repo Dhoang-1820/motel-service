@@ -44,8 +44,8 @@ export class AuthComponent implements OnInit {
         private route: ActivatedRoute,
     ) {
         this.signupForm = new FormGroup({
-            firstname: new FormControl(this.signUpRequest.firstname, [Validators.required]),
-            lastname: new FormControl(this.signUpRequest.lastname, [Validators.required]),
+            firstname: new FormControl(this.signUpRequest.firstName, [Validators.required]),
+            lastname: new FormControl(this.signUpRequest.lastName, [Validators.required]),
             email: new FormControl(this.signUpRequest.email, [Validators.required]),
             phone: new FormControl(this.signUpRequest.phone, []),
             username: new FormControl(this.signUpRequest.userName, [Validators.required]),
@@ -56,10 +56,10 @@ export class AuthComponent implements OnInit {
 
     ngOnInit(): void {
         this.signupForm.get('firstname')?.valueChanges.subscribe((data) => {
-            this.signUpRequest.firstname = data
+            this.signUpRequest.firstName = data
         })
         this.signupForm.get('lastname')?.valueChanges.subscribe((data) => {
-            this.signUpRequest.lastname = data
+            this.signUpRequest.lastName = data
         })
         this.signupForm
             .get('email')
@@ -174,7 +174,7 @@ export class AuthComponent implements OnInit {
                 finalize(() => {
                     this.loading = false
                     console.log(this.user)
-                    if (this.user && this.user.isActive) {
+                    if (this.user && this.user.status === 'ACTIVE') {
                         this.userRole = this.user.roles
                         if (this.userRole === AppConstant.ROLE_LANDLORD) {
                             this.router.navigateByUrl('/motel-management/accomodation')
@@ -212,7 +212,8 @@ export class AuthComponent implements OnInit {
     signUp() {
         if (!this.signupForm.invalid) {
             this.loading = true
-            this.signUpRequest.roles = 'poster'
+            this.signUpRequest.roles = 'ROLE_POSTER'
+            this.signUpRequest.status = 'ACTIVE'
             this.userService
                 .signUp(this.signUpRequest)
                 .pipe(

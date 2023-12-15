@@ -15,6 +15,10 @@ import { BillService } from '../../service/bill.service'
 import { RoomService } from '../../service/room.service'
 import { Invoice } from '../../model/bill.model'
 import { AppConstant } from 'src/app/modules/common/Constants'
+import { UserService } from '../../service/user.service'
+import { DocumentCreator } from '../../service/docx.service'
+import { Packer } from 'docx'
+import * as saveAs from 'file-saver'
 
 @Component({
     selector: 'app-return-room',
@@ -45,6 +49,7 @@ export class ReturnRoomComponent implements OnInit {
     isReturnRoomValid: boolean = false
     issueLoading: boolean = false
     rentedDate: any
+    preMonth: Date
 
     commonRequest!: { id: any; month: any }
 
@@ -53,6 +58,7 @@ export class ReturnRoomComponent implements OnInit {
         private accomodationService: AccomodationService,
         private roomService: RoomService,
         private billService: BillService,
+        private userService: UserService,
         private messageService: MessageService,
     ) {
         this.returnRoomForm = new FormGroup({
@@ -72,6 +78,7 @@ export class ReturnRoomComponent implements OnInit {
         })
 
         this.selectedMonth = moment().toDate()
+        this.preMonth = moment(this.selectedMonth).subtract(1, 'months').endOf('month').toDate()
     }
 
     ngOnInit(): void {
@@ -157,9 +164,9 @@ export class ReturnRoomComponent implements OnInit {
 
     confirmPayment(invoice: Invoice) {
         this.loading = true
-        this.invoice.isPay = true
+        let request: {invoiceId: any, paidMoney: any, debt: any} = {invoiceId: invoice.id, paidMoney: invoice.paidMoney, debt: 0}
         this.billService
-            .confirmPayment(invoice.id)
+            .confirmPayment(request)
             .pipe(
                 finalize(() => {
                     this.hideDialog()
@@ -178,6 +185,7 @@ export class ReturnRoomComponent implements OnInit {
     getInvoiceByMonth() {
         this.loading = true
         let request = { id: this.selectedAccomodation.id, month: this.selectedMonth, isReturn: true }
+        this.preMonth = moment(this.selectedMonth).subtract(1, 'months').endOf('month').toDate()
         this.billService
             .getMonthInvoiceByAccomodation(request)
             .pipe(
@@ -345,7 +353,7 @@ export class ReturnRoomComponent implements OnInit {
             .removeInvoice(invoiceId)
             .pipe(
                 finalize(() => {
-                    this.getReturnInvoiceByAccomodation().subscribe((response) => (this.invoices = response.data))
+                    this.initData()
                 }),
             )
             .subscribe((response) => console.log(response))
@@ -362,11 +370,19 @@ export class ReturnRoomComponent implements OnInit {
     getMenuItems(invoice: Invoice): MenuItem[] {
         this.items = [
             {
-                icon: 'pi pi-pencil',
-                label: 'Sửa hoá đơn',
+                icon: 'pi pi-info-circle',
+                label: 'Xem chi tiết hoá đơn',
                 command: (e: any) => {
                     this.isEdit = true
                     this.getInvoiceDetail(e.item.data.id)
+                },
+            },
+            {
+                icon: 'pi pi-print',
+                label: 'In hoá đơn',
+                visible: !!invoice.id && !invoice.isPay,
+                command: (e: any) => {
+                    this.printInvoice(e.item.data.id)
                 },
             },
             {
@@ -384,7 +400,14 @@ export class ReturnRoomComponent implements OnInit {
                 command: (e) => {
                     this.sendInvoiceMail(e.item.data.id)
                 },
-            }
+            },
+            {
+                label: 'Xoá',
+                icon: 'pi pi-trash',
+                command: (e) => {
+                    this.removeInvoice(e.item.data.id)
+                },
+            },
         ]
         this.items.forEach((menuItem: any) => {
             menuItem.data = invoice
@@ -392,10 +415,87 @@ export class ReturnRoomComponent implements OnInit {
         return this.items
     }
 
+    initPrintData(invoiceId: any) {
+        this.loading = true
+        let request: { id: number; month?: Date } = { id: invoiceId, month: this.selectedMonth }
+        return forkJoin({
+            invoice: this.billService.getInvoiceDetail(request),
+            landlord: this.userService.getUserByUserId(this.user?.id),
+        })
+    }
+
+    printInvoice(invoiceId: any) {
+        let invoice: any
+        let lanlord: any
+        this.initPrintData(invoiceId)
+            .pipe(
+                finalize(() => {
+                    console.log(invoice)
+                    this.loading = false
+
+                    let services: { name?: string; quantity?: any; price?: any }[] = []
+                    let electricsWaterNum: { name?: string; firstNum?: any; lastNum?: any; quantity?: any; price?: any }[] = []
+
+                    invoice.service?.forEach((item: any) => {
+                        if (item.electricNum !== null) {
+                            electricsWaterNum.push({
+                                name: 'Tiền điện',
+                                firstNum: item.firstElectricNum,
+                                lastNum: item.lastElectricNum,
+                                price: item.totalPrice,
+                                quantity: item.electricNum,
+                            })
+                        } else if (item.waterNum !== null) {
+                            electricsWaterNum.push({
+                                name: 'Tiền nước',
+                                firstNum: item.firstWaterNum,
+                                lastNum: item.lastWaterNum,
+                                price: item.totalPrice,
+                                quantity: item.waterNum,
+                            })
+                        } else {
+                            services.push({ name: item.serviceName, price: item.totalPrice, quantity: item.quantity })
+                        }
+                    })
+                    console.log('electricsWaterNum', electricsWaterNum)
+                    const month = moment(invoice.billDate).format('MM/YYYY')
+                    const debtMonth = moment(this.preMonth).format('MM/YYYY')
+                    let printData: any = {
+                        services,
+                        electricsWaterNum,
+                        roomName: invoice.room?.name,
+                        month,
+                        totalService: invoice.totalService,
+                        debtMonth,
+                        debt: invoice.debt,
+                        totalPrice: invoice.totalPrice,
+                        discount: invoice.discount,
+                        totalPayment: invoice.totalPayment,
+                        paidMoney: invoice.paidMoney,
+                        banks: lanlord.bankAccounts,
+                    }
+
+                    const documentCreator = new DocumentCreator()
+                    const doc = documentCreator.createInvoice(printData)
+
+                    Packer.toBlob(doc).then((blob) => {
+                        console.log(blob)
+                        saveAs(blob, `Hoa_don_phong_${invoice.room?.name}_thang_${month}.docx`)
+                        console.log('Document created successfully')
+                    })
+                }),
+            )
+            .subscribe((response) => {
+                lanlord = response.landlord.data
+                invoice = response.invoice.data
+            })
+    }
+
     getInvoiceDetail(invoiceId: number) {
         this.loading = true
+        let request: { id: number; month?: Date } = { id: invoiceId, month: this.selectedMonth }
         this.billService
-            .getReturnInvoiceDetail(invoiceId)
+            .getReturnInvoiceDetail(request)
             .pipe(
                 finalize(() => {
                     this.loading = false

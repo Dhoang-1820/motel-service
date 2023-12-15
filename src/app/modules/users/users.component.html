@@ -38,12 +38,12 @@
                         </g>
                     </svg>
                 </div>
-                <span>Motel service</span>
+                <span>Phòng trọ 123</span>
             </a>
 
             <div #topbarmenu class="layout-topbar-menu"
                 [ngClass]="{'layout-topbar-menu-mobile-active': layoutService.state.profileSidebarVisible}">
-                    
+                <button (click)="openRegisterMemberDialog()" pButton pRipple label="Đăng ký sử dụng dịch vụ quản lý phòng trọ" class="p-button-text p-button-rounded border-none font-light line-height-2 text-blue-500"></button>
                 <button pButton pRipple label="Đăng tin" icon="pi pi-external-link" (click)="post()"
                     class="p-button-rounded border-none ml-5 font-light line-height-2 bg-blue-500 text-white"></button>
                 <button class="p-link layout-topbar-button" (click)="menu.toggle($event)">
@@ -62,6 +62,112 @@
         </div>
     </div>
 </div>
+
+<p-dialog [(visible)]="registerDialog" [style]="{width: '450px'}" header="Tạo tài khoản" [modal]="true"
+            class="p-fluid">
+            <ng-template pTemplate="content">
+                <form [formGroup]="registerForm">
+                    <div class="formgrid grid">
+                        <div class="field col">
+                            <label htmlFor="firstName">Họ <span class="mandatory-sign">*</span></label>
+                            <div class="input-box">
+                                <input pInputText id="firstName" formControlName="firstname" type="text"
+                                    [ngClass]="{'ng-invalid ng-dirty' : registerForm.controls['firstname'].invalid && (registerForm.controls['firstname'].dirty || registerForm.controls['firstname'].touched)}" />
+                            </div>
+                            <small class="ng-dirty ng-invalid"
+                                *ngIf="registerForm.get('firstname')?.getError('required') && (registerForm.controls['firstname'].dirty || registerForm.controls['firstname'].touched)">Vui
+                                lòng nhập họ.</small>
+                        </div>
+                        <div class="field col">
+                            <label htmlFor="lastname">Tên <span class="mandatory-sign">*</span></label>
+                            <div class="input-box">
+                                <input pInputText id="lastname" formControlName="lastname" type="text"
+                                    [ngClass]="{'ng-invalid ng-dirty' : registerForm.controls['lastname'].invalid && (registerForm.controls['lastname'].dirty || registerForm.controls['lastname'].touched)}" />
+                            </div>
+                            <small class="ng-dirty ng-invalid"
+                                *ngIf="registerForm.get('lastname')?.getError('required') && (registerForm.controls['lastname'].dirty || registerForm.controls['lastname'].touched)">Vui
+                                lòng nhập tên.</small>
+                        </div>
+                    </div>
+                    
+                    <div class="field">
+                        <label htmlFor="identifyNum">Số CCCD </label>
+                        <div class="input-box">
+                            <input pInputText id="identifyNum" onlyNumber formControlName="identifyNum" type="text"
+                                [ngClass]="{'ng-invalid ng-dirty' : registerForm.controls['identifyNum'].invalid && (registerForm.controls['identifyNum'].dirty || registerForm.controls['identifyNum'].touched)}" />
+                        </div>
+                        <small class="ng-dirty ng-invalid"
+                            *ngIf="registerForm.get('identifyNum')?.getError('required') && (registerForm.controls['identifyNum'].dirty || registerForm.controls['identifyNum'].touched)">Vui
+                            lòng nhập số CCCD.</small>
+                        <small class="ng-dirty ng-invalid"
+                            *ngIf="registerForm.get('identifyNum')?.getError('duplicated') && (registerForm.controls['identifyNum'].dirty || registerForm.controls['identifyNum'].touched)">Số
+                            CCCD đã tồn tại.</small>
+                    </div>
+                    <div class="field">
+                        <label htmlFor="email3">Email <span class="mandatory-sign">*</span></label>
+                        <span class="p-input-icon-right">
+                            <i class="pi pi-spin pi-spinner" *ngIf="emailLoading"></i>
+                            <div class="input-box">
+                                <input pInputText id="email3" formControlName="email" type="text"
+                                    [ngClass]="{'ng-invalid ng-dirty' : registerForm.controls['email'].invalid && (registerForm.controls['email'].dirty || registerForm.controls['email'].touched)}" />
+                            </div>
+                        </span>
+                        <small class="ng-dirty ng-invalid"
+                            *ngIf="registerForm.get('email')?.getError('required') && (registerForm.controls['email'].dirty || registerForm.controls['email'].touched)">Vui
+                            lòng nhập email.</small>
+                        <small class="ng-dirty ng-invalid"
+                            *ngIf="registerForm.get('email')?.getError('mailInvalid') && (registerForm.controls['email'].dirty || registerForm.controls['email'].touched)">Email
+                            không hợp lệ.</small>
+                        <small class="ng-dirty ng-invalid"
+                            *ngIf="registerForm.get('email')?.getError('duplicated') && (registerForm.controls['email'].dirty || registerForm.controls['email'].touched)">Email
+                            đã tồn tại.</small>
+                    </div>
+                    <div class="field">
+                        <label htmlFor="email3">User name <span class="mandatory-sign">*</span></label>
+                        <span class="p-input-icon-right">
+                            <i class="pi pi-spin pi-spinner" *ngIf="usernameLoading"></i>
+                            <div class="input-box">
+                                <input pInputText id="email3" formControlName="userName" type="text"
+                                    [ngClass]="{'ng-invalid ng-dirty' : registerForm.controls['userName'].invalid && (registerForm.controls['userName'].dirty || registerForm.controls['userName'].touched)}" />
+                            </div>
+                        </span>
+                        <small class="ng-dirty ng-invalid"
+                            *ngIf="registerForm.get('userName')?.getError('required') && (registerForm.controls['userName'].dirty || registerForm.controls['userName'].touched)">Vui
+                            lòng nhập user name.</small>
+                        <small class="ng-dirty ng-invalid"
+                            *ngIf="registerForm.get('userName')?.getError('duplicated') && (registerForm.controls['userName'].dirty || registerForm.controls['userName'].touched)">User name đã tồn tại.</small>
+                    </div>
+                    <div class="field">
+                        <label htmlFor="address">Địa chỉ</label>
+                        <div class="input-box">
+                            <input pInputText id="address" formControlName="address" type="text"
+                                [ngClass]="{'ng-invalid ng-dirty' : registerForm.controls['address'].invalid && (registerForm.controls['address'].dirty || registerForm.controls['address'].touched)}" />
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label htmlFor="phone">Số điện thoại</label>
+                        <div class="input-box">
+                            <input pInputText id="phone" onlyNumber formControlName="phone" type="text"
+                                [ngClass]="{'ng-invalid ng-dirty' : registerForm.controls['phone'].invalid && (registerForm.controls['phone'].dirty || registerForm.controls['phone'].touched)}" />
+                        </div>
+                        <small class="ng-dirty ng-invalid"
+                            *ngIf="registerForm.get('phone')?.getError('required') && (registerForm.controls['phone'].dirty || registerForm.controls['phone'].touched)">Vui
+                            lòng nhập số điện thoại.</small>
+                        <small class="ng-dirty ng-invalid"
+                            *ngIf="registerForm.get('phone')?.getError('phoneInvalid') && (registerForm.controls['phone'].dirty || registerForm.controls['phone'].touched)">Số
+                            điện thoại không hợp lệ.</small>
+                    </div>
+                </form>
+
+            </ng-template>
+
+            <ng-template pTemplate="footer">
+                <button pButton pRipple label="Huỷ" icon="pi pi-times" class="p-button-text"
+                    (click)="registerDialog = false"></button>
+                <button pButton pRipple label="Lưu" icon="pi pi-check" class="p-button-text"
+                    (click)="saveRegister()"></button>
+            </ng-template>
+        </p-dialog>
 
 <div class="progress-spinner" *ngIf="loading">
     <p-progressSpinner></p-progressSpinner>

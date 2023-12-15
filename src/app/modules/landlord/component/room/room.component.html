@@ -51,9 +51,9 @@
                         <td style="width:15%;">{{product.capacity}}</td>
                         <td style="width:15%;">{{product.price | currency: 'VND':'symbol'}}</td>
                         <td style="width:10%;">{{product.acreage}} m²</td>
-                        <td style="width:25%;" *ngIf="product.isRent; else isRent">Đã cho thuê</td>
+                        <td style="width:25%;" *ngIf="product.isRent; else isRent">Không sẵn sàng</td>
                         <ng-template #isRent>
-                            <td style="width:25%;">Chưa cho thuê</td>
+                            <td style="width:25%;">Sẵn sàng cho thuê</td>
                         </ng-template>
                         <td>
                             <div class="flex">
@@ -122,9 +122,9 @@
             </ng-template>
 
             <ng-template pTemplate="footer">
-                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text"
+                <button pButton pRipple label="Huỷ" icon="pi pi-times" class="p-button-text"
                     (click)="hideDialog()"></button>
-                <button pButton pRipple label="Save" [disabled]="roomForm.invalid" icon="pi pi-check"
+                <button pButton pRipple label="Lưu" [disabled]="roomForm.invalid" icon="pi pi-check"
                     class="p-button-text" (click)="saveRoom()"></button>
             </ng-template>
         </p-dialog>
@@ -137,9 +137,9 @@
                 <span *ngIf="room">Xác nhận xoá phòng <b>{{room.name}}</b>?</span>
             </div>
             <ng-template pTemplate="footer">
-                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No"
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="Không"
                     (click)="deleteProductDialog = false"></button>
-                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes"
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Có"
                     (click)="confirmDelete()"></button>
             </ng-template>
         </p-dialog>

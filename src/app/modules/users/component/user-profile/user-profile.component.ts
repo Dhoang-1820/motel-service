@@ -188,7 +188,7 @@ export class UserProfileComponent implements OnInit {
             .pipe(
                 finalize(() => {
                     this.saveLoading = false
-                    this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Chỉnh sửa thành công', life: 3000 })
+                    this.messageService.add({ severity: 'success', summary: 'Thành công', detail: 'Chỉnh sửa thành công', life: 3000 })
                 }),
             )
             .subscribe((data) => console.log(data))

@@ -5,6 +5,7 @@ import { AdminComponent } from './admin.component'
 import { AdminProfileComponent } from './components/admin-profile/admin-profile.component'
 import { PostListComponent } from './components/post-list/post-list.component'
 import { UserManagementComponent } from './components/user-management/user-management.component'
+import { NewRegisterComponent } from './components/new-register/new-register.component'
 
 const routes: Routes = [
     {
@@ -22,6 +23,7 @@ const routes: Routes = [
             { path: 'user-management', component: UserManagementComponent },
             { path: 'post-management', component: PostListComponent },
             { path: 'profile', component: AdminProfileComponent },
+            { path: 'new-register', component: NewRegisterComponent },
         ],
     },
 ]

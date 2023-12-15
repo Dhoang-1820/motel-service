@@ -203,7 +203,7 @@
                         </div>
                         <div class="field grid flex flex-column align-items-center" style="margin-top: 15px;">
                             <div class="user-name">
-                                {{this.userResult.firstname + ' ' + this.userResult.lastname}}
+                                {{this.userResult.firstName + ' ' + this.userResult.lastName}}
                             </div>
                             <div class="user-phone">
                                 {{this.userResult.phone}}
@@ -297,8 +297,8 @@
     </ng-template>
 
     <ng-template pTemplate="footer">
-        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="addBankDialog = false"></button>
-        <button pButton pRipple label="Save" [loading]="updateBankLoading" icon="pi pi-check" class="p-button-text" (click)="saveBank()"></button>
+        <button pButton pRipple label="Huỷ" icon="pi pi-times" class="p-button-text" (click)="addBankDialog = false"></button>
+        <button pButton pRipple label="Lưu" [loading]="updateBankLoading" icon="pi pi-check" class="p-button-text" (click)="saveBank()"></button>
     </ng-template>
 </p-dialog>
 <p-dialog [(visible)]="deleteBankDialog" header="Xác nhận xoá" [modal]="true" [style]="{width:'450px'}">
@@ -306,8 +306,8 @@
         <span>Xác nhận xoá tài khoản ngân hàng?</span>
     </div>
     <ng-template pTemplate="footer">
-        <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteBankDialog = false"></button>
-        <button pButton pRipple [loading]="deleteBankLoading" icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDeleteBank()"></button>
+        <button pButton pRipple icon="pi pi-times" class="p-button-text" label="Không" (click)="deleteBankDialog = false"></button>
+        <button pButton pRipple [loading]="deleteBankLoading" icon="pi pi-check" class="p-button-text" label="Có" (click)="confirmDeleteBank()"></button>
     </ng-template>
 </p-dialog>
 <!-- <div class="progress-spinner" *ngIf="loading">

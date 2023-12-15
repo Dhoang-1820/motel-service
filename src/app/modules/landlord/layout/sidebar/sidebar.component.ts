@@ -13,10 +13,10 @@ export class SidebarComponent implements OnInit {
 
     ngOnInit(): void {
         this.model = [
-            // {
-            //     label: 'Trang chủ',
-            //     items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/motel-management/dashboard'] }],
-            // },
+            {
+                label: 'Trang chủ',
+                items: [{ label: 'Thống kê', icon: 'pi pi-chart-line', routerLink: ['/motel-management/dashboard'] }],
+            },
             {
                 label: 'Hệ thống',
                 items: [

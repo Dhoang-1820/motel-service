@@ -114,14 +114,14 @@
                     </div>
                     <div class="field">
                         <label for="returnDate">Ngày trả phòng</label>
-                        <p-calendar appendTo="body" formControlName="returnDate" ></p-calendar>
+                        <p-calendar appendTo="body" dateFormat="dd/mm/yy" formControlName="returnDate" ></p-calendar>
                     </div>
                 </form>
             </ng-template>
 
             <ng-template pTemplate="footer">
-                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-                <button pButton pRipple label="Save" [disabled]="returnRoomForm.invalid" [loading]="issueLoading" loadingIcon="pi pi-spin pi-spinner" icon="pi pi-check" [disabled]="!isReturnRoomValid" class="p-button-text" (click)="saveBill()"></button>
+                <button pButton pRipple label="Huỷ" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+                <button pButton pRipple label="Lưu" [disabled]="returnRoomForm.invalid" [loading]="issueLoading" loadingIcon="pi pi-spin pi-spinner" icon="pi pi-check" [disabled]="!isReturnRoomValid" class="p-button-text" (click)="saveBill()"></button>
             </ng-template>
         </p-dialog>
 
@@ -289,7 +289,7 @@
             <ng-template pTemplate="footer">
                 <div class="flex justify-content-between">
                     <div class="">
-                        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="invoiceDialog = false"></button>
+                        <button pButton pRipple label="Huỷ" icon="pi pi-times" class="p-button-text" (click)="invoiceDialog = false"></button>
                     </div>
                     <div class="flex">
                         <button
@@ -298,18 +298,19 @@
                             pRipple
                             label="Xuất hoá đơn"
                             icon="pi pi-file-export"
+                            [disabled]="invoiceForm.invalid"
                             (click)="issueInvoice()"
                             class="p-button-text"
                         ></button>
                         <!-- [disabled]="invoice.isPay" -->
                         <button
-                            *ngIf="isEdit"
+                            *ngIf="!invoice.isPay && invoice.id"
                             pButton
                             pRipple
-                            label="Lưu"
-                            icon="pi pi-check"
+                            label="In hoá đơn"
+                            icon="pi pi-print"
                             class="p-button-text"
-                            (click)="updateInvoice()"
+                            (click)="printInvoice(invoice.id)"
                         ></button>
                     </div>
                 </div>

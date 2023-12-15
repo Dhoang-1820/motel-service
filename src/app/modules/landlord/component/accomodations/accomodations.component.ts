@@ -229,7 +229,7 @@ export class AccomodationsComponent implements OnInit {
         this.accomodationService.removeAccomodation(this.accomodation.id).pipe(
             finalize(() => {
                 this.deleteDialog = false
-                this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Xoá thành công', life: 3000 })
+                this.messageService.add({ severity: 'success', summary: 'Thành công', detail: 'Xoá thành công', life: 3000 })
                 this.accomodation = {}
             })
         ).subscribe()
@@ -274,7 +274,7 @@ export class AccomodationsComponent implements OnInit {
                 .pipe(
                     finalize(() => {
                         this.submitted = false
-                        this.messageService.add({ severity: 'success', summary: 'Successful', detail: message, life: 3000 })
+                        this.messageService.add({ severity: 'success', summary: 'Thành công', detail: message, life: 3000 })
                         this.dataLoading = false
                     }),
                 )

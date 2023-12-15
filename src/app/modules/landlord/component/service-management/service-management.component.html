@@ -88,8 +88,8 @@
             </ng-template>
 
             <ng-template pTemplate="footer">
-                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-                <button pButton pRipple label="Save" icon="pi pi-check" [disabled]="isValidating || serviceForm.invalid" class="p-button-text" (click)="saveService()"></button>
+                <button pButton pRipple label="Huỷ" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+                <button pButton pRipple label="Lưu" icon="pi pi-check" [disabled]="isValidating || serviceForm.invalid" class="p-button-text" (click)="saveService()"></button>
             </ng-template>
         </p-dialog>
 
@@ -99,8 +99,8 @@
                 <span>Xác nhận xoá {{service.name}}</span>
             </div>
             <ng-template pTemplate="footer">
-                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteDialog = false"></button>
-                <button pButton pRipple icon="pi pi-check" [loading]="deleteLoading" class="p-button-text" label="Yes" (click)="confirmDelete()"></button>
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="Không" (click)="deleteDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" [loading]="deleteLoading" class="p-button-text" label="Có" (click)="confirmDelete()"></button>
             </ng-template>
         </p-dialog>
     </div>

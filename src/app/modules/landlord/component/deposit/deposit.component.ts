@@ -445,14 +445,23 @@ export class DepositComponent implements OnInit {
                 finalize(() => {
                     this.getTenantByAccomodation().pipe(
                         finalize(() => {
-                            this.messageService.add({ severity: 'success', summary: 'Successful', detail: message, life: 3000 })
+                            this.messageService.add({ severity: 'success', summary: 'Thành công', detail: message, life: 3000 })
                             this.loading = false
+                            this.tenantDialog = false
                             this.tenantsDisplayed = JSON.parse(JSON.stringify(this.tenants))
+                            this.tenantsDisplayed = this.tenantsDisplayed.filter(item => !this.isIncludeTenant(item))
+                            console.log('this.selectedTenants', this.selectedTenants)
+                            console.log('this.deposit', this.selectedTenants)
                         })
                     ).subscribe(response => this.tenants = response.data)
                 }),
             )
             .subscribe((data) => console.log(data))
+    }
+
+    isIncludeTenant(tenant: Tenant) {
+        const tenantFound = this.selectedTenants.find((item: any) => item.id === tenant.id)
+        return !!tenantFound
     }
 
     checkDuplicatedTenant() {
@@ -709,7 +718,8 @@ export class DepositComponent implements OnInit {
         this.depositService.cancelDeposit(request).pipe(
             finalize(() => {
                 this.loading = false
-                this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Huỷ đặt cọc thành công', life: 3000 })
+                this.messageService.add({ severity: 'success', summary: 'Thành công', detail: 'Huỷ đặt cọc thành công', life: 3000 })
+                this.initData()
             })
         ).subscribe()
     }
@@ -846,7 +856,7 @@ export class DepositComponent implements OnInit {
                 .saveDeposit(this.deposit)
                 .pipe(
                     finalize(() => {
-                        this.messageService.add({ severity: 'success', summary: 'Successful', detail: message, life: 3000 })
+                        this.messageService.add({ severity: 'success', summary: 'Thành công', detail: message, life: 3000 })
                         this.initData()
                     }),
                 )

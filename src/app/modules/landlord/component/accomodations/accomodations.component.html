@@ -115,8 +115,8 @@
             </ng-template>
 
             <ng-template pTemplate="footer">
-                <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-                <button pButton pRipple label="Save" [disabled]="accomodationForm.invalid" icon="pi pi-check" class="p-button-text" (click)="saveAccomodation()"></button>
+                <button pButton pRipple label="Huỷ" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+                <button pButton pRipple label="Lưu" [disabled]="accomodationForm.invalid" icon="pi pi-check" class="p-button-text" (click)="saveAccomodation()"></button>
             </ng-template>
         </p-dialog>
 
@@ -128,8 +128,8 @@
                     Bạn có chắc chắn muốn xoá <b>{{accomodation.name}}</b>? </span>
             </div>
             <ng-template pTemplate="footer">
-                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="No" (click)="deleteDialog = false"></button>
-                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Yes" (click)="confirmDelete()"></button>
+                <button pButton pRipple icon="pi pi-times" class="p-button-text" label="Không" (click)="deleteDialog = false"></button>
+                <button pButton pRipple icon="pi pi-check" class="p-button-text" label="Có" (click)="confirmDelete()"></button>
             </ng-template>
         </p-dialog>
     </div>

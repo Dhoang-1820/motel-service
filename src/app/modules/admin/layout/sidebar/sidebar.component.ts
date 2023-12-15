@@ -20,6 +20,7 @@ export class SidebarComponent implements OnInit {
                     { label: 'Thông tin cá nhân', icon: 'pi pi-user', routerLink: ['/administration/profile'] },
                     { label: 'Quản lý người dùng', icon: 'pi pi-fw pi-users', routerLink: ['/administration/user-management'] },
                     { label: 'Quản lý tin đăng', icon: 'pi pi-fw pi-desktop', routerLink: ['/administration/post-management'] },
+                    { label: 'Đăng ký mới', icon: 'pi pi-bell', routerLink: ['/administration/new-register'] },
                 ],
             },
         ]
